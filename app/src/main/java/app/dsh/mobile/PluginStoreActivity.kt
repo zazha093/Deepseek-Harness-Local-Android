@@ -631,9 +631,10 @@ class PluginStoreActivity : ThemedActivity() {
             if (cached != null) {
                 runOnUiThread {
                     if (isFinishing || isDestroyed) return@runOnUiThread
-                    val currentMsg = dialog.getMessage() ?: ""
+                    val currentMsg = shownMsg
                     if (!currentMsg.contains(cached)) {
-                        dialog.setMessage(currentMsg + "\n\n---\n" + getString(R.string.plugin_translated_to_thai) + ":\n" + cached)
+                        shownMsg = currentMsg + "\n\n---\n" + getString(R.string.plugin_translated_to_thai) + ":\n" + cached
+                        dialog.setMessage(shownMsg)
                     }
                     translateBtn.isEnabled = true
                     translateBtn.text = getString(R.string.plugin_translate_thai)
@@ -648,14 +649,16 @@ class PluginStoreActivity : ThemedActivity() {
                     if (isFinishing || isDestroyed) return@runOnUiThread
                     if (translated != null) {
                         TranslationCache.put(this@PluginStoreActivity, e.pkg, originalDesc, translated)
-                        val currentMsg = dialog.getMessage() ?: ""
+                        val currentMsg = shownMsg
                         if (!currentMsg.contains(translated)) {
-                            dialog.setMessage(currentMsg + "\n\n---\n" + getString(R.string.plugin_translated_to_thai) + ":\n" + translated)
+                            shownMsg = currentMsg + "\n\n---\n" + getString(R.string.plugin_translated_to_thai) + ":\n" + translated
+                            dialog.setMessage(shownMsg)
                         }
                     } else {
-                        val currentMsg = dialog.getMessage() ?: ""
+                        val currentMsg = shownMsg
                         if (!currentMsg.contains(getString(R.string.plugin_translate_failed))) {
-                            dialog.setMessage(currentMsg + "\n\n" + getString(R.string.plugin_translate_failed))
+                            shownMsg = currentMsg + "\n\n" + getString(R.string.plugin_translate_failed)
+                            dialog.setMessage(shownMsg)
                         }
                     }
                     translateBtn.isEnabled = true
