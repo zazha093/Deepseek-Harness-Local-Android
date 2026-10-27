@@ -631,7 +631,7 @@ class PluginStoreActivity : ThemedActivity() {
             if (cached != null) {
                 runOnUiThread {
                     if (isFinishing || isDestroyed) return@runOnUiThread
-                    val currentMsg = dialog.message ?: ""
+                    val currentMsg = dialog.getMessage() ?: ""
                     if (!currentMsg.contains(cached)) {
                         dialog.setMessage(currentMsg + "\n\n---\n" + getString(R.string.plugin_translated_to_thai) + ":\n" + cached)
                     }
@@ -648,12 +648,12 @@ class PluginStoreActivity : ThemedActivity() {
                     if (isFinishing || isDestroyed) return@runOnUiThread
                     if (translated != null) {
                         TranslationCache.put(this@PluginStoreActivity, e.pkg, originalDesc, translated)
-                        val currentMsg = dialog.message ?: ""
+                        val currentMsg = dialog.getMessage() ?: ""
                         if (!currentMsg.contains(translated)) {
                             dialog.setMessage(currentMsg + "\n\n---\n" + getString(R.string.plugin_translated_to_thai) + ":\n" + translated)
                         }
                     } else {
-                        val currentMsg = dialog.message ?: ""
+                        val currentMsg = dialog.getMessage() ?: ""
                         if (!currentMsg.contains(getString(R.string.plugin_translate_failed))) {
                             dialog.setMessage(currentMsg + "\n\n" + getString(R.string.plugin_translate_failed))
                         }
