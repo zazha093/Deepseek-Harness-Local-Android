@@ -66,7 +66,7 @@ jobs:
           )
           # 不传 -PhardsshDir，让 Gradle 回退到 src/main/assets/hardssh（不存在则仅警告，不阻断）。
           # 这样避免空目录触发文件存在性检查失败。
-          gradle -p . assembleDebug "${ARGS[@]}" 2>&1 | tee build-${{ matrix.abi }}-noruntime.log
+          gradle -p . assembleDebug "${ARGS[@]}" --stacktrace 2>&1 | tee build-${{ matrix.abi }}-noruntime.log
 
       - name: Gradle-Log hochladen + 失败摘要
         if: failure()
