@@ -17,6 +17,7 @@ import app.dsh.mobile.engine.PluginKillSwitch
 import app.dsh.mobile.engine.PluginMarket
 import app.dsh.mobile.engine.PluginMarket.Compat
 import app.dsh.mobile.engine.PluginMarket.Entry
+import app.dsh.mobile.engine.TranslationCache
 
 /**
  * 插件中心（v1.4.21 重写）。
@@ -571,6 +572,7 @@ class PluginStoreActivity : ThemedActivity() {
             .setMessage(body.toString().trim())
             .setPositiveButton(android.R.string.ok, null)
             .setNeutralButton(R.string.plugin_detail_compat, null)
+            .setNegativeButton(R.string.plugin_translate_thai, null)
             .create()
 
         dialog.setOnShowListener {
@@ -609,7 +611,53 @@ class PluginStoreActivity : ThemedActivity() {
                 }
             }
         }
+
         dialog.show()
+
+        // 负按钮：翻译成泰语（在 show() 之后设置 listener，防止 AlertDialog 自动 dismiss）
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener {
+            val translateBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+            translateBtn.isEnabled = false
+            translateBtn.text = getString(R.string.plugin_translating)
+
+            // 检查缓存
+            val originalDesc = e.desc.ifBlank { e.descEn }
+            val cached = TranslationCache.get(this@PluginStoreActivity, e.pkg, originalDesc)
+            if (cached != null) {
+                runOnUiThread {
+                    if (isFinishing || isDestroyed) return@runOnUiThread
+                    val currentMsg = dialog.message ?: ""
+                    if (!currentMsg.contains(cached)) {
+                        dialog.setMessage(currentMsg + "\n\n---\n" + getString(R.string.plugin_translated_to_thai) + ":\n" + cached)
+                    }
+                    translateBtn.isEnabled = true
+                    translateBtn.text = getString(R.string.plugin_translate_thai)
+                }
+                return@setOnClickListener
+            }
+
+            // 后台翻译
+            Thread {
+                val translated = PluginMarket.translateToThai(originalDesc)
+                runOnUiThread {
+                    if (isFinishing || isDestroyed) return@runOnUiThread
+                    if (translated != null) {
+                        TranslationCache.put(this@PluginStoreActivity, e.pkg, originalDesc, translated)
+                        val currentMsg = dialog.message ?: ""
+                        if (!currentMsg.contains(translated)) {
+                            dialog.setMessage(currentMsg + "\n\n---\n" + getString(R.string.plugin_translated_to_thai) + ":\n" + translated)
+                        }
+                    } else {
+                        val currentMsg = dialog.message ?: ""
+                        if (!currentMsg.contains(getString(R.string.plugin_translate_failed))) {
+                            dialog.setMessage(currentMsg + "\n\n" + getString(R.string.plugin_translate_failed))
+                        }
+                    }
+                    translateBtn.isEnabled = true
+                    translateBtn.text = getString(R.string.plugin_translate_thai)
+                }
+            }.start()
+        }
     }
 
     // ───────────────────────────────────────────────────────────────────

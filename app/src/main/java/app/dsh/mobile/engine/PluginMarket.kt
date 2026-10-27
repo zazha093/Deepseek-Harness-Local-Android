@@ -482,6 +482,38 @@ object PluginMarket {
         }
     }
 
+    /**
+     * Translate text to Thai using Google Translate API (free, no key required).
+     * Uses the same HttpURLConnection pattern as [httpGet].
+     * Must be called from a background thread (not UI thread).
+     *
+     * @param text Text to translate (auto-detect source language)
+     * @return Translated text in Thai, or null if translation failed
+     */
+    fun translateToThai(text: String): String? {
+        if (text.isBlank()) return null
+        val encoded = URLEncoder.encode(text, "UTF-8")
+        val url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=th&dt=t&q=$encoded"
+        return try {
+            val response = httpGet(url)
+            // Response format: [[["translated","original",...],...],"srcLang",...]
+            val jsonArray = JSONArray(response)
+            val firstArray = jsonArray.getJSONArray(0)
+            val translated = StringBuilder()
+            for (i in 0 until firstArray.length()) {
+                val segment = firstArray.getJSONArray(i)
+                if (segment.length() > 0) {
+                    translated.append(segment.getString(0))
+                }
+            }
+            val result = translated.toString()
+            if (result.isBlank()) null else result
+        } catch (e: Exception) {
+            Log.w(TAG, "Translation failed: ${e.message}")
+            null
+        }
+    }
+
     private fun parseIso(s: String): Long = runCatching {
         if (s.isBlank()) 0L
         else java.time.Instant.parse(s).toEpochMilli()

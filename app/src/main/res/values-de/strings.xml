@@ -228,6 +228,10 @@
     <string name="plugin_upgrading">Aktualisiere…</string>
     <string name="plugin_failed">Fehlgeschlagen: %1$s</string>
     <string name="plugin_checking">Wird geprüft…</string>
+    <string name="plugin_translate_thai">Translate to Thai</string>
+    <string name="plugin_translating">Translating…</string>
+    <string name="plugin_translated_to_thai">Translated to Thai</string>
+    <string name="plugin_translate_failed">Translation failed</string>
     <string name="plugin_native_title">Dieses Plugin benötigt nativen Code</string>
     <string name="plugin_native_body">Es deklariert Build-Schritte oder native Module:
 
