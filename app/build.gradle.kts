@@ -217,6 +217,13 @@ android {
                 enableV3Signing = true
             }
         }
+        // Fork debug keystore (fixed key for stable updates across builds)
+        create("debug") {
+            storeFile = file("fork-debug.keystore")
+            storePassword = "android"
+            keyAlias = "fork-debug"
+            keyPassword = "android"
+        }
     }
 
     buildTypes {
@@ -226,6 +233,9 @@ android {
             if (releaseSigningReady) {
                 signingConfig = signingConfigs.getByName("release")
             }
+        }
+        debug {
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
