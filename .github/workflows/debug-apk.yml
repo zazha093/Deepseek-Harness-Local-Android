@@ -1,11 +1,11 @@
 name: debug-apk
 
-# 手动触发的 debug 包构建（noruntime 形态，不签名，快速验证代码能跑）
-# 对标 android-build.yml 的 build-apk job (noruntime 矩阵)，但去掉：
+# 手动触发的 debug 包构建（full 形态，嵌入 runtime.zip，可直接安装运行）
+# 对标 android-build.yml 的 build-apk job (full 矩阵)，但去掉：
 #   - release 签名材料 / publish 流程 / 16KB 校验 / runtime 架构校验
 #   - preview/edge/release/monitor 等发布 job
-# 仅保留：checkout → setup JDK 17 → setup Gradle 8.9 → gradle assembleDebug -Ppackage=noruntime
-# 产物：upload-artifact debug APK（两架构各一个）
+# 仅保留：checkout → setup JDK 17 → setup Gradle 8.9 → build-runtime.sh → gradle assembleDebug -Ppackage=full -PruntimeZip=...
+# 产物：upload-artifact debug APK（arm64-v8a 一个）
 
 on:
   workflow_dispatch:
@@ -54,7 +54,14 @@ jobs:
         with:
           gradle-version: "8.9"
 
-      - name: 构建 debug APK (noruntime)
+      - name: 构建 runtime.zip (arm64-v8a)
+        run: |
+          set -euo pipefail
+          chmod +x scripts/build-runtime.sh
+          ./scripts/build-runtime.sh --abi arm64-v8a --out runtime.zip
+          echo "runtime.zip built: $(ls -lh runtime.zip)"
+
+      - name: 构建 debug APK (full, embedded runtime)
         env:
           # 显式告诉 gradle 不要 release 签名
           DSH_RELEASE_STORE_PASSWORD: ""
@@ -62,17 +69,17 @@ jobs:
           set -o pipefail
           ARGS=(
             -Pabi=${{ matrix.abi }}
-            -Ppackage=noruntime
+            -Ppackage=full
+            -PruntimeZip="${{ github.workspace }}/runtime.zip"
           )
           # 不传 -PhardsshDir，让 Gradle 回退到 src/main/assets/hardssh（不存在则仅警告，不阻断）。
-          # 这样避免空目录触发文件存在性检查失败。
-          gradle -p . assembleDebug "${ARGS[@]}" --stacktrace 2>&1 | tee build-${{ matrix.abi }}-noruntime.log
+          gradle -p . assembleDebug "${ARGS[@]}" --stacktrace 2>&1 | tee build-${{ matrix.abi }}-full.log
 
       - name: Gradle-Log hochladen + 失败摘要
         if: failure()
         run: |
           # 提取关键错误信息到 Step Summary
-          for f in build-*-noruntime.log; do
+          for f in build-*-full.log; do
             if [ -f "$f" ]; then
               echo "## Gradle Build Failure Summary ($f)" >> "$GITHUB_STEP_SUMMARY"
               grep -nE -A8 "What went wrong|^e: |Caused by:" "$f" | head -80 >> "$GITHUB_STEP_SUMMARY"
@@ -85,7 +92,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: gradle-log-${{ matrix.abi }}-noruntime
+          name: gradle-log-${{ matrix.abi }}-full
           path: build*.log
           retention-days: 3
 
@@ -100,13 +107,13 @@ jobs:
           else
             BASE="dsh-android-${REF}-${{ matrix.abi }}-v${V}"
           fi
-          BASE="${BASE}-noruntime"
+          BASE="${BASE}-full"
           cp app/build/outputs/apk/debug/app-debug.apk "dist/${BASE}-debug.apk"
           echo "APK_PATH=dist/${BASE}-debug.apk" >> "$GITHUB_ENV"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: dsh-android-debug-${{ matrix.abi }}-noruntime
+          name: dsh-android-debug-${{ matrix.abi }}-full
           path: dist/*.apk
           retention-days: 3
 
