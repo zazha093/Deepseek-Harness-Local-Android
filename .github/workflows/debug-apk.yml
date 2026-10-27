@@ -63,16 +63,23 @@ jobs:
           ARGS=(
             -Pabi=${{ matrix.abi }}
             -Ppackage=noruntime
-            -PhardsshDir="${{ github.workspace }}/hardssh-dist/hardssh"
           )
-          # hardssh-dist 只有在 android-build.yml 全流程跑时才有；
-          # 这里用 noruntime 形态，不需要 runtimeZip，但 hardsshDir 仍是必填。
-          # 若没有 hardssh-dist（standalone 运行），改用内置的占位目录或跳过。
-          if [ ! -d "${{ github.workspace }}/hardssh-dist/hardssh" ]; then
-            echo "::warning::hardssh-dist 不存在，使用空目录占位（noruntime 不依赖它）"
-            mkdir -p "${{ github.workspace }}/hardssh-dist/hardssh"
-          fi
-          gradle -p . assembleDebug "${ARGS[@]}" --stacktrace 2>&1 | tee build-${{ matrix.abi }}-noruntime.log
+          # 不传 -PhardsshDir，让 Gradle 回退到 src/main/assets/hardssh（不存在则仅警告，不阻断）。
+          # 这样避免空目录触发文件存在性检查失败。
+          gradle -p . assembleDebug "${ARGS[@]}" 2>&1 | tee build-${{ matrix.abi }}-noruntime.log
+
+      - name: Gradle-Log hochladen + 失败摘要
+        if: failure()
+        run: |
+          # 提取关键错误信息到 Step Summary
+          for f in build-*-noruntime.log; do
+            if [ -f "$f" ]; then
+              echo "## Gradle Build Failure Summary ($f)" >> "$GITHUB_STEP_SUMMARY"
+              grep -nE -A8 "What went wrong|^e: |Caused by:" "$f" | head -80 >> "$GITHUB_STEP_SUMMARY"
+              echo "" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+        shell: bash
 
       - name: Gradle-Log hochladen（Fehlerfall）
         if: failure()
