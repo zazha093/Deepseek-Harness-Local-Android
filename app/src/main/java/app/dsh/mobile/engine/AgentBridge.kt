@@ -20,7 +20,7 @@ import java.net.Socket
 import java.nio.charset.StandardCharsets
 
 /**
- * Agent 能力桥（m1.37/v1.1.0）：监听 127.0.0.1:3083，把「通知 / 读屏 / 点击」暴露给引擎内 Agent。
+ * Agent 能力桥（m1.37/v1.1.0）：监听 127.0.0.1:13083，把「通知 / 读屏 / 点击」暴露给引擎内 Agent。
  *
  * 与 ShizukuHttpBridge 同构（原生 ServerSocket 环回 HTTP），但【不依赖任何特权模式】——
  * 通知是无障碍是 App 自身能力，普通模式即可用。
@@ -40,7 +40,7 @@ import java.nio.charset.StandardCharsets
 object AgentBridge {
 
     private const val TAG = "AgentBridge"
-    const val PORT = 3083
+    const val PORT = 13083
     private const val CHANNEL_ID = "agent_notify"
 
     @Volatile private var server: ServerSocket? = null
@@ -105,7 +105,7 @@ object AgentBridge {
      * 桥访问 token（v1.2.99）。
      *
      * ## 为什么需要
-     * 桥监听 `127.0.0.1:3083`，把读屏 / 点击 / 通知 / 手势等能力暴露成 HTTP。
+     * 桥监听 `127.0.0.1:13083`，把读屏 / 点击 / 通知 / 手势等能力暴露成 HTTP。
      * 未鉴权时，**同设备上任何 App** 都能直接调用 —— 等于把无障碍能力借给第三方。
      * 加 token 门控后，只有拿到 token 的引擎内 Agent 能调。
      *
@@ -170,7 +170,7 @@ object AgentBridge {
             // 旧实现只打一行 Log.w，于是「notify / scr / say 全哑」在现场被反复
             // 误判成「无障碍没开 / 桥没就绪」，真因（端口被占）谁也看不见。
             // 现在把占用者一并查出来 —— 典型元凶是继承了桥 listen socket 的历史
-            // 孤儿（3083 无 O_CLOEXEC，见 OrphanReaper 顶部说明），并主动告知用户。
+            // 孤儿（13083 无 O_CLOEXEC，见 OrphanReaper 顶部说明），并主动告知用户。
             val holder = portHolder()
             Log.e(
                 TAG,
@@ -325,7 +325,7 @@ object AgentBridge {
                 val body = if (n > 0) String(bodyBytes, 0, n, StandardCharsets.UTF_8) else ""
 
                 // 桥鉴权（v1.2.99）：只允许携带本机 token 的请求。
-                // 为什么需要：桥监听 127.0.0.1:3083，**同设备上任何 App 都能访问** ——
+                // 为什么需要：桥监听 127.0.0.1:13083，**同设备上任何 App 都能访问** ——
                 // 未鉴权时第三方应用可以直接读屏、点击、发通知（等于把无障碍能力
                 // 借给任意 App）。token 每次启动随机生成、只写进引擎环境变量，
                 // 因此只有引擎内的 Agent 拿得到。
@@ -1180,12 +1180,12 @@ document.getElementById('api').textContent = checks.map(function(c){
      *
      * 这是「WebUI 被插件搞坏、界面点不动」时的无 UI 逃生门：
      * ```
-     * adb forward tcp:3083 tcp:3083
-     * curl -s 'http://127.0.0.1:3083/plugin/killswitch'                      # 查状态
-     * curl -s -X POST -d '{"action":"disable"}' http://127.0.0.1:3083/plugin/killswitch
-     * curl -s -X POST -d '{"action":"enable"}'  http://127.0.0.1:3083/plugin/killswitch
-     * curl -s -X POST -d '{"action":"enable-one","package":"@x/foo"}' http://127.0.0.1:3083/plugin/killswitch
-     * curl -s -X POST -d '{"action":"disable-one","package":"@x/foo"}' http://127.0.0.1:3083/plugin/killswitch
+     * adb forward tcp:13083 tcp:13083
+     * curl -s 'http://127.0.0.1:13083/plugin/killswitch'                      # 查状态
+     * curl -s -X POST -d '{"action":"disable"}' http://127.0.0.1:13083/plugin/killswitch
+     * curl -s -X POST -d '{"action":"enable"}'  http://127.0.0.1:13083/plugin/killswitch
+     * curl -s -X POST -d '{"action":"enable-one","package":"@x/foo"}' http://127.0.0.1:13083/plugin/killswitch
+     * curl -s -X POST -d '{"action":"disable-one","package":"@x/foo"}' http://127.0.0.1:13083/plugin/killswitch
      * ```
      * 只写意图日志并重启引擎；真正的 bundle 列表改写发生在下次 spawn 前
      * （[PluginKillSwitch.enforceBeforeBoot]），所以这里不会和运行中的引擎抢文件。

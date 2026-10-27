@@ -1,0 +1,105 @@
+name: debug-apk
+
+# 手动触发的 debug 包构建（noruntime 形态，不签名，快速验证代码能跑）
+# 对标 android-build.yml 的 build-apk job (noruntime 矩阵)，但去掉：
+#   - release 签名材料 / publish 流程 / 16KB 校验 / runtime 架构校验
+#   - preview/edge/release/monitor 等发布 job
+# 仅保留：checkout → setup JDK 17 → setup Gradle 8.9 → gradle assembleDebug -Ppackage=noruntime
+# 产物：upload-artifact debug APK（两架构各一个）
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["feat/translate-plugin-desc"]
+
+env:
+  TZ: Asia/Shanghai
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-debug-apk:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - termux_arch: aarch64
+            abi: arm64-v8a
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 释放磁盘并报告可用空间
+        run: |
+          echo "--- before ---"
+          df -h / | tail -1
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk/ndk /opt/ghc /usr/local/share/boost "$AGENT_TOOLSDIRECTORY" || true
+          sudo apt-get clean || true
+          echo "--- after ---"
+          df -h / | tail -1
+          free -m | head -2
+
+      - name: 安装 JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: 构建 debug APK (noruntime)
+        env:
+          # 显式告诉 gradle 不要 release 签名
+          DSH_RELEASE_STORE_PASSWORD: ""
+        run: |
+          set -o pipefail
+          ARGS=(
+            -Pabi=${{ matrix.abi }}
+            -Ppackage=noruntime
+            -PhardsshDir="${{ github.workspace }}/hardssh-dist/hardssh"
+          )
+          # hardssh-dist 只有在 android-build.yml 全流程跑时才有；
+          # 这里用 noruntime 形态，不需要 runtimeZip，但 hardsshDir 仍是必填。
+          # 若没有 hardssh-dist（standalone 运行），改用内置的占位目录或跳过。
+          if [ ! -d "${{ github.workspace }}/hardssh-dist/hardssh" ]; then
+            echo "::warning::hardssh-dist 不存在，使用空目录占位（noruntime 不依赖它）"
+            mkdir -p "${{ github.workspace }}/hardssh-dist/hardssh"
+          fi
+          gradle -p . assembleDebug "${ARGS[@]}" --stacktrace 2>&1 | tee build-${{ matrix.abi }}-noruntime.log
+
+      - name: Gradle-Log hochladen（Fehlerfall）
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-log-${{ matrix.abi }}-noruntime
+          path: build*.log
+          retention-days: 3
+
+      - name: 重命名并上传 debug APK
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          V=$(grep -oP 'versionName\s*=\s*"\K[^"]+' app/build.gradle.kts | head -1)
+          REF="${GITHUB_REF_NAME//\//-}"
+          if [ "$REF" = "v$V" ]; then
+            BASE="dsh-android-${REF}-${{ matrix.abi }}"
+          else
+            BASE="dsh-android-${REF}-${{ matrix.abi }}-v${V}"
+          fi
+          BASE="${BASE}-noruntime"
+          cp app/build/outputs/apk/debug/app-debug.apk "dist/${BASE}-debug.apk"
+          echo "APK_PATH=dist/${BASE}-debug.apk" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dsh-android-debug-${{ matrix.abi }}-noruntime
+          path: dist/*.apk
+          retention-days: 3
+

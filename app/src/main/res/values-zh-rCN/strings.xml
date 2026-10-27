@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DSH Mobile</string>
+    <string name="app_name">DSH Thai</string>
     <string name="notif_channel_engine">Agent 引擎</string>
     <string name="notif_channel_engine_desc">DeepSeek Harness 本地引擎运行状态</string>
     <string name="notif_title">DSH 引擎运行中</string>
@@ -8,7 +8,7 @@
     <string name="status_exiting">正在退出…</string>
     <string name="status_installing">正在安装运行时…</string>
     <string name="status_starting">正在启动引擎…</string>
-    <string name="status_healthy">引擎已就绪 · http://127.0.0.1:3080</string>
+    <string name="status_healthy">引擎已就绪 · http://127.0.0.1:13080</string>
     <string name="status_plugin_recovered">已恢复：已停用故障插件 %1$s · 引擎已就绪</string>
     <string name="status_safe_mode">安全模式：插件配置已隔离归档，引擎以空配置运行（工作区与会话不受影响）</string>
     <string name="status_backoff">进程异常退出，%1$d 秒后自动重启（第 %2$d 次）</string>
@@ -310,7 +310,7 @@
 
     <!-- 关于页 -->
     <string name="about_title">关于</string>
-    <string name="about_app_name">DSH Mobile</string>
+    <string name="about_app_name">DSH Thai</string>
     <string name="about_version">版本 %1$s</string>
     <string name="about_intro">DSH Mobile 是 DeepSeek Harness（DSH）的 Android 本地引擎壳：在手机沙箱内运行完整的 Node.js Agent 引擎，无需任何服务器，数据全程不出设备。</string>
     <string name="about_based">基于 DeepSeek 2026-08 开源的 DeepSeek Harness (dsh) Agent 框架构建</string>

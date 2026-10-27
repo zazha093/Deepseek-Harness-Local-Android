@@ -21,7 +21,7 @@ import java.nio.file.Files
  */
 object EngineConfig {
 
-    const val DEFAULT_PORT = 3080
+    const val DEFAULT_PORT = 13080
     const val HEALTH_TIMEOUT_MS = 45_000L
     const val HEALTH_INTERVAL_MS = 500L
 
@@ -1145,7 +1145,7 @@ object EngineConfig {
             |  disabled: false
             |  config:
             |    host: !!js ctx.webStartup.host ?? '127.0.0.1'
-            |    port: !!js ctx.webStartup.port ?? 3080
+            |    port: !!js ctx.webStartup.port ?? 13080
             |    compression: gzip
             |    compressionLevel: 1
             |    compressionThresholdBytes: 1024
@@ -1352,7 +1352,7 @@ object EngineConfig {
         // 其他模式删除，AI 调 shz 将无命令。
         applyShzGate(root, privMode, port)
         // v1.1.0：notify/scr 包装器（所有模式可用——通知与无障碍是 App 自身能力，
-        // 经 AgentBridge 127.0.0.1:3083 转发）。
+        // 经 AgentBridge 127.0.0.1:13083 转发）。
         applyAgentGates(ctx, root)
         // v1.2.0 扩展环境：已激活扩展的 bin/lib 并入 PATH/LD_LIBRARY_PATH
         // （顺序：engine 自带 → 扩展 → 系统，保证 su/notify/scr 闸门优先级不被扩展覆盖）
@@ -1589,7 +1589,7 @@ object EngineConfig {
 
     /**
      * Agent 能力包装器（v1.1.0）：notify / scr，全模式注入。
-     * 二者都是 node fetch 到 AgentBridge (127.0.0.1:3083) 的薄包装：
+     * 二者都是 node fetch 到 AgentBridge (127.0.0.1:13083) 的薄包装：
      *  - notify [message]        → POST /notify（任务完成系统通知；AGENTS.md 约定任务完成必调）
      *  - scr dump                → GET  /screen（读屏：可见文本+坐标 JSON）
      *  - scr tap <x> <y>         → POST /tap 坐标点击
@@ -1676,7 +1676,7 @@ object EngineConfig {
             if (broken.isNotEmpty()) {
                 Log.w(TAG, "agent gates BROKEN: ${broken.joinToString("; ")}")
             } else {
-                Log.i(TAG, "agent gates: notify/scr/say/_dsh_http.sh deployed (bridge :3083)")
+                Log.i(TAG, "agent gates: notify/scr/say/_dsh_http.sh deployed (bridge :13083)")
             }
 
             // ── Android 编译桩 jar 预置（v1.2.107）────────────────────────────

@@ -567,9 +567,12 @@ class PluginStoreActivity : ThemedActivity() {
         if (e.repo.isNotBlank()) body.append(getString(R.string.plugin_detail_repo))
             .append(": ").append(e.repo).append('\n')
 
+        // ใช้ตัวแปร shownMsg แทน dialog.message (AlertDialog ไม่มี getter message)
+        var shownMsg = body.toString().trim()
+
         val dialog = AlertDialog.Builder(this)
             .setTitle(e.name)
-            .setMessage(body.toString().trim())
+            .setMessage(shownMsg)
             .setPositiveButton(android.R.string.ok, null)
             .setNeutralButton(R.string.plugin_detail_compat, null)
             .setNegativeButton(R.string.plugin_translate_thai, null)
@@ -578,7 +581,8 @@ class PluginStoreActivity : ThemedActivity() {
         dialog.setOnShowListener {
             // 中性按钮：拉完整 manifest（体积/仓库/全部版本）+ 兼容性判断依据
             dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                dialog.setMessage(getString(R.string.plugin_loading_detail))
+                shownMsg = getString(R.string.plugin_loading_detail)
+                dialog.setMessage(shownMsg)
                 PluginMarket.detail(e.pkg) { full, err ->
                     runOnUiThread {
                         if (isFinishing || isDestroyed) return@runOnUiThread
@@ -605,7 +609,8 @@ class PluginStoreActivity : ThemedActivity() {
                             merged.compatReasons.forEach { sb.append("• ").append(it).append('\n') }
                         }
                         if (err != null) sb.append("\n(").append(err).append(')')
-                        dialog.setMessage(sb.toString().trim())
+                        shownMsg = sb.toString().trim()
+                        dialog.setMessage(shownMsg)
                         dialog.getButton(AlertDialog.BUTTON_NEUTRAL).isEnabled = false
                     }
                 }

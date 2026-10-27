@@ -167,7 +167,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "app.dsh.mobile"
+        applicationId = "app.dsh.mobile.th"
         minSdk = 26
         // 关键决策：targetSdk 28 —— sideload 分发，豁免 Android 10+ 的 W^X 限制，
         // 允许从 filesDir 直接 execve bionic 二进制（Termux 同款策略）。
@@ -184,6 +184,10 @@ android {
                 arguments += "-DANDROID_STL=none"
             }
         }
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     externalNativeBuild {

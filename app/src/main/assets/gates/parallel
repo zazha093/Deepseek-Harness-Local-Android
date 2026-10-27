@@ -30,7 +30,7 @@ fi
 DIR=$(cd "$(dirname "$0")" && pwd)
 . "$DIR/_dsh_http.sh"
 
-DSH_HOME="${DSH_HOME:-/data/user/0/app.dsh.mobile/files/dsh-home}"
+DSH_HOME="${DSH_HOME:-/data/user/0/app.dsh.mobile.th/files/dsh-home}"
 TASKS="$DSH_HOME/tasks"
 QUEUE="$TASKS/queue"
 DAEMON="$DSH_HOME/tools/planner-daemon.mjs"

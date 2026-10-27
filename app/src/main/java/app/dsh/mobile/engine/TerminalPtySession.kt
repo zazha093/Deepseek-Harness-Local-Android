@@ -49,7 +49,7 @@ class TerminalPtySession private constructor() : TerminalSessionClient {
         /**
          * 起一个会话。
          *
-         * @param port 引擎当前端口（用于 [EngineConfig.buildEnv]；未就绪时用默认 3080）
+         * @param port 引擎当前端口（用于 [EngineConfig.buildEnv]；未就绪时用默认 13080）
          * @param cols 列数，@param rows 行数 —— 必须是按控件实测字宽算出来的。
          */
         fun start(ctx: Context, port: Int, cols: Int, rows: Int, listener: Listener?): TerminalPtySession {

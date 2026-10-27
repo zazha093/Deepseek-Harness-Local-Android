@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import app.dsh.mobile.AppGate
+import app.dsh.mobile.BuildConfig
 import app.dsh.mobile.DshApp
 import app.dsh.mobile.MainActivity
 import app.dsh.mobile.R
@@ -315,7 +316,7 @@ class EngineService : Service() {
         } ?: false
 
         /** 通知「退出」按钮触发动作 */
-        const val ACTION_EXIT = "app.dsh.mobile.service.action.EXIT"
+        const val ACTION_EXIT = "${BuildConfig.APPLICATION_ID}.service.action.EXIT"
 
         /**
          * 便捷启动入口（供 Activity **与保活看门狗**调用）。

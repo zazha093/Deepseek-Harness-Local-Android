@@ -30,7 +30,7 @@ object ShizukuHttpBridge {
     private var acceptThread: Thread? = null
     private val pool = Executors.newCachedThreadPool()
 
-    /** 桥端口 = 引擎端口 + 2（默认 3080 → 3082），避开引擎 webServer。 */
+    /** 桥端口 = 引擎端口 + 2（默认 13080 → 13082），避开引擎 webServer。 */
     fun port(enginePort: Int): Int = enginePort + 2
 
     /** 启动环回 HTTP 服务；模式非 Shizuku 或不可用时不启动。幂等。 */

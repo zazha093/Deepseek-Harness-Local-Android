@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Base64
 import android.util.Log
+import app.dsh.mobile.BuildConfig
 import app.dsh.mobile.R
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
@@ -148,8 +149,15 @@ object RuntimeIndexClient {
      *  2. APK 自身的签名证书公钥（release 包无需内置 PEM，轮换 key 时自动跟随）。
      *
      * 两者任一验证通过即可；都不可用时拒绝索引（不降级）。
+     * Fork: debug build (BuildConfig.DEBUG) 跳过签名校验，避免无 release keystore 时无法拉取运行时。
      */
     private fun verifySignature(ctx: Context, data: ByteArray, signature: ByteArray): Boolean {
+        // Fork side-by-side: debug build 跳过签名校验（无 release keystore 时也能拉取 upstream runtime）
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "DEBUG build — skipping runtime-index signature verification")
+            return true
+        }
+
         val sigBytes = runCatching {
             Base64.decode(String(signature, Charsets.US_ASCII).trim(), Base64.DEFAULT)
         }.getOrNull() ?: return false

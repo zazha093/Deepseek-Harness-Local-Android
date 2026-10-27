@@ -16,18 +16,18 @@ import java.util.concurrent.atomic.AtomicBoolean
  * 局域网访问 WebUI 的反向代理（v1.2.160）：让同网段设备用**原生 WebUI 界面**连上手机里的引擎。
  *
  * ## 为什么需要它
- * 引擎只绑 127.0.0.1（实测 PC 连手机 3080 不可达），而改成绑 0.0.0.0 也不行——
+ * 引擎只绑 127.0.0.1（实测 PC 连手机 13080 不可达），而改成绑 0.0.0.0 也不行——
  * 浏览器访问 http://192.168.x.x 属于**非安全上下文**，会连撞四道门：
  *   ① crypto.randomUUID 不存在（仅安全上下文可用）；
  *   ② 前端 isLoopbackHostname(pageLocation.hostname) 判假 → connection.isLoopback=false
  *      → 设置页持久化降级为 memory、设置文档编辑不可用；
  *   ③ /api 的 Origin/Host 同源检查；
  *   ④ WebSocket 升级必须被转发（对话流靠它推送）。
- * 正解：app 内起反向代理，浏览器访问 http://<手机IP>:3090，代理打补丁后转发到 127.0.0.1:3080。
+ * 正解：app 内起反向代理，浏览器访问 http://<手机IP>:3090，代理打补丁后转发到 127.0.0.1:13080。
  * 界面**就是引擎原生的那份前端**，只是被打了补丁。
  *
  * ## 硬约束（不得破坏原有结构、不得导致异常重启）
- *  · 绝不监听 3080/3083（引擎 WebUI / 能力桥），只用独立端口 [PORT]；
+ *  · 绝不监听 13080/13083（引擎 WebUI / 能力桥），只用独立端口 [PORT]；
  *  · 起停完全独立于引擎生命周期；任何异常只影响本代理（catch 住、不抛出）；
  *  · 只做转发，**不修改磁盘上的任何引擎文件**（补丁只在内存里改响应体）；
  *  · 默认关闭，用户显式开启才监听；accept 循环必须在**独立线程**（见 start 注释）。
@@ -36,7 +36,7 @@ object LanWebProxy {
 
     private const val TAG = "LanWebProxy"
 
-    /** 独立端口（禁止占用 3080/3083） */
+    /** 独立端口（禁止占用 13080/13083） */
     const val PORT = 3090
 
     /** 「已开启」常驻通知的 channel / id（v1.2.188） */
@@ -44,10 +44,10 @@ object LanWebProxy {
     private const val NOTIF_ID = 0x0A12
 
     /** 通知里「关闭」按钮的广播 action（由 [app.dsh.mobile.LanWebOffReceiver] 处理） */
-    const val ACTION_LAN_OFF = "app.dsh.mobile.action.LAN_WEB_OFF"
+    const val ACTION_LAN_OFF = "app.dsh.mobile.th.action.LAN_WEB_OFF"
 
     private const val UPSTREAM_HOST = "127.0.0.1"
-    private const val UPSTREAM_PORT = 3080
+    private const val UPSTREAM_PORT = 13080
     private const val COOKIE = "dsh_lan_pw"
 
     /** HTTP 换行（源码里不写转义，避免多层转义失真） */
@@ -87,7 +87,7 @@ object LanWebProxy {
     /**
      * 读取引擎 WebUI 的访问 token（v1.2.160）。
      *
-     * 引擎自己对 WebUI 也做 token 鉴权（`http://127.0.0.1:3080/?token=…`），
+     * 引擎自己对 WebUI 也做 token 鉴权（`http://127.0.0.1:13080/?token=…`），
      * 每次启动生成新 token 并写进 engine/engine.log —— 实测带 token 访问会返回
      * `303 + set-cookie: dsh-auth-…`（引擎签发会话 Cookie）。所以代理必须：
      *   ① 首访时自动带上 token（用户不必手输），拿到引擎的会话 Cookie 并透传给浏览器；

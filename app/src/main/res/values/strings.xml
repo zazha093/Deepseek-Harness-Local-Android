@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DSH Mobile</string>
+    <string name="app_name">DSH Thai</string>
     <string name="notif_channel_engine">Agent Engine</string>
     <string name="notif_channel_engine_desc">Status of the DeepSeek Harness local engine</string>
     <string name="notif_title">DSH engine running</string>
@@ -8,7 +8,7 @@
     <string name="status_exiting">Exiting…</string>
     <string name="status_installing">Installing runtime…</string>
     <string name="status_starting">Starting engine…</string>
-    <string name="status_healthy">Engine ready · http://127.0.0.1:3080</string>
+    <string name="status_healthy">Engine ready · http://127.0.0.1:13080</string>
     <string name="status_plugin_recovered">Recovered: disabled broken plugin %1$s · engine ready</string>
     <string name="status_safe_mode">Safe mode: plugin configs quarantined, engine running with an empty config (workspaces and sessions unaffected)</string>
     <string name="status_backoff">Process exited unexpectedly, restarting in %1$d s (attempt %2$d)</string>
@@ -311,7 +311,7 @@ They will be re-downloaded and reinstalled (with dependency closures). If a "per
 
     <!-- About -->
     <string name="about_title">About</string>
-    <string name="about_app_name">DSH Mobile</string>
+    <string name="about_app_name">DSH Thai</string>
     <string name="about_version">Version %1$s</string>
     <string name="about_intro">DSH Mobile is a local engine shell for DeepSeek Harness (DSH) on Android: it runs the full Node.js agent engine inside the phone\'s sandbox — no server needed, and no data ever leaves the device.</string>
     <string name="about_based">Built on the DeepSeek Harness (dsh) agent framework, open-sourced by DeepSeek in Aug 2026</string>

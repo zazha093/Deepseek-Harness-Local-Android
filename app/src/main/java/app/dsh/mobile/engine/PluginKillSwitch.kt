@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets
  *
  * ## 为什么需要它
  *
- * 现有的三层自救都覆盖不到一类最难受的故障：**插件装完，引擎照常启动、3080 通了、
+ * 现有的三层自救都覆盖不到一类最难受的故障：**插件装完，引擎照常启动、13080 通了、
  * 探针也报 ok，但 WebUI 白屏 / 对话发不出去 / 一点就卡**。此时
  * `PluginRecovery.quarantineOne` 要求「探针 degraded + 失败 entry 精确归因」，
  * `isolateRecentBundleOnBootFailure` 要求「引擎压根起不来」，`ProfileGuardian`

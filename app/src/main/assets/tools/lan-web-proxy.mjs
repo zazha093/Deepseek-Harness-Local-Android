@@ -7,7 +7,7 @@
  * node 的 http 模块 + 流式 pipe 天然正确处理这些，代码短得多、也稳得多。
  *
  * ## 做什么
- *   浏览器 http://<手机IP>:3090  →  本代理  →  http://127.0.0.1:3080（引擎 WebUI）
+ *   浏览器 http://<手机IP>:3090  →  本代理  →  http://127.0.0.1:13080（引擎 WebUI）
  * 四件事：
  *   ① 密码鉴权（Cookie，首访 ?pw= 换票）；
  *   ② 自动补引擎 token（从 engine.log 读，用户零输入）；
@@ -16,11 +16,11 @@
  *   ④ WebSocket 升级原样转发（对话流靠它）。
  *
  * ## 硬约束
- *   · 只监听 3090（绝不碰 3080/3083）；
+ *   · 只监听 3090（绝不碰 13080/13083）；
  *   · 起停独立于引擎；任何异常只记日志，不退出、不影响 app；
  *   · 只在内存里改响应体，**不修改磁盘上的任何引擎文件**。
  *
- * 用法: node lan-web-proxy.mjs --port 3090 --pw <密码> [--upstream 127.0.0.1:3080]
+ * 用法: node lan-web-proxy.mjs --port 3090 --pw <密码> [--upstream 127.0.0.1:13080]
  * 环境: DSH_LAN_PW 亦可提供密码（优先命令行）
  */
 import http from 'node:http';
@@ -37,9 +37,9 @@ const argOf = (name, dflt) => {
 };
 const PORT = Number(argOf('port', '3090'));
 const PW = argOf('pw', process.env.DSH_LAN_PW || '');
-const UPSTREAM = argOf('upstream', '127.0.0.1:3080');
+const UPSTREAM = argOf('upstream', '127.0.0.1:13080');
 const [UP_HOST, UP_PORT] = UPSTREAM.split(':');
-const HOME = process.env.DSH_HOME || '/data/user/0/app.dsh.mobile/files/dsh-home';
+const HOME = process.env.DSH_HOME || '/data/user/0/app.dsh.mobile.th/files/dsh-home';
 const ENGINE_DIR = path.resolve(HOME, '..', 'engine');
 const LOG = (...a) => console.log(`[lan-proxy ${new Date().toISOString()}]`, ...a);
 
@@ -390,7 +390,7 @@ server.on('error', (e) => {
     // 再重试监听。
     LOG(`port ${PORT} busy (attempt ${attempts}) — killing stale proxy and retrying`);
     try {
-      // 只匹配本脚本名，避免误杀引擎（3080）或桥（3083）
+      // 只匹配本脚本名，避免误杀引擎（13080）或桥（13083）
       execSync(`pkill -f lan-web-proxy 2>/dev/null || true`, { stdio: "ignore" });
     } catch {}
     setTimeout(listen, 1200);

@@ -24,6 +24,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
+import app.dsh.mobile.BuildConfig
 import app.dsh.mobile.LocaleHelper
 import app.dsh.mobile.R
 import app.dsh.mobile.service.EngineService
@@ -658,8 +659,8 @@ class PetOverlayService : Service() {
         private const val FLING_MIN_VX = 220f
         private const val FLING_MIN_VY = 220f
 
-        const val ACTION_STOP = "app.dsh.mobile.pet.action.STOP"
-        const val ACTION_RELOAD = "app.dsh.mobile.pet.action.RELOAD"
+        const val ACTION_STOP = "${BuildConfig.APPLICATION_ID}.pet.action.STOP"
+        const val ACTION_RELOAD = "${BuildConfig.APPLICATION_ID}.pet.action.RELOAD"
 
         @Volatile private var instance: PetOverlayService? = null
 
