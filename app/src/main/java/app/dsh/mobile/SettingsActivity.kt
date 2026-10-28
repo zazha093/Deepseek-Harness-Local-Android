@@ -511,11 +511,12 @@ class SettingsActivity : ThemedActivity() {
             Toast.makeText(this, getString(android.R.string.ok), Toast.LENGTH_SHORT).show()
         }
 
-        // —— 其他：语言 Language（v1.2.120：en/de/zh 三选一，默认 en）——
-        val langCodes = listOf("en", "de", "zh")
+        // —— 其他：语言 Language（v1.2.120：en/de/zh/th 四选一，默认 en）——
+        val langCodes = listOf("en", "de", "zh", "th")
         fun langLabel(code: String): String = when (code) {
             "zh" -> getString(R.string.lang_zh)
             "de" -> getString(R.string.lang_de)
+            "th" -> getString(R.string.lang_th)
             else -> getString(R.string.lang_en)
         }
         val langSub = findViewById<TextView>(R.id.appLanguageSub)
@@ -531,6 +532,7 @@ class SettingsActivity : ThemedActivity() {
                 getString(R.string.lang_en),
                 getString(R.string.lang_de),
                 getString(R.string.lang_zh),
+                getString(R.string.lang_th),
             )
             AlertDialog.Builder(this)
                 .setTitle(getString(R.string.app_language))
