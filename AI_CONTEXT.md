@@ -1,5 +1,16 @@
 # AI_CONTEXT
 
+## DSH Mobile 宣传视频已验收与文档补齐（2026-10-28）
+
+- 当前进度：`docs/promo/video/remotion/` 工程版本 1.1.0；七镜头、双 composition、44 秒、60fps。用户明确验收视频质量，要求只补文档与 Studio 验证，**不得修改动画源码或重新渲染**。
+- 已验证成片：先前两个 `npm run render:*` 均退出 0；ffprobe 为竖屏 1080×1920 / 横屏 1920×1080、60/1 fps、2640 帧、44.000000 秒。文件分别为 7,941,044 / 7,787,099 bytes。本轮 SHA-256 与补文档前一致，完整值见 `docs/promo/video/CHECKLIST.md`。
+- 已补齐：`docs/promo/video/CHECKLIST.md` 逐项列出所有上屏数字的 MATERIALS 章节与行号，三条红线自查、素材限制、取舍、Studio 证据和成片哈希；`PLAN.md` 从旧 42 秒草案校准为已交付的 44 秒分镜。
+- Studio 验证：工程目录执行 `npx remotion studio src/Root.tsx --no-open --port 3020`，输出 Server ready、Built in 2120ms；再执行 `npx remotion studio --no-open --port 3020` 返回 Already running。首页及两个 composition 路由均 HTTP 200。通过工程已有 Remotion 浏览器驱动和本机 Chrome 实际打开两个预览，元数据正确、播放/暂停生效、时间轴推进到约 84 帧、3.4 s 计数落点出现、字体 loaded、页面错误 0；未执行新的 render。
+- 关键口径：3.4 s 是一加 15T 用户实测，录屏单独标模拟器与 7×；三体积口径保留较小竞品，简单包 +128 MB，解压按大到小排第 4；bionic 非唯一；覆盖 10 / 抽查 3–5 为下界；目录 3540 不代表全部插件兼容。
+- 当前阻塞：本轮文档和 Studio 验证无阻塞。既有成片保持原样，无新发布/上传操作。
+- 下一步首要任务：本轮清单已清零，保留已验收产物；后续如需发布，由用户明确指定平台与范围后处理，不因文档补齐重做视频。
+- 关键路径：`docs/promo/video/CHECKLIST.md`、`docs/promo/video/PLAN.md`、`docs/promo/video/remotion/src/data.ts`、`docs/promo/video/remotion/out/dsh-mobile-portrait.mp4`、`docs/promo/video/remotion/out/dsh-mobile-landscape.mp4`。Studio 地址 `http://localhost:3020/DSHMobilePortrait`、`http://localhost:3020/DSHMobileLandscape`。
+
 ## ⚠️ 工作纪律提醒（宝宝 2026-10-27 明确要求，优先级最高）
 - **动手前先核实「是否已经做过」**：很多 issue 只是没关闭，功能其实早就实现了。
   本次 14 个 open issue 里 **7 个是历史已修复**（#19 #29 #21 #40 #33 #12 #10），
@@ -10,6 +21,447 @@
   * 每次改动后跑：`check-i18n.py` + 全部 `scripts/probes/_test_*.py` + 编译；
   * 提交前看 `git diff --numstat`：**删除行数应远小于新增**，若大量删除要停下来复核。
 - **不确定就先查再问**，不要凭印象重写已工作的代码。
+
+## PR #68 已合并（2026-10-28 深夜，运行时预构建复用）
+
+### 解决的三个真问题
+
+| 问题 | 原状 |
+|---|---|
+| 慢 | 每次 push/PR/定时都要 apt 收集 + 去重 + 打补丁 + 打包 127MB×2（单腿 5-10 分钟），且是 build-apk 硬前置 |
+| 不可复现 | Termux 仓库浮动，同一 commit 两次构建 runtime sha 可能不同 |
+| **测的不是发的** | preview/edge 跑的 runtime 与 tag 正式包内嵌的可能不是同一份 |
+
+### 改动（app/ 零改动，发布产物形态不变，只换供应链）
+
+- `.github/workflows/runtime-build.yml`（新增，462 行）：唯一构建 runtime 的工作流
+  `decide → build → publish`，滚动覆盖 prerelease tag `runtime`
+- `scripts/fetch-runtime.sh`（新增）：**三级取货** ①滚动 prerelease ②releases/latest
+  ③本地兜底构建；sha256 校验 + `--expect-sha` 指纹比对 + `--strict` 禁止降级
+- `scripts/runtime-inputs-sha.py`、`scripts/make-runtime-meta.py`（新增）
+- `android-build.yml`：`collect-runtime` → `fetch-runtime`（只取用不编译）
+- **合并后 CI 全绿**：android-build / i18n-check / runtime-build 均 success
+
+### 关键设计（评审要点）
+
+1. **用「脚本指纹」而非「有没有」判断重建**：只判断 release 里有没有 runtime 会
+   静默漏发 —— 改了 patch-*.py → 触发重建 → 发现已存在 → 跳过 → tag 发布取到旧包
+2. **`--strict` 用于 tag 正式构建**：保证同一 tag 在任何时间构建内嵌同一 runtime
+3. **三级取货兜底**：新 fork bootstrap 时不会因缺 runtime 直接红
+
+### 顺带修复我引入的 CI 缺陷（重要）
+
+我把 `_test_runtime_dedupe.py` 接进 `i18n-check.yml` 后，**main 上连续 4 次 CI 失败**
+（07:26 / 07:44 / 09:51 / 10:44）。原因：CI 干净检出没有 `_runtime_bak/` 产物，
+而探针要打开真实 runtime.zip；我只在本机（有产物）验证过，没意识到这一点。
+
+PR #68 按「静态契约 / 产物质量」切分修好了：
+- 静态项无产物也跑
+- 产物项无产物时 SKIP（不计失败），校验交给 runtime-build 发布门禁
+
+**实测两种环境**：
+| 环境 | 结果 |
+|---|---|
+| 模拟 CI 干净检出（隐藏 _runtime_bak 与 _rel） | 11 通过 / 0 失败 / 3 跳过，exit=0 |
+| 本地有产物 | 34 通过 / 0 失败 / 0 跳过 |
+
+> **教训**：探针接入 CI 前必须在「干净检出」条件下跑一遍。本机有产物的通过
+> 不代表 CI 会通过 —— 这类"只在本地绿"的门禁比没有门禁更糟。
+
+## v1.4.35 / v1.4.36 已发布（2026-10-28 晚）
+
+### v1.4.35：pnpm 锁树整棵跳过 chown（#67，v1.4.34 修复不完整）
+
+**我 v1.4.34 漏了什么**：那版做法是「递归 chown 全树，再把锁**目录本身**改回原属主」，
+但 `chown "$n:$n" "$d"` **没有 `-R`** —— 目录改回去了，目录里的锁文件仍是 app uid。
+pnpm 于是换了一句错误继续拒绝：从「lock directory must be a real directory owned by
+the current user」变成「lock must be a **regular file** owned by the current user」。
+用户 luoyi0914 用 `ls -ldn`（看目录）vs `ls -ln`（看文件）的对比指出了这点。
+
+**这次的修法**：不再「改了再还原」，而是**根本不碰**。这些锁目录是 pnpm 按运行身份
+自己管理的运行时状态，不属于 App 数据：
+
+```sh
+find <home> <engine>   -path '<home>/.cache/pnpm-store-operation-locks-*' -o   -path '<home>/.cache/pnpm-dir-locks-*' -o   -path '<home>/.cache/pnpm-modules-swaps-*' -prune -o   -exec chown <uid>:<uid> {} +
+```
+
+三个落地细节（都踩过）：
+- **不用分组括号** —— toybox find 的括号转义与 GNU 不一致
+- **`-path` 参数整体走 `shellQuote`** —— 否则通配符在引号外被 shell 提前展开
+- **`-exec ... {} +`** —— dsh-home 几万文件，逐文件 fork 太慢
+
+**本地实测**：造假目录树跑生成的 find 命令，锁目录两棵整棵未出现，
+`.cache` / `sessions/` / `engine/bin/node` 全部命中。
+
+**探针教训**：`_test_root_pnpm_locks.py` 增加一条「旧方案不得存在」
+（`chown "$n:$n"` 不能出现）——「只改目录不改文件」这个坑不留断言很容易踩回去。
+
+### v1.4.36：区分「插件不兼容」与「内置引擎过旧」（#66）
+
+**问题**：npm 上 `@deepseek-ai/dsh` 有两条线 —— `latest` = 0.2.1-rc.2（我们内置）、
+`next` = 0.2.1-rc.4（插件作者照它写 `engines.dsh`）。声明 `>=0.2.1-rc.3` 的插件
+装不上，UI 只说「不兼容」，用户以为是插件坏了。
+
+**改动**：
+- `NativePluginCheck` 读 `engines.dsh` 取版本下限，与内置版本比较
+- 要求更高 → 新状态 `Result.EngineTooOld(required, bundled)`，
+  **单独成态不进 Risk**（Risk 语义是「插件有问题」，这个是「我们引擎旧了」）
+- **semver 按预发布规则比**：`0.2.1-rc.2 < 0.2.1-rc.4 < 0.2.1`；
+  预发布段按点切分、数字段按数值比（字典序会把 `rc.10` 判成小于 `rc.9`）
+- 读不到内置版本时**不判定**（宁可漏报，误报会把能用的标成不可用）
+- UI 用 warning 色（不是 danger），安装前弹窗写明「要求 X / 内置 Y / 插件本身没问题」
+- `DshApp.onCreate` 注入 applicationContext（`NativePluginCheck` 是纯静态 object）
+
+**探针**：`_test_plugin_engine_compat.py`（18 项），含 8 个 semver 用例 +
+6 个范围解析用例，专门覆盖 `rc.10 vs rc.9` 字典序陷阱与 `*`/`latest` 必须返回 None。
+
+**根因未解**：这只是让用户知道真实原因。真正的解法是把内置引擎升到 rc.4 线 ——
+14 个补丁锚点要重新验证，是独立一轮工作。已在 #66 里给出分阶段计划
+（先出补丁适配评估报告附在 issue 里，再决定是否进小版本）。
+
+### issue 状态（本轮后：open 7 个）
+- 关闭：#65（root pnpm 锁）、#66（回复计划，保留 open 跟踪）、#67（v1.4.35 修完）
+- 保留 open：#66（等引擎升级）、#60（Sol effort=none，非 App bug）、#26（长会话
+  DOM 累积，需专项做视图虚拟化）、#59（Python 轮子，已回路线图）、#41（Profile）、
+  #2（语音唤醒）、#49（swap 恢复窗口）
+
+### 发版 CI 的一次平台故障（记录备查）
+
+v1.4.36 首次 CI：8 个 build job 全绿，`publish-release` 在最后一步失败 ——
+11 个资产里成功上传了 10 个，上传 `runtime-x86_64.zip`（127 MB）时 GitHub
+返回 HTML 错误页（`##[error]<!DOCTYPE html>`），整个 Release 因此未创建。
+
+**不是我们的代码问题**：同样流程在 v1.4.35 一次通过。判断为 GitHub 侧瞬时故障
+（大文件上传 503）。处理：`rerun-failed-jobs` 重跑，第二次一次通过，12 资产齐全。
+
+> 以后再遇到 `publish-release` 失败而所有 build 都绿，先看日志末尾是不是
+> HTML 错误页 —— 那是平台故障，直接重跑即可，别去改代码。
+
+## v1.4.33 / v1.4.34 已发布（2026-10-28，两个 PTC/root 修复）
+
+### v1.4.33：PTC bootstrap 路径映射（用户报错，无 issue 号）
+
+**报错**：`code run failed (worker-exit): PTC runtime bootstrap is unavailable in
+the subprocess execution world: <engine>/lib/node_modules/@deepseek-ai/
+dsh-ptc-runtime-node/lib/process.js` —— 而文件**确实存在**。
+
+**根因**（用户自己也独立确诊了，结论一致）：`scriptBootstrapArgs()` 里
+
+```js
+const mapped = (path) => {
+    const result = fs.processPathFromHostPath(path);
+    if (result === void 0) throw new Error(`... unavailable ...`);
+    return result;
+};
+```
+
+`fs` 是 `ctx.fs`。`FileSystem` 基类的 `processPathFromHostPath()` 是**空实现**
+（无条件 undefined），只有 `dsh-fs-local` 覆盖成
+`isAbsolute(hostPath) ? resolve(hostPath) : undefined`。挂载到 `ctx.fs` 的
+provider 若没走到那个覆盖版本，映射表里没有 engine 目录这一条 → 返回 undefined
+→ 每次 run_code 都抛。文件、权限、SELinux、node 本体、库路径全部无罪。
+
+**修法**（`patch-ptc-runtime-android.py` 第三处补丁）：映射返回 undefined **且**
+路径是绝对路径 → 原样透传；相对路径仍抛错（否则 worker 按自己 cwd 解析会执行错文件）。
+Android 上引擎/fs provider/worker 同一挂载命名空间，绝对路径就是进程路径。
+
+**关键配套（踩过坑）**：打完补丁必须重算 `BUILD.json`。`RuntimeInstaller` 用
+`BUILD.json.version` 判是否重解压，版本号派生自内容 sha —— 不重算的话新补丁
+**永远进不到设备上**，表现为「明明修好了、装完还是老报错」。脚本现已自动 restamp。
+
+**三处门禁同步**：`build-runtime.sh`（CI 运行时流水线）、`app/build.gradle.kts`
+（APK 打包前）、`_test_runtime_dedupe.py`（+3 断言，并改为优先读 `_rel/*-dedup.zip`
+发布用包，避免读到去重前中间产物得出假阳性）。
+
+**端到端验证**：设备重装后运行时版本更新为 `2026.10.28-eb83a614`，补丁命中，
+`process.js` 存在且路径解析正常。
+
+### v1.4.34：root 模式 pnpm 锁属主（issue #65）
+
+**现象**：`DSH_ANDROID_PRIV_MODE=root` 时插件安装/卸载全失败，**每次重启引擎复发**：
+`ERR_PNPM_STORE_DIR_OPEN_OPERATION_LOCK: lock directory must be a real directory
+owned by the current user: .../.cache/pnpm-store-operation-locks-0`
+
+**根因**：pnpm 锁目录按 uid 分后缀（`pnpm-*-locks-<uid>`），root 引擎用 `-0`。
+`Privilege.fixHomeOwnership()` 每次启动对整棵 `dsh-home` 递归
+`chown -R <appUid>:<appUid>`，把 root 那套也改了 → root 的 pnpm 拒绝使用。
+用户实测「手动改回属主能撑到下次启动」正是这个原因。
+
+**修法**：递归 chown 之后，把 `.cache` 下 pnpm 锁/交换目录按**目录名数字后缀**
+还原属主（`-0` → `0:0`，`-10324` → `10324:10324`），非数字后缀跳过。
+原有自愈保留（engine 补 `u+rwX`、`restorecon`）。
+
+**护栏**：`_test_root_pnpm_locks.py`（10 项），其中专门锁**顺序**：必须
+「先整树 chown 再还原」（反了会被覆盖，等于没修）。
+
+### 发版
+- v1.4.33：tag → CI `40626947939` 全绿 → 发布运行时下载验证含补丁
+- v1.4.34：tag → CI `40628898147` 全绿 → 12 资产，latest
+- 探针 15 项全绿；i18n 全过
+
+## v1.4.32 已发布（2026-10-28，PR #64 + git 流程规范化）
+
+### 1. PR #64 收编（@XiaoPb，5 提交）
+- 气泡回落文案对齐 dsh-pet web `workStatusTexts`（六档随机抽句，`text` 透传）
+- 工作状态台词进台词库（`PetLines.ws_*` 六档，编辑器/导入导出覆盖）
+- 移除 App 端「桥端随机词句」开关（改由 dsh-pet-bridge v0.3.6 自绘分区承担）
+- CI 预装 `cmake;3.22.1` + 修 `sdkmanager` 全路径（runner PATH 问题）
+- 探针同步：`step_done` → `"post" -> ack`（守卫意图不变）
+
+### 2. **重要：推送通道不再重写 SHA**（本次核心改动）
+
+**问题**：旧 `push-via-api.py` 逐 blob 上传 + `base_tree` 重建树 + 只传 author
+（漏 committer），每个提交在远端都被重新创建、SHA 全变。后果（XiaoPb 在 PR #64
+里直接指出）：
+- 下游 fork 每次同步都发现历史被改写，只能 force-push；
+- 本地与远端永久分叉（`git status` 恒 ahead/behind）；
+- GitHub 上的提交号与本地对不上，追溯困难。
+
+**修复**：按 git 对象身份原样上传
+- 复用提交的**原始 tree SHA**（内容相同则 SHA 相同，不重建）
+- 带完整 `author` **和 `committer`**（旧实现漏 committer 是 SHA 变化的第二因）
+- 父提交沿用原始 SHA，必要时先 fetch 补齐祖先对象
+- **实测 6/6 + 1/1 提交 SHA 全部保持**，推完 `rev-list --left-right --count` = `0 0`
+
+**同时加的安全机制**：
+- fetch 直连失败自动切 gh-proxy 前缀代理（实测 gh-proxy 支持 fetch 的 GET，
+  **不支持** receive-pack 的 POST —— 所以 push 仍只能走 API 通道）
+- **分叉检测**：本地与远端分叉时拒绝推送并给出处理办法，**绝不 force 覆盖**
+  （2026-10-27 覆盖事故的根因就是没有这道闸）
+- `--rebase-remote` 可选自动 rebase
+
+### 3. 流程规范落地
+- **`docs/git-workflow.md`**：合并原则（`--no-ff` 保留线路、不 squash）、
+  推送方式优先级、fetch/push 通道差异表、日常操作步骤、验证清单、
+  探针维护约定（断言表达意图而非实现细节）、历史事故与教训
+- **`scripts/git-hygiene.py`**：推送前自检 —— 工作区脏 / 远端有新提交 /
+  rebase-merge 中间态 / 对象库 CRLF 污染 / probes 误加。
+  `--ci` 模式供流水线用（不联网）
+- **`i18n-check.yml` 增加两步**：「回归探针」（跳过已知的 corepack_hardlink）
+  与「git 卫生」。都不需要 Android SDK，几秒跑完，PR 阶段就能拦住回归
+
+### 4. issue 状态（本轮后）
+已关闭：#58 #62(PR) #61(PR) #63(PR) #64(PR) #47 #25
+保留 open：#60（Sol effort=none，非 App bug，已给自查步骤）#26（长会话 DOM
+累积，需专项做视图虚拟化）#59（Python 轮子，已回路线图）#41（Profile 管理）
+#2（语音唤醒，排在 #41 后）#49（swap 恢复窗口）
+
+### 5. 验证与发版
+- i18n 全过；14 探针全绿；`assembleDebug(x86_64)` 通过；模拟器冒烟 pid 稳定、0 FATAL
+- tag `v1.4.32` → CI run `40621327073` 全绿 → **Release 12 资产，latest**
+- 推送后 `git-hygiene` 确认本地与远端一致（`6873b070`）
+
+## v1.4.31 已发布（2026-10-28，PR #63 收编 + issue 清理）
+
+### 收编 PR #63（@XiaoPb，38 提交，本地合并）
+- **PetPackDownloadService**（前台服务 dataSync）+ **PetPackDownloadBus**：
+  资源包下载走后台服务，进度通知栏；设置页仅订阅，退出/被杀不断任务
+- **PetPackDownloader**：可取消；暂存 cacheDir → filesDir（防系统回收），
+  旧残件迁移续传；校验失败删残件；线路回调供 UI 标注
+- **删除确认页**：包名 + 安装时间（PetPackSummary.installedAt），四语文案
+- **气泡重绘**：对齐 dsh-pet web 端（平涂 + CSS border 三角尾巴 0.7472em×0.3736em）
+- **启动遮罩**：步骤面板高度收敛 + 文本未变不重排；debug 包 --el splash_min_ms
+- **探针同步**：`_test_pet_overlay` 尾巴断言 0.54f → 0.3736f（跟着 web 设计走）
+
+### issue 处理（8 个 open → 2 个）
+- **#47 关闭**：v1.4.25 已修（APK 型扩展 apkUrl/apkSha256/apkPackage 从未解析，
+  Offline ASR 一直走 deb 路径 → "List is empty"）；用户升级即可
+- **#25 关闭**：v1.4.29 的「配置文件」入口即此功能（设置 → 数据 → 配置文件）
+- **#60**：回复排查结论 —— Sol 模型 reasoning.effort="none" 导致 compaction 返回空，
+  非 App bug；给了自查三步
+- **#26**：回复初步分析（会话视图非虚拟化，DOM 累积上万节点 → 全量重排）+
+  要 dumpsys/帧率统计信息；保留 open（需专项做视图虚拟化）
+- **#59 / #41 / #2**：回复路线图（#59 先做 numpy/pillow 轮子可行性小步验证；
+  #41 优先于 #2）；保留 open
+- **#49 保留**：runtime swap 恢复窗口（PR #51 的两阶段提交方案未合并，后续再评估）
+
+### 发版
+- tag `v1.4.31` → CI run `40554517518` 全绿 → **Release 已上架（12 资产，latest）**
+- 全量验证：i18n 全过；14 探针全绿；noruntime + arm64-full 构建通过；
+  模拟器冒烟（pid 稳定 / 0 FATAL）
+
+## v1.4.30：插件中心搜索卡崩修复 + 灵动岛重做（2026-10-27 晚）
+
+### 1. 紧急：社区插件搜索导致应用卡死重启（#58 补充上报）
+
+**现象**：社区插件中心里输入搜索词，应用直接卡死、随后引擎重启。
+
+**根因（已确证）**：不是引擎问题，是 UI 线程问题。
+`PluginStoreActivity.render()` 把过滤后的**全部**条目一次性 `addView` 进
+`ScrollView`（**无视图回收**）。内置目录 `assets/market/catalog.json` 有
+**3540 个插件**，`pluginRow()` 每行约 6 个嵌套 View → 一次渲染两万多个 View
+建在主线程 → OOM/ANR → 进程被杀 → `EngineSupervisor` 看门狗看到引擎失联，
+误判「引擎异常退出」并重启。用户感知就是「一搜索就崩，然后引擎重启」。
+
+v1.4.28 只修了「反复切分类」这条路径（本地过滤 + 分类缓存），
+**搜索路径仍然走全量渲染**，所以漏掉了。
+
+**修复**：增量分页渲染
+- `RENDER_PAGE = 30`，首屏只渲染 30 条
+- `appendNextPage()` 追加下一批，`pendingRows` 暂存剩余
+- `listScroll.setOnScrollChangeListener` 距底部不足一屏时自动追加
+- 新增探针 `scripts/probes/_test_plugin_render_paging.py`（12 项），
+  锁住「不许改回全量渲染」；已加入 `.gitignore` 白名单
+
+**实测（Android 16 / x86_64 模拟器，dsh36）**：
+- 搜索 `dsh` → pid 6977 不变，logcat 无 FATAL/ANR
+- 清空搜索回到 3540 条全量 → pid 不变
+- 连续 8 次快速滚动到底 → pid 不变，**PSS 167MB**，无异常
+- `uiautomator dump` 节点数 **63**（增量渲染生效，未堆积）
+
+### 2. 灵动岛重做（宝宝逐条实测反馈）
+
+宝宝反馈三条 + 一条追加要求，逐条改：
+
+| 问题 | 修法 |
+| --- | --- |
+| 放太多功能、状态文字被截成 `Engine r...` | 顶部 4 个文字按钮（重启/日志/终端/隐藏）**改图标**，状态文字宽度从 <40dp 恢复到可完整显示 |
+| 展开后摄像头黑点遮挡文字 | **删除 `bg_island_dot.xml`** 与收起态里的圆点 View；恢复 64×26 单横条胶囊 |
+| 灵动岛与摄像头挖孔重叠 | **沉浸式状态栏默认改关**（`DEFAULT_IMMERSIVE = false`），并**移除 `layoutInDisplayCutoutMode` 铺进挖孔区逻辑** —— 窗口不再画进摄像头区域 |
+| 状态文案里的 URL 挤占空间 | `status_healthy` 去掉 `· http://127.0.0.1:3080`（端口在网页里可见），三语同步 |
+
+**我自查发现并修的 4 个 bug**（不是宝宝报的）：
+1. 灵动岛前景色用了 `@color/text_secondary` —— 岛背景恒纯黑，浅色主题下该 token
+   是深灰 `#FF475569`，**黑底上看不见**。新增恒定色 token `island_text` /
+   `island_accent` / `island_success` / `island_muted` / `island_handle`（两套主题同值）。
+2. `applyStatusBarImmersive()` 关闭态把 `statusBarColor` 设透明、`systemUiVisibility`
+   整体赋 0 —— 把 `ThemeManager.applyBars()` 刚设好的 `LIGHT_STATUS_BAR` 抹掉，
+   浅色主题下变成「透明底 + 白图标」，压在白网页上看不见。改为关闭态交给
+   `applyBars()` 恢复。
+3. 灵动岛展开动画从左上角撑开而非中心：`GONE → VISIBLE` 同一帧 `row.width` 是 0，
+   `pivotX` 算成 0.5px。改 `row.post { pivotX = row.width / 2f; animate()... }`。
+4. `workspaces()` 被 PR 改成无条件切 `Download/DSH MOBILE` —— 老用户工作区、
+   `DataExport` 导出源都在 `Documents/dshdata/workspaces`，无条件换根会让他们看到
+   「工作区空了」。改为**已有数据时沿用原路径**，只在全新安装时用新目录。
+
+另外 `publicFilesRoot()` 加 **30s 缓存**：它落在「引擎 spawn 取 cwd」与
+「`AgentBridge.isOpenablePath` 每次打开文件」两个热路径上，而 `isDirUsable()`
+是「写文件→读回→列目录」三步磁盘探针 —— 不缓存等于每次判权限都打一轮 IO，
+与 #58 属同类故障。
+
+### 3. GitHub 侧处理
+
+- **v1.4.29 release 已下架**（`draft=true`，release id 425133746）
+- PR #62（`xiaoming132887` 的 `pr-v2`，5 笔）→ **已关闭**，内容通过等价提交合入
+  （我合并的是他 `pr-upstream` 分支的 6 笔，SHA 不同但代码等价）
+- PR #61（`XiaoPb` 桌宠资源包制，41 文件 +6720/-814）→ **已关闭**（本地已合并 `7085b0e`）
+- issue #58 → **已关闭**（附根因分析与实测数据）
+- main 已推送：`c69b8e8`（本地领先 50 个提交全部落地）
+
+### 4. 发布路径与产物（重要：本地不能签索引）
+
+**关键约束**：`runtime-index.json` 的 detached EC 签名私钥**只在 CI secrets**
+（`RELEASE_KEYSTORE_BASE64`），本地没有。而 `RuntimeIndexClient.verifySignature()`
+验签失败会**直接拒绝，不降级**（`SecurityException`）。所以：
+
+- ✅ 正确路径：**推 tag `v1.4.30`** → CI `publish-release` job 构建 + 签索引 + 发 Release
+- ❌ 不要在本地签索引后手工上传（签不出来，App 会拒）
+
+**已执行**：tag `v1.4.30` 已推到远端（指向 `28e66bb`，即远端 main 的实际 SHA），
+CI run `40543382625` 已触发 in_progress。
+
+**本地同时构建了 8 个 APK 做前置验证**（这些只用于验证，不直接上传）：
+
+| 文件 | 大小 |
+| --- | --- |
+| `dsh-android-v1.4.30-arm64-v8a-release.apk` | 149.5 MB |
+| `dsh-android-v1.4.30-arm64-v8a-release-noruntime.apk` | 22.5 MB |
+| `dsh-android-v1.4.30-arm64-v8a-debug.apk` | 150.8 MB |
+| `dsh-android-v1.4.30-arm64-v8a-debug-noruntime.apk` | 23.7 MB |
+| `dsh-android-v1.4.30-x86_64-release.apk` | 149.1 MB |
+| `dsh-android-v1.4.30-x86_64-release-noruntime.apk` | 23.0 MB |
+| `dsh-android-v1.4.30-x86_64-debug.apk` | 150.4 MB |
+| `dsh-android-v1.4.30-x86_64-debug-noruntime.apk` | 24.3 MB |
+
+签名 `CN=DSH Mobile, OU=DSH, O=Soodok`；ABI 各自单一。
+
+### 4.1 构建踩坑：APK 多出 37MB 的「空洞」
+
+第一次构建出 197MB（发布版应约 150MB）。查出来是 **`assets/tools/lan-web-proxy.mjs`
+之前有 37.1MB 的 header 间隙** —— 增量构建残留的旧条目被删后，zipalign 没有压掉
+那段空洞。修法：`rm -rf app/build/outputs/apk app/build/intermediates/apk
+app/build/generated/runtimeAssets` 后重建 → **158MB**（正常）。
+
+**另外**：`_runtime_bak/rt-arm64-zodded.zip` 是**去重前**的中间产物（175MB）。
+正式流程在 `build-runtime.sh` 里它之后还有两步：
+`dedupe-runtime.py`（SONAME 别名去重，省 ~37MB）+ 写 `BUILD.json`。
+本地手工补这两步后 → 130.3MB，与发布版的 127.6MB 一致。
+`dist/v1.4.30/runtime-arm64-v8a.zip` 就是这么来的。
+
+### 4.2 产物
+
+- `dist/v1.4.30/DSH-Mobile-1.4.30-arm64-v8a-signed.apk`（197MB）
+- SHA256 `72a1e4af68c7da2c8cc9c3d8677930b5c5d54b4bf976cc6cc35e11b0060ebe5b`
+- 签名 `CN=DSH Mobile, OU=DSH, O=Soodok`；ABI 仅 `arm64-v8a`
+- **尚未发布到 GitHub Release**（等宝宝明确指令）
+
+### 5. 验证记录
+
+- `check-i18n.py`：全过（768 串，三语同步）
+- `scripts/probes/_test_*.py`：除 `_test_corepack_hardlink.py` 外全过
+  —— 该探针失败是**已知预期**：`assets/runtime.zip` 已按 PR #48 架构挪出，
+  探针读不到文件（不是本次改动引入）
+- 编译：`:app:compileDebugKotlin` / `:app:assembleDebug`（x86_64 noruntime
+  与 arm64-v8a full）均 `BUILD SUCCESSFUL`
+
+### 6. 遗留 / 已知风险
+
+- **分享链接与 CI**：本次推送走 `scripts/push-via-api.py`（github.com:443 被阻断），
+  推送前用 API 核对远端 main SHA 并确认本地已包含（`git merge-base --is-ancestor`），
+  未覆盖任何远端提交。
+- **`_test_corepack_hardlink.py` 需要跟着 #48 架构更新**（读 manifest 而非 assets zip）。
+- **#60**（上下文 100% 卡住）判断为 Sol 模型 `reasoning.effort="none"` 配置问题，非 App bug。
+- **#41 Profile 管理 / #2 语音唤醒词**：工程量大，未做。
+
+## 桌宠开启改硬门禁（2026-10-27，宝宝明确要求：不能跳过）
+- **需求**：无资源包 / 无桥插件 / 无悬浮窗权限，任一不满足都不能打开桌宠，不能跳过。
+- **改动**：
+  * `PetPluginDetector.bridgeGateOpen()` 收紧为 `detect(ctx).bridgeReady`，**删除
+    `allowWithoutBridge` 软旁路**（PetPrefs 里整个偏好与读写函数一并删除，老残留无害）；
+  * 新增 `packReady()`（packId 存在且目录完整）与 `canEnable()` =
+    `canDrawOverlays && bridgeGateOpen && packReady`，设置页与恢复路径共用；
+  * `PetSettingsActivity.enablePet()` 重排为 权限→包→插件 三级硬弹窗引导
+    （权限页 / DOWNLOAD PACKS / INSTALL），**没有「仍然开启」**；
+    原先 pending 的 `doStart` 提成独立函数；
+  * `PetOverlayService.restoreIfEnabled()` 改走 `canEnable` —— 条件不齐连服务都不拉起
+    （以前只查 enabled+权限）；
+  * 文案：删 `pet_enable_without_plugin`/`_msg`，新增 `pet_gate_plugin_missing_msg`/
+    `pet_gate_pack_missing_msg`/`pet_gate_install`（三语）；
+  * 探针 `_test_pet_overlay.py` 断言同步：旁路标识符全仓禁入、canEnable 三条件、
+    恢复路径走硬门禁。
+- **实测（MuMu 5555，Android 12 / x86_64）**：
+  * 无包（run-as 移走 packs）→ force-stop 重启服务不拉起；设置页点开关弹
+    「Animation pack…cannot be skipped」，仅 CANCEL/DOWNLOAD PACKS；恢复后桌宠自动回归；
+  * 无桥插件（run-as 摘 package.json 依赖+bundle）→ 同样服务不拉起、弹
+    「Bridge plugin…cannot be skipped」，仅 CANCEL/INSTALL；恢复后自动回归；
+  * 全就绪 → restoreIfEnabled 自动拉起、动画链正常换段。
+- **坑**：MuMu 5555 的应用会被平台商店更新器动过；桥插件是我在插件中心误触装上的
+  （`@xiaopb/dsh-pet-bridge@0.3.1` install ok），测试「无插件」路径用 run-as 改
+  profiles/web/package.json（exec-out cat 拉下来 → 本地 python 改 → push 到
+  /data/local/tmp → run-as cp 回去，注意 MSYS 路径转换要 MSYS_NO_PATHCONV=1）。
+
+## 资源包导入改格式硬校验 + 只收 zip（2026-10-27，宝宝质疑"坏 zip 会不会溜进去、半成品会不会一直占空间"）
+- **格式校验收紧**（`PetPackInstaller`）：
+  * 先验文件头 zip 签名（PK\x03\x04/05/06/07/08）——以前非 zip 只会误报
+    "pet-config.json not found"，现在有独立的 `PetPackErrors.NOT_ZIP`；
+  * 每个 `.webp` 验 RIFF/WEBP 12 字节头，改名假货整个包拒收（`BAD_WEBP`）；
+    `__MACOSX/`、`._*` 算噪声跳过不算坏包；
+  * 按显示名/MIME 拒绝 APK（`APK` 错误码）——APK 本身也是 zip，文件头分不出来；
+  * 失败原因全部错误码化 + 三语文案 `pet_pack_err_*`（14 条），不再把英文技术串
+    直接甩给用户。
+- **只收 zip**：文件选择器 `setType("application/zip")` + EXTRA_MIME_TYPES（含
+  octet-stream，防文件管理器乱报型）；文案删「APK/zip」只留 zip。
+- **空间回收**：
+  * `.tmp-*`/`.old-*` 半成品：导入开始无条件清 + `PetPack.ensure()` 顺手扫
+    （1 小时阈值防误删在写的）；
+  * 下载缓存 `cacheDir/pet-pack/` 里非当前包、超 7 天的残件每次下载前清。
+  * 已装包不自动删（`xxx-2` 副本靠设置页手动删除）。
+- **实测**：bad-notzip（非 zip）→"Not a valid zip file"；bad-fake-webp（PNG 套
+  .webp 名）→"Named .webp but not valid WebP: webp/a001.webp"；bad-missing-anim →
+  "Required animations are missing: zzz9"；选择器不再列 APK（Download 里有 4 个
+  大 apk 全被滤掉）；伪造过期 `.tmp-` 重启后被自动清扫。门禁 253+ 断言全绿。
+- **已知边界**：webp 只验容器头不做全量解码——头部合法但内容损坏的极端文件仍会
+  进包，由运行时解码失败兜底（逐段容错，不影响其它段）。
 
 ## v1.4.29 已发布（2026-10-27，CI 全绿，12 资产）
 - **#31 数据导入**（此前只有导出）：合并式恢复（不覆盖已有）、注册表并集合并、
@@ -85,79 +537,6 @@
   **下次性能测试时补一轮装机冒烟**。
 - **push 状态判定已改 exit code**（v1.4.25 事故教训落实）。
 
-<<<<<<< HEAD
-=======
-## v1.4.27 待发（2026-10-27，插件应急总开关 + 设置页横屏分列均衡）
-- **需求**：装了个第三方插件，**引擎没死但界面用不了**，要能一键把全部第三方插件
-  临时停掉、之后还能一键恢复。这一格现有自救层全部漏掉：`quarantineOne` 要探针
-  degraded + 精确归因，`isolateRecentBundleOnBootFailure` 要引擎起不来，
-  `ProfileGuardian` 要同签名真死 10 次 —— 而用户此刻正被困在打不开的 WebUI 里，
-  连去插件中心卸载都点不到。
-- **核心设计（`engine/PluginKillSwitch.kt`）**：**意图日志 + 每次启动收敛**。
-  用户动作只写 `$DSH_HOME/.plugin-killswitch.json`（原子写 tmp→fsync→rename），
-  manifest（`profiles/web/package.json` 的 `dsh.profile.bundles`）**只在 spawn 前**
-  由 `enforceBeforeBoot()` 改写。理由：引擎运行中会把自己内存里的 profile 写回去，
-  运行中改会被覆盖；而"先停再改"中间的强杀窗口又会留半改状态。
-  `phase` 三态 `disabled / enabling / enabled`，任何一步被杀，下次启动都收敛到
-  日志说的状态（幂等）；`enabling` 中途被杀会**再写回一遍**，不会停在半恢复。
-- **恢复的过滤规则（别简化）**：只写回「`dependencies` 里还在 **且**
-  `profiles/web/node_modules/<pkg>`（或 `engine/lib/node_modules/<pkg>`）目录存在」的包。
-  禁用期间被卸载的包塞回去会让引擎 bundle 解析失败 —— 等于亲手再造一次启动故障。
-- **防呆**：`requestDisable` 在已 `disabled` 时**拒绝重写日志**（否则会把只剩内置的
-  列表当成"原始记录"，用户永远恢复不了）；`enabling` 被 SafeMode 打断不标 enabled
-  （那时 profiles 已被归档重建，bundles 根本没写回去）。
-- **`ProfileGuardian.topLevelConfigFiles()` 排除该日志**：它按 `*.json` 收快照并在
-  `enterSafeMode()` 里 `delete()`，不排除就等于"坏插件连锁崩溃 → 安全模式 →
-  恢复依据被删"，正好砸在最需要它的时刻。`PluginRecovery.isUserBundle` 改为
-  `internal`，两处共用同一套第三方口径。
-- **三条触发路径**：设置 → 维护新增一行（标题随状态变，确认框列出每个包名）；
-  `AgentBridge` `GET/POST /plugin/killswitch`（127.0.0.1:3083，
-  `adb forward` 后 curl 即可自救）；`$DSH_HOME/.plugin-killswitch.force` 冷启动标志
-  （连原生界面都进不去时的最后手段，消费后自动删除）。
-- **配套**：禁用期间 `PluginCenter.install` 直接拒绝（装了也不会加载）+ 插件中心
-  顶部常驻提示条（点一下恢复）。`PluginStoreActivity` 新增 `onResume` 刷新提示条。
-- **顺带修**：设置页横屏双栏是**写死在 XML** 的（primary 放前两个分区，其余全塞
-  secondary），v1.4.24 扩到 8 个分区后是左 12 行 / 右 18 行，右边要滚很久、左边
-  一屏未完就空了，而且每加一行都加剧。现在 `applyResponsiveLayout()` 按**行数**
-  找连续切分点，让两列最接近（当前 15 / 15），加行自动重新均衡。分区归属从
-  XML 改成运行时计算，`cachedSections` 只收集一次（原始阅读顺序），窄屏时全部
-  收回 primary —— 不这么做会重复挂载或漏挂。
-- **验证**：`compileDebugKotlin` / `assembleDebug -Ppackage=noruntime` 通过、
-  `scripts/check-i18n.py` 全过（9 条新文案 × 3 语言）。**模拟器 x86_64 实测三条路径全通**：
-  ① 设置页点确认 → `converged bundles 3 -> 2 (phase=disabled)`（engine.log 同款日志在
-  logcat 可见）→ 重启后引擎 healthy、对话/工作区正常；② 恢复后 bundles 回到
-  `[dsh-base, dsh-web-app, @xiaopb/dsh-pet-bridge]` **顺序一致**、phase 推进到 enabled；
-  ③ `curl`（带 `X-DSH-Token`）disable/enable 往返一致，无 token 返回 403；
-  ④ 冷启动标志：touch + force-stop + 重开 → 收敛为禁用、标志自动删除、reason=force-flag。
-- **注意（写文档时容易漏）**：`/plugin/killswitch` 与其它端点一样要 `X-DSH-Token`，
-  token 每进程随机、只进引擎环境变量 —— 所以 adb 路线实际只对调试包（`run-as`）或
-  root 用户可用，普通用户的入口就是设置页那一行。别在文档里承诺"一条 curl 就能救"。
-- **窄屏回归（分列改动必须验，否则手机上会重挂/漏挂）**：用 `wm size 1080x2340` +
-  `wm density 700` 造出 535dp 宽窗 → 设置页单列、8 个分区顺序与 XML 完全一致、
-  无重复挂载、末项是「关于」；`wm size/density reset` 后双栏回到 15/15。
-- **断点收敛已实测**（改用 MuMu 第二实例 `127.0.0.1:7555` 全新安装，Android 12/x86_64，
-  打包 `-Ppackage=full -Pabi=x86_64` 内嵌运行时；先经 `POST /plugin/install` 装 3 个
-  真实第三方插件）：① 手写日志 `phase=disabled`、manifest 仍是 5 条 → 冷启动收敛
-  `5 -> 2`（等价于"写完日志就被杀"）；② 期间卸载其中一个 → 日志改 `enabling`、
-  manifest 2 条 → 冷启动 `2 -> 4` 且 `skipped=dsh-whale-widget`，**幽灵包没写回**，
-  phase 自动推到 `enabled`（等价于"恢复途中被杀"）。9 条用例见
-  `docs/PLUGIN_KILLSWITCH.md` 第 7 节。
-- **R1 风险已排除**：`disabled` 状态经历多次重启（热重启、force-stop 冷启）后 bundles
-  始终停在 2 —— 引擎**不会**从 `dependencies` 反推 `bundles`，Plan B（rename
-  `node_modules` 软链）用不上。
-- **顺手修的一处**：`POST /plugin/install` 以前无脑回 `202 {"started":true}`，
-  而"停用/恢复中拒绝安装"的守卫在后台线程里跑 —— 调用方（curl / AI）以为装上了，
-  实际什么都没发生。现在桥里同步拦，返回 `409` + 区分"已停用"/"恢复中"。
-- **仍未做**："装个真坏插件复现界面不可用"没有跑（手头插件都正常），验证走的是
-  "确认停用它之后引擎照常可用"这一侧。
-- **测试环境坑（重要）**：`127.0.0.1:5555` 那个实例上装了本应用，且平台自带
-  `NewFileUpdater` 一类的商店更新器会把 `app.dsh.mobile` 顶回已上架版本 —— 调试时
-  表现为"改动好像没生效/版本自己变了"。**验证一律用没装过本应用的实例**
-  （MuMu 第二实例 = `adb connect 127.0.0.1:7555`）。另外 `SettingsActivity`
-  **没有 exported**，`am start -n …/.SettingsActivity` 会 `SecurityException`，
-  只能从主界面齿轮进（工具栏收起后点顶部小把手唤回）。
-
->>>>>>> pr-55
 ## ⚠️ 2026-10-26 API push 覆盖事故（已修复，重要教训）
 - **事故**：github.com:443 间歇阻断时用 `scripts/push-via-api.py` 推 PR #51 的合并
   结果，但**本地分支不含刚在远端合并的 PR #52 内容**（GitHub API merge 只发生在
@@ -212,6 +591,38 @@
   设置页「外观主题」行在（值=深色）→ 三选一可用 → 切浅色整页白底深字、卡片清晰 →
   **插件市场浅色下插件名可见**（他 998b012 修的白字白底隐形）→ 3 探针 + i18n 全过。
 - 已回复作者承认失误并致谢；下一步随 v1.4.26 发布。
+
+## 桌宠播放修复 + 桥插件门禁下沉（2026-10-27，未发布，分支工作区）
+计划见 `docs/pet/PET_ROADMAP.md` §2（缺陷时间线）与 `docs/pet/PET_ARCHITECTURE.md` §6.1（设计动因），原计划文档已删；P0~P4 全部落地，独立 commit 可单独 revert。
+- **P1（2a8999c）播放层可观测 + 看门狗**：根因是 `PetView` 没重写 `verifyDrawable()`（`View`
+  默认只认背景/前景，`AnimatedImageDrawable` 每帧的 `invalidateDrawable` 被丢弃）+ drawable
+  自调度偶发丢一次就永久停住（`isRunning` 仍 true）。修法：重写 `verifyDrawable` +
+  ticker 按 41ms **主动泵帧**（不再指望自调度）；四类播放失败走 `onPlaybackError` 进日志+状态
+  总线（服务按 slug 5s 限流）；解码失败**保留旧帧**并给链发 400ms 跳过信号（否则链靠
+  `onAnimationEnd` 推进会永久停摆）；卡帧看门狗 2s 阈值。
+- **P2（7b759d0）一次性动画时长对齐**：`AnimatedImageDrawable.repeatCount` 是"重复次数"，
+  写 1 = 播两遍；改 0，定时器与清单时长统一（0.4~30s 夹取），播完停最后一帧交回链。
+- **P3（aa2246c）门禁下沉**：以前只在设置页弹窗里查桥插件，`restoreIfEnabled()`/`START_STICKY`
+  重建全绕过去。判定收敛为 `PetPluginDetector.bridgeGateOpen()`（服务+设置页共用）：就绪放行；
+  **版本 <0.3.1 硬拦不给旁路**；没装/没启用看 `allowWithoutBridge`（软门禁「仍然开启」才置 true，
+  桥就绪时开桌宠自动清回）。卡点在 `attachPet()` 入口（三条启动路径必经），被拦走
+  `holdForBridge()`：前台服务照跑、不画角色、状态置 `bridgeMissing`（通知「已暂停：桥插件未就绪」
+  优先于已连接/等待；设置页 warning 提示行直达插件中心）。
+- **P4 看门狗自愈开启**：`stalled` → `maybeHeal`（循环停摆走 `restart()`、泵帧断链走重挂
+  ticker），同一段最多救 2 次（素材真坏时无限重启 = 每 2s 闪一下）。**注意判据是"有没有在
+  重绘"不是"画面有没有变化"**：素材 blend=1 的叠影它看不出来，那是资源侧问题。
+- **验证**（MuMu 3840×2160）：75s/5 段与 60s/6 段 0 条 stalled、每段 10.05s 换段、只播一遍；
+  三类入口（待机/点击回应/动作）全走 ONCE 并回随机链；门禁三态实测（版本改坏→硬拦且旁路免疫；
+  bundles 摘除→软拦；「仍然开启」→立即出宠物）；探针 182→**220 PASS**；check-i18n 全绿。
+- **踩坑**：① 应用运行中 `install -r`/改 shared_prefs 会与服务内存态打架，验证前必须先
+  force-stop；② `adb shell` 管道写二进制会被 pty 掐断（截到 1 帧），写设备文件走
+  `adb push /data/local/tmp` + `run-as cp`；③ 读设备二进制必须 `adb exec-out`（否则 CRLF 污染）；
+  ④ 资源包整包搬运用 tar 流（exec-out `run-as tar -cf -` ↔ push 后 `run-as tar -xf`，
+  注意解压 cwd 要对准 tar 内路径）。
+- **遗留**：现网 `dsh-pet-480p24` 包是 blend=1 产物，拖影回来了 —— App 侧修复没回退，是**资源
+  产线没打 NO_BLEND 补丁**（已在设备上就地修掉 106 段救急）；根修要回 dsh-pet-mobile-assets
+  跑 `build-webp.py` 的 `patch_noblend()` / 对存量包跑 `fix-webp-blend.py`，再发新 index。
+  本仓库新增 `scripts/probes/fix_webp_blend.py`（就地改帧标志，幂等）。
 
 ## v1.4.26 待发（2026-10-26，issue #49：运行时换装事务化）
 - **问题**（PR #48 审查 P1-2）：换装在逐条 `engine/<x> → engine.old` 期间被强杀
@@ -370,7 +781,7 @@
   - 新增下载代理（默认 gh-proxy.org，纯前缀拼接，**完整性链不降级**：sha256 pin 硬前置
     + 每 URL 校验 + 索引验签；可留空直连）
   - CI: publish-preview 仅 schedule 触发、固定 tag + overwrite，不会回归刷包
-- **新发现 P1（发布协调缺口，合并前置）**：`docs/PET_OVERLAY.md` 声称桥插件需 ≥0.2.0，
+- **新发现 P1（发布协调缺口，合并前置）**：当时 `docs/pet` 的文档（已重构为 GUIDE/ARCHITECTURE/ROADMAP）声称桥插件需 ≥0.2.0，
   但 **npm 上 dsh-pet-bridge 只有 0.1.0**（2026-08-21 发布，tarball 全文无 token 头）。
   门控 fail-closed → 装 0.1.0 的用户每个 /bubble 得 403 → 插件静默丢弃 → **桌宠气泡
   全用户静默失效**。已在 PR 评论给出三个选项 + 可直接粘贴的 PetPluginDetector 版本校验
@@ -432,11 +843,20 @@
 - **入口**：设置→扩展→桌面宠物；桥插件装了但没重启引擎时给出「重启引擎」。
   `PluginCenter.BUILTIN` 与 `community-plugins.json` 增加 `dsh-pet-bridge` 目录项，
   但不随包安装；pnpm/symlink 手工方式不采用。
-- **动画**：不打包任何 WebP；默认 Canvas 占位鲸鱼；用户可导入 dsh-pet-android 的
-  APK/zip（`assets/pet-config.json` + `assets/webp/*.webp`）。导入有路径穿越、
+- **动画**：不打包任何 WebP；没有资源包就**不显示**桌宠（不画任何占位图形）；用户可导入
+  dsh-pet-android 的 APK/zip（`assets/pet-config.json` + `assets/webp/*.webp`）。导入有路径穿越、
   entry/大小/空间限制，临时目录原子替换。素材许可为「禁止商用」，见 `NOTICE`。
 - **协议/限制**：仅 `127.0.0.1:7779`；8KB body、5s 超时、2 worker；stop 1.5s 宽限；
-  引擎被杀时 30s 看门狗回待机；窗口矩形透明区仍挡触摸（已写文档）。
+  引擎被杀时 30s 看门狗回待机。悬浮窗按**量出来的角色矩形**开（素材 16:9 画布里的透明边距
+  左右各约 30%），所以透明像素不吃触摸、角色能贴到屏幕边；窗口仍是矩形，轮廓内的透明角
+  仍挡触摸（公开 API 无法按形状裁）。
+- **渲染**：素材画布只有 300px（角色约 120px 宽），窗口常有 600px+；`AnimatedImageDrawable`
+  自绘不开位图过滤 → 放大 5 倍是最近邻硬台阶（锯齿）。现改为「先画进素材原始尺寸的离屏位图
+  + 自建双线性 Paint 放大上屏」，交叉淡入改用 Paint alpha（省一个全尺寸图层）。
+- **气泡**：自绘 `PetBubbleDrawable`（闭合 Path：圆角矩形+小尾巴，一次填充一次描边 +
+  `setShadowLayer` 柔光，View 走软件层）。字号 = 角色宽 × 0.075（夹 11~19sp），em 口径派生
+  内边距/圆角/尾巴；气泡正文底边贴角色头顶、只有尾巴尖压 15% 尾巴高 → 不压动画；头顶放不下
+  翻到脚下且尾巴朝上；尾巴始终指向角色中线。
 - **插件来源与版本声明（硬约束）**：桥插件必须是 `@xiaopb/dsh-pet-bridge` ≥ **0.3.1**
   （npm 包名或 GitHub `XiaoPb/dsh-pet-bridge` 均可）。协议 v2 的 `X-DSH-Pet-Token`
   与显式 `Content-Length` 均从 0.3.1 起；npm 无 scope 的 `dsh-pet-bridge` 只到 0.1.0

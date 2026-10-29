@@ -21,6 +21,7 @@
 ![License](https://img.shields.io/badge/license-MIT-brightgreen)
 [![Last commit](https://img.shields.io/github/last-commit/Soodok/Deepseek-Harness-Local-Android?color=64748b)](https://github.com/Soodok/Deepseek-Harness-Local-Android/commits/main)
 [![QQ](https://img.shields.io/badge/QQ%E7%BE%A4-1128769016-12b7f5?logo=tencentqq&logoColor=white)](https://github.com/Soodok/Deepseek-Harness-Local-Android#%E5%8F%8D%E9%A6%88)
+[![Telegram](https://img.shields.io/badge/Telegram-Join_group-26A5E4?logo=telegram&logoColor=white)](https://t.me/+4VN3pYyH6i8yNDA1)
 
 [中文](README.md) · [English](#introduction)
 
@@ -49,15 +50,78 @@ All figures come from real-device / emulator testing, not theory:
 
 | Metric | Measured | Environment |
 |---|---|---|
-| **Cold start to engine ready** | **< 10 s** | OnePlus 15T (Android 16), real device |
+| **Cold start to engine ready** | **3.4 s** | OnePlus 15T (Android 16), real device |
+| **Cold start, mainstream phones** | **5 – 6 s** | Mid-range devices from various OEMs |
+| **Cold start, weakest device** | **13 s** | Unisoc watch with **3 GB RAM** |
+| **Cold start, emulator** | **2.2 – 2.7 s** | x86_64 / 2.5 GB RAM |
 | **Memory with parallel services** | **< 400 MB** | Engine + multiple toolchains running together |
-| **Android compatibility** | **8.0 → 16** | Requires WebView ≥ Chrome 85 (APIs polyfilled; Chrome 96 verified, see below) |
-| **APK size** | **full ~150–230 MB / lite ~25 MB** | Full bundles Node.js; the noruntime package downloads the runtime on first launch |
-| **Installed size** | **~720 MB** | Runtime unpacks to ~494 MB + the app itself |
+| **Android compatibility** | **8.0 → 16** | Requires WebView ≥ Chrome 85 (APIs polyfilled; Chrome 96 verified) |
+| **APK size** | **full ~150 MB / lite ~24 MB** | Full bundles Node.js; noruntime downloads it on first launch |
+| **Installed size** | **~720 MB** | Runtime unpacks to 404 MB + the app itself |
 
-The runtime and toolchain ship in the APK, so you can start the upstream dsh engine without first setting up Termux or a proot/Ubuntu container.
+### Why it is this fast
+
+Most Android agent setups cannot be fast for a **structural** reason: they build a
+Linux environment on the device (Termux + apt), run a proot container
+(glibc rootfs, 500 MB – 2 GB), or ship a frozen Termux snapshot. All three have to
+*prepare* a lot before the engine can start — unpack a rootfs, mount pseudo
+filesystems, bootstrap a package index.
+
+DSH Mobile has **no layer in between**:
+
+| Approach | What sits between you and the engine | Cold start |
+|---|---|---|
+| Termux, manual setup | Perl/bash boot chain + apt + env init | minutes |
+| proot + Ubuntu | kernel → proot → glibc → distro → Node | 10 s+, fails on weaker devices |
+| Frozen snapshot | unpack rootfs → fix paths → start | tens of seconds |
+| **DSH Mobile** | **— straight `execve` of bionic Node** | **~3 s** |
+
+The entire runtime dsh needs is compiled to **Android-native (bionic) binaries and
+shipped inside the APK**. The runtime does not need to "boot" — it is already there.
+Cold start really only does three things: unpack (first launch only), start Node,
+wait for the loopback port.
+
+That a 3 GB Unisoc watch runs this at all is the architecture proving itself:
+proot + glibc would not even fit its rootfs in that much RAM.
 
 ## ✨ What It Can Do on a Phone
+
+**A real PTY, written in native C**
+Web terminals look simple but are the hardest layer here. Upstream
+`dsh-subprocess-local` fails twice on Android: its process inspector accepts only
+`linux` / `darwin` / `win32` and throws `terminal inspection is unsupported on
+platform android` (Termux-built node reports `process.platform === "android"`, not
+`linux`), and `node-pty` has no Android prebuilt so the collector substitutes a
+stub that throws on first call. We patch the inspector to treat `android` as linux
+and wrote **581 lines of C** (`dsh_pty.c` + `dsh_pty_exec.c`, `posix_spawn` +
+`openpty`), with node-pty replaced by a shim forwarding to that native helper. The
+result is a **real bash terminal** — `top`, `vim`, and other tty-requiring programs
+work.
+
+**14 Android adaptation patches — bending a desktop engine onto a phone**
+The least visible and most laborious part. Upstream assumes a Linux desktop, and
+every such assumption is a crash on Android: the PTY platform check; PTC workers
+clearing `LD_LIBRARY_PATH` (Android has no ldconfig, so bionic node cannot find
+`libz.so.1`) plus a bootstrap path-mapping fallback; 14 modern Web APIs missing
+from old WebViews; filesystem path/permission semantics; `openPath` calling
+`xdg-open` / `open` / `start`; attachment URI handling; bash reading
+`/data/data/com.termux/...` when Termux is installed; `bin/curl` missing
+`LD_LIBRARY_PATH`; and the extension-toolchain variables that silently disable
+Python / Perl / Git / ImageMagick / Rust inside PTC. Every patch is **fail-fast**:
+if upstream refactoring moves an anchor, the build **aborts** rather than warning —
+a missing patch means a feature is broken for users.
+
+**Runtime swap with two-phase commit**
+Replacing the runtime cannot be "delete then unpack" (leaves a window where nothing
+works) nor a naive rename-every-top-level-entry (any interruption leaves a mixed
+old/new tree — and completeness checks do **not** catch it: a new `bin/` with an old
+`lib/` passes, because they only verify anchor files and node architecture). Since
+v1.4.26 we unpack to `engine.staging`, verify it (anchors + executable bit + **ELF
+architecture**), write a **`.runtime-swap` intent journal**, rename entries
+one-by-one, keep `engine.old` until the engine first reaches Healthy, and on next
+launch detect a half-finished swap and recover. This is two-phase commit applied to
+a filesystem; having your background process killed by an OEM is normal on Android,
+so without it runtime updates are a gamble. See [docs/RUNTIME_SWAP.md](docs/RUNTIME_SWAP.md).
 
 **Run the full Agent engine on your phone**
 The official dsh engine (pinned to `0.2.1-rc.2`) runs in the Android app sandbox with its bionic Node.js runtime and toolchain bundled in the APK. No Root, Termux, PC, or proot/Ubuntu container is required. The Agent can work with files, run shell commands, search text, and manage projects; its engine endpoint listens on `127.0.0.1`.
@@ -116,7 +180,7 @@ Every capability has its own document (design trade-offs, measured numbers, trou
 | [Narrow-screen UI plugins](docs/NARROW_UI.en.md) | full-width sidebar / settings reflow / full-screen right panel (three client plugins) |
 | [LAN WebUI](docs/LAN_WEBUI.en.md) | reverse proxy, 6-digit code, persistent reminder and stop chain |
 | [Voice input](docs/VOICE_INPUT.en.md) | dual recognition channels, send de-dup, panel parking, known issue |
-| [Desktop pet overlay](docs/PET_OVERLAY.md) | reserved plugin-driven pet: bridge must be `@xiaopb/dsh-pet-bridge` >=0.3.1 (token), five-field protocol, pack import and licensing |
+| [Desktop pet](docs/pet/README.md) | plugin-driven system overlay: setup and limits ([guide](docs/pet/PET_GUIDE.md)), bridge and internals ([architecture](docs/pet/PET_ARCHITECTURE.md)), shipped features and next steps ([roadmap](docs/pet/PET_ROADMAP.md)) |
 | [Notifications & background](docs/NOTIFICATIONS.en.md) | AI progress, task completion, LAN reminder, clean exit |
 | [Complex-scenario field notes](docs/COMPLEX_SCENARIOS.md) | noisy pages, cross-app tasks, failure recovery, measured |
 | [Fast-path picker](docs/FAST_PATH_PICKER.md) | on-device UI element selection and discrimination |
@@ -251,7 +315,11 @@ Alternatively, fork the repo and run the **android-build** workflow on GitHub Ac
 
 Found a bug or have a feature request? Open an [Issue](https://github.com/Soodok/Deepseek-Harness-Local-Android/issues). For crash reports, please attach the `logcat` output or the engine log available in the app.
 
-**QQ group (Chinese): `1128769016`** — usage questions, release news, and plugin recommendations. Bugs are still best filed as Issues so they don't get lost.
+**QQ group (Chinese): `1128769016`** — usage questions, release news, and plugin recommendations.
+
+**[Telegram group](https://t.me/+4VN3pYyH6i8yNDA1)** — same purpose, better for users outside mainland China.
+
+Bugs are still best filed as Issues so they don't get lost.
 
 ## 🙏 Contributors
 
