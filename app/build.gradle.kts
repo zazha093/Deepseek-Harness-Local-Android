@@ -218,7 +218,9 @@ android {
             }
         }
         // Fork debug keystore (fixed key for stable updates across builds)
-        create("debug") {
+        // Use getByName("debug") instead of create("debug") because AGP
+        // already registers a default debug signing config automatically.
+        getByName("debug") {
             storeFile = file("fork-debug.keystore")
             storePassword = "android"
             keyAlias = "fork-debug"
