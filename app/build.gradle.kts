@@ -173,7 +173,7 @@ android {
         // 允许从 filesDir 直接 execve bionic 二进制（Termux 同款策略）。
         targetSdk = 28
         versionCode = 290
-        versionName = "1.4.40"
+        versionName = "1.4.40-th"
 
         ndk {
             abiFilters += listOf(targetAbi)

@@ -1,882 +1,1649 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">DSH Thai</string>
+
     <string name="notif_channel_engine">Agent 引擎</string>
+
     <string name="notif_channel_engine_desc">DeepSeek Harness 本地引擎运行状态</string>
+
     <string name="notif_title">DSH 引擎运行中</string>
+
     <string name="status_idle">待启动</string>
+
     <string name="status_exiting">正在退出…</string>
+
     <string name="status_installing">正在安装运行时…</string>
+
     <string name="status_starting">正在启动引擎…</string>
-<<<<<<< HEAD
-    <string name="status_healthy">引擎已就绪 · http://127.0.0.1:13080</string>
-=======
+
     <string name="status_healthy">引擎已就绪</string>
->>>>>>> upstream/main
+
     <string name="status_plugin_recovered">已恢复：已停用故障插件 %1$s · 引擎已就绪</string>
+
     <string name="status_safe_mode">安全模式：插件配置已隔离归档，引擎以空配置运行（工作区与会话不受影响）</string>
+
     <string name="status_backoff">进程异常退出，%1$d 秒后自动重启（第 %2$d 次）</string>
+
     <string name="status_backoff_hint">进程异常退出：%1$s · %2$d 秒后自动重启（第 %3$d 次）</string>
+
     <string name="status_failed">启动失败：%1$s</string>
+
     <string name="btn_restart">重启</string>
+
     <string name="btn_start_engine">启动引擎</string>
+
     <string name="btn_hide">隐藏</string>
+
     <string name="btn_back">← 主页</string>
+
     <string name="status_preview">预览模式 · 127.0.0.1:%1$d</string>
+
     <string name="menu_title">设置选项</string>
+
     <string name="menu_landscape">横屏模式</string>
+
     <string name="menu_hide_toolbar">隐藏工具栏</string>
+
     <string name="menu_scale">页面缩放</string>
+
     <string name="scale_title">页面缩放</string>
+
     <string name="menu_priv">运行权限模式</string>
+
     <string name="menu_priv_title">运行权限模式</string>
+
     <string name="menu_accessibility">屏幕点击（无障碍）</string>
+
     <string name="accessibility_enable">去开启「DSH 屏幕点击」无障碍服务</string>
+
     <string name="priv_normal">普通</string>
+
     <string name="priv_shizuku">Shizuku</string>
+
     <string name="priv_root">Root</string>
+
     <string name="notif_action_exit">退出</string>
 
-    <!-- 无障碍服务（模拟屏幕点击） -->
     <string name="accessibility_label">DSH 屏幕点击</string>
+
     <string name="accessibility_desc">允许 DSH 模拟屏幕点击与滑动（如自动操作）。本服务仅声明手势注入能力，不读取屏幕内容。</string>
+
     <string name="accessibility_hint">尚未开启无障碍服务——「模拟屏幕点击」不可用</string>
 
-    <!-- 首次启动引导 Onboarding -->
     <string name="ob_title">欢迎使用 DSH Mobile</string>
+
     <string name="ob_subtitle">首次启动先按您的喜好与环境初始化，之后不再打扰。</string>
+
     <string name="ob_orientation_label">默认显示方向</string>
+
     <string name="ob_theme_label">外观主题</string>
+
     <string name="ob_theme_desc">选择原生界面的主题；聊天界面由 dsh 自己的设置管理。</string>
+
     <string name="theme_dark">深色</string>
+
     <string name="theme_light">浅色</string>
+
     <string name="theme_system">跟随系统</string>
+
     <string name="ob_orientation_desc">竖屏（手机）适合单手浏览；横屏切换到桌面布局；自动跟随设备旋转（物理横屏时用桌面布局）</string>
+
     <string name="ob_orient_portrait">竖屏（手机）</string>
+
     <string name="ob_orient_landscape">横屏（电脑布局）</string>
+
     <string name="ob_orient_auto">自动（跟随旋转）</string>
+
     <string name="ob_priv_label">运行权限模式</string>
+
     <string name="ob_priv_desc">决定 AI 能触及的系统能力边界，可随时在设置中更改</string>
+
     <string name="ob_priv_normal">普通</string>
+
     <string name="ob_priv_normal_desc">沙箱内运行，安全优先</string>
+
     <string name="ob_priv_shizuku">Shizuku</string>
+
     <string name="ob_priv_shizuku_desc">AI 可经 adb 身份执行（保活/杀进程），引擎本体仍沙箱</string>
+
     <string name="ob_priv_root">Root</string>
+
     <string name="ob_priv_root_desc">引擎整体以 root 启动，可全盘操作（高危）</string>
+
     <string name="ob_cap_root_checking">检测中…</string>
+
     <string name="ob_cap_root_present">✔ 检测到 Root（su）</string>
+
     <string name="ob_cap_root_absent">⚠ 未检测到 Root（su）——Root 模式将无法提升引擎</string>
+
     <string name="ob_priv_root_gray_hint">未检测到 su，无法启用 Root 模式</string>
+
     <string name="ob_cap_shizuku_present">✔ Shizuku 已授权</string>
+
     <string name="ob_cap_shizuku_request">● Shizuku 运行中，正在请求授权…请在弹窗中允许</string>
+
     <string name="ob_cap_shizuku_absent">⚠ Shizuku 未运行——请先打开 Shizuku 应用启动服务</string>
+
     <string name="ob_start">开始使用</string>
+
     <string name="ob_priv_root_warn_title">高危确认（1/2）</string>
+
     <string name="ob_priv_root_warn">Root 模式会让引擎以 root 身份运行，可能破坏当前运行环境、丢失会话或工作区数据。\n\n是否继续？</string>
+
     <string name="ob_priv_root_warn2_title">最终确认（2/2）</string>
+
     <string name="ob_priv_root_warn2">此模式极其危险，引擎可在沙箱外读写全部文件。\n\n确定要开启 Root 模式吗？</string>
 
     <string name="ob_priv_root_paths_warn">已开启 Root 模式。请不要在应用目录（files/engine、files/dsh-home）或工作区目录里手动改动、移动、删除文件。\n\nroot 进程写出的文件属主是 root、权限位收紧，App 自身随后读不了；症状是「插件加载失败」「引擎起不来」，往往只能清数据或重装才能恢复。\n\n你自己的文件（文档、代码、项目）请放在外部文件夹（如 Documents/），让 AI 在那里工作。\n\n确实要改应用内的东西，请用应用自己的设置或插件，而不是 root 文件管理器。</string>
 
     <string name="error_boot_timeout">启动重试超过 %1$d 分钟，已停止。常见原因：插件损坏、端口被占用、或上一版本残留文件。可到 设置 → 上次启动 查看各阶段耗时，或尝试 设置 → 对话恢复 / 全面体检。</string>
+
     <string name="ob_dialog_continue">继续</string>
+
     <string name="ob_dialog_cancel">取消</string>
 
-    <!-- 设置页（独立页面，MIUI 风格分组卡片） -->
     <string name="settings_title">设置</string>
+
     <string name="settings_back">返回</string>
+
     <string name="settings_section_display">显示</string>
+
     <string name="settings_section_priv">权限中心</string>
+
     <string name="settings_section_other">其他</string>
 
     <string name="setting_landscape">横屏模式</string>
+
     <string name="setting_landscape_sub">竖屏锁定竖屏 · 横屏锁定横屏并启用桌面布局 · 自动跟随设备旋转</string>
+
     <string name="setting_orient_portrait">竖屏</string>
+
     <string name="setting_orient_landscape">横屏</string>
+
     <string name="setting_orient_auto">自动</string>
 
     <string name="setting_applied_now">已立即生效</string>
+
     <string name="setting_scale">页面缩放</string>
-        <string name="setting_files_dir">文件保存目录</string>
+
+    <string name="setting_files_dir">文件保存目录</string>
+
     <string name="setting_files_dir_sub">AI 生成的文件保存在这里，文件管理器直接可见</string>
+
     <string name="files_dir_copied">路径已复制</string>
-<string name="setting_immersive">隐藏状态栏</string>
+
+    <string name="setting_immersive">隐藏状态栏</string>
+
     <string name="setting_immersive_sub">隐藏状态栏让网页铺满全屏；从屏幕顶部下滑可临时唤出。默认关闭，避免遮住摄像头挖孔</string>
+
     <string name="setting_scale_sub">调节网页显示比例（浏览器缩放）</string>
+
     <string name="setting_theme">外观主题</string>
+
     <string name="setting_theme_sub">深色、浅色，或跟随系统</string>
 
     <string name="setting_priv_mode">运行权限模式</string>
+
     <string name="setting_priv_mode_sub">决定 AI 能触及的系统能力边界，切换后自动重启引擎</string>
+
     <string name="setting_root_status">Root 能力</string>
+
     <string name="setting_root_sub">以 su 身份运行引擎，AI 可获得系统级权限（需设备已 Root）；切换后自动重启引擎</string>
+
     <string name="setting_root_status_yes">已检测到 su</string>
+
     <string name="setting_root_status_no">未检测到 su</string>
+
     <string name="setting_shizuku_status">Shizuku 状态</string>
+
     <string name="setting_shizuku_sub">通过 Shizuku 以 adb 身份执行命令（保活/杀进程），引擎本身仍在沙箱内</string>
+
     <string name="setting_shizuku_granted">已授权</string>
+
     <string name="setting_shizuku_request">等待授权</string>
+
     <string name="setting_shizuku_absent">未运行</string>
+
     <string name="setting_access">屏幕点击（无障碍）</string>
+
     <string name="setting_access_sub_on">已开启，可模拟屏幕点击</string>
+
     <string name="setting_access_sub_off">未开启，点击去系统设置开启</string>
 
     <string name="setting_restart_engine">重启引擎</string>
+
     <string name="setting_restart_engine_sub">重新加载运行时与插件（进程崩溃自愈）</string>
+
     <string name="setting_about">关于</string>
+
     <string name="setting_about_sub">DSH Mobile · 版本 %1$s</string>
 
-    <!-- 扩展中心（v1.2.0）：红=未下载 黄=已下载未激活 绿=已激活可用 -->
     <string name="settings_section_ext">扩展</string>
-    <!-- v1.2.113：社区插件中心 -->
+
     <string name="setting_plugin">社区插件</string>
+
     <string name="setting_plugin_sub">一键安装 dsh 生态插件</string>
+
     <string name="setting_user_prompt">自定义指令</string>
+
     <string name="setting_user_prompt_sub">在自带的环境说明之上，补写你自己的长期指令</string>
+
     <string name="user_prompt_intro">这里的指令会追加到应用自带的环境说明之后，对每个新会话生效。应用永不覆盖你写的内容，升级也会原样保留。也可以直接让 AI 帮你写到这里。</string>
+
     <string name="user_prompt_placeholder">例如：始终用中文回答。或者：我说「备份」时，把工作区复制到 Documents 目录。</string>
+
     <string name="user_prompt_save">保存</string>
+
     <string name="user_prompt_saved">已保存，新会话生效</string>
+
     <string name="user_prompt_path">保存在 AGENTS.md 的用户段（由应用管理，你的内容永不被覆盖）</string>
 
-    <!-- 应用内文件编辑页（v1.4.0，issue #25）。上游「打开配置文件」把路径交给桌面
-         文本编辑器，Android 没有对应程序；引擎现在把这个请求转到本页。 -->
     <string name="file_editor_title">文件</string>
+
     <string name="file_editor_save">保存</string>
+
     <string name="file_editor_saved">已保存</string>
+
     <string name="file_editor_reload">重新载入</string>
+
     <string name="file_editor_reloaded">已从磁盘重新载入</string>
+
     <string name="file_editor_path">路径</string>
+
     <string name="file_editor_read_failed">无法读取该文件</string>
+
     <string name="file_editor_save_failed">保存失败：%1$s</string>
+
     <string name="file_editor_too_large">该文件 %1$s，太大，不适合在这里编辑。可以在对话里让 AI 打开或修改它。</string>
+
     <string name="file_editor_binary">该文件不是 UTF-8 文本，无法在这里编辑。</string>
+
     <string name="file_editor_unsaved_title">放弃修改？</string>
+
     <string name="file_editor_unsaved_body">该文件有未保存的修改。</string>
+
     <string name="file_editor_discard">放弃</string>
+
     <string name="file_editor_keep_editing">继续编辑</string>
+
     <string name="file_editor_copy_path">复制路径</string>
+
     <string name="file_editor_path_copied">路径已复制</string>
 
-            <string name="setting_config_files">配置文件</string>
+    <string name="setting_config_files">配置文件</string>
+
     <string name="setting_config_files_sub">打开 AGENTS.md、工作区注册表或插件清单</string>
+
     <string name="config_files_none">还没有配置文件 —— 先启动一次引擎</string>
+
     <string name="config_files_failed">无法打开：%1$s</string>
-<string name="setting_import_data">导入数据</string>
+
+    <string name="setting_import_data">导入数据</string>
+
     <string name="setting_import_data_sub">恢复备份 .zip（仅 .zip）—— 只合并，不覆盖现有数据</string>
+
     <string name="import_err_not_zip">这不是有效的 .zip 备份包，只支持 zip 压缩包。</string>
+
     <string name="import_err_encrypted">不支持加密压缩包。请解压后重新打包（不要设密码）。</string>
+
     <string name="import_preparing">正在读取备份…</string>
+
     <string name="import_progress">正在恢复 %1$d / %2$d 个文件…</string>
+
     <string name="import_done">已恢复 %1$d 个会话、%2$d 个工作区文件（保留了 %3$d 个同名文件）</string>
+
     <string name="import_failed">导入失败：%1$s</string>
+
     <string name="import_done_title">恢复完成</string>
+
     <string name="import_done_body">已恢复 %1$d 个文件。重启引擎后会在会话列表里显示。</string>
+
     <string name="import_done_restart">立即重启</string>
-<string name="plugin_center_title">社区插件</string>
+
+    <string name="plugin_center_title">社区插件</string>
+
     <string name="plugin_center_sub">一键安装 dsh 生态插件（npm）</string>
+
     <string name="plugin_install">安装</string>
+
     <string name="plugin_uninstall">卸载</string>
+
     <string name="plugin_uninstalling">卸载中…</string>
+
     <string name="plugin_installing">安装中…</string>
+
     <string name="plugin_installed">已安装</string>
-                <string name="settings_section_appearance">外观与交互</string>
+
+    <string name="settings_section_appearance">外观与交互</string>
+
     <string name="settings_section_appearance_sub">显示、缩放、配色与布局</string>
+
     <string name="settings_section_permission">权限与能力</string>
+
     <string name="settings_section_permission_sub">运行模式与系统授权</string>
+
     <string name="settings_section_voice">语音</string>
+
     <string name="settings_section_voice_sub">合成、识别与服务</string>
+
     <string name="settings_section_extension">扩展</string>
+
     <string name="settings_section_extension_sub">工具链、插件与识别应用</string>
+
     <string name="settings_section_data">数据与会话</string>
+
     <string name="settings_section_data_sub">指令、导出与恢复</string>
+
     <string name="settings_section_network">网络</string>
+
     <string name="settings_section_network_sub">局域网访问</string>
+
     <string name="settings_section_maintenance">诊断与维护</string>
+
     <string name="settings_section_maintenance_sub">体检、日志与重启</string>
+
     <string name="settings_section_about">关于</string>
+
     <string name="settings_section_about_sub">语言与应用信息</string>
-<string name="setting_accent">配色方案</string>
+
+    <string name="setting_accent">配色方案</string>
+
     <string name="setting_accent_sub">按钮、标签与状态文字的强调色</string>
+
     <string name="setting_layout_mode">设置页布局</string>
+
     <string name="setting_layout_mode_sub">列表、卡片或双列网格</string>
+
     <string name="accent_sky">天蓝（默认）</string>
+
     <string name="accent_indigo">靛蓝</string>
+
     <string name="accent_teal">青绿</string>
+
     <string name="accent_violet">紫罗兰</string>
+
     <string name="accent_amber">琥珀</string>
+
     <string name="settings_layout_list">列表</string>
+
     <string name="settings_layout_card">卡片</string>
+
     <string name="settings_layout_grid">网格</string>
+
     <string name="plugin_category_all">全部</string>
-<string name="plugin_tab_market">市场</string>
+
+    <string name="plugin_tab_market">市场</string>
+
     <string name="plugin_tab_installed">已安装</string>
-        <string name="plugin_sort_name_asc">名称 A→Z</string>
+
+    <string name="plugin_sort_name_asc">名称 A→Z</string>
+
     <string name="plugin_sort_name_desc">名称 Z→A</string>
+
     <string name="plugin_sort_recent">最近更新</string>
+
     <string name="plugin_sort_downloads">下载最多</string>
+
     <string name="plugin_sort_size">体积最小</string>
-<string name="plugin_sort_title">排序</string>
+
+    <string name="plugin_sort_title">排序</string>
+
     <string name="plugin_check_updates">检查更新</string>
+
     <string name="plugin_compat_pure">纯 JS</string>
+
     <string name="plugin_engine_too_old_body">该插件要求 dsh 引擎 ≥ %1$s，而本应用内置的是 %2$s。插件本身没问题——是我们内置的引擎比它要求的旧。等应用更新到包含更新引擎的版本后即可使用。</string>
+
     <string name="plugin_engine_old_title">插件需要更新的引擎</string>
+
     <string name="plugin_engine_old_force">强制安装此版本</string>
+
     <string name="plugin_engine_old_why">此插件要求更新版本的 dsh 引擎（内置 %1$s），所以引擎在安装前就拒绝了。</string>
+
     <string name="plugin_engine_old_req">它要求：%1$s</string>
+
     <string name="plugin_engine_old_note">这不是插件坏了，也不是网络问题 —— 是内置引擎版本落后。可以等应用升级内置引擎；或在插件详情里选择「强制安装此版本」。</string>
+
     <string name="plugin_engine_old_no_version">无法读取内置引擎版本，无法写入豁免</string>
+
     <string name="plugin_engine_old_exempt_failed">写入豁免失败：%1$s</string>
+
     <string name="plugin_compat_engine_old">内置引擎版本过低 —— 该插件要求更新的 dsh 引擎</string>
+
     <string name="plugin_compat_native">需要原生编译</string>
+
     <string name="plugin_compat_fork">引擎 fork</string>
+
     <string name="plugin_compat_unknown">未验证</string>
+
     <string name="plugin_official">推荐</string>
+
     <string name="plugin_detail_title">插件详情</string>
+
     <string name="plugin_detail_size">体积</string>
+
     <string name="plugin_detail_repo">仓库</string>
+
     <string name="plugin_detail_compat">兼容性</string>
+
     <string name="plugin_detail_reasons">判断依据</string>
+
     <string name="plugin_detail_versions">版本</string>
+
     <string name="plugin_loading_detail">正在读取详情…</string>
+
     <string name="plugin_updates_found">发现 %1$d 个可更新</string>
+
     <string name="plugin_updates_none">全部插件均为最新版本</string>
+
     <string name="plugin_none_installed">还没有安装任何插件</string>
-<string name="plugin_upgrade">升级</string>
+
+    <string name="plugin_upgrade">升级</string>
+
     <string name="plugin_upgrading">升级中…</string>
+
     <string name="plugin_failed">失败：%1$s</string>
+
     <string name="plugin_checking">检查中…</string>
+
     <string name="plugin_translate_thai">Translate to Thai</string>
+
     <string name="plugin_translating">Translating…</string>
+
     <string name="plugin_translated_to_thai">Translated to Thai</string>
+
     <string name="plugin_translate_failed">Translation failed</string>
+
     <string name="plugin_native_title">这个插件需要原生代码</string>
+
     <string name="plugin_native_body">它声明了构建步骤或原生模块：
 
 %1$s
 
 在 Android 上这些通常编译不出来（缺少编译工具链头文件），可能会装成功但用不了。仍要安装吗？</string>
+
     <string name="plugin_check_unknown_title">无法确认这个插件</string>
+
     <string name="plugin_check_unknown_body">查询插件源失败（%1$s），因此兼容性未知。如果它需要原生模块，可能在 Android 上不可用。
 
 仍要安装吗？</string>
+
     <string name="plugin_install_anyway">仍然安装</string>
 
     <string name="download_started">开始下载：%1$s</string>
+
     <string name="download_failed">下载失败：%1$s</string>
+
     <string name="download_blob_unsupported">该下载方式（blob）未被拦截，请改用单文件下载。</string>
+
     <string name="plugin_empty">暂无兼容的社区插件——上线后会自动出现在这里</string>
+
     <string name="plugin_search_hint">搜索社区插件…</string>
+
     <string name="plugin_searching">正在搜索 npm…</string>
+
     <string name="plugin_search_none">npm 上没有匹配的插件</string>
+
     <string name="plugin_search_fail">npm 搜索失败——已显示内置精选</string>
+
     <string name="plugin_search_clear">清除</string>
-    <string name="plugin_search_btn">搜索</string>    <string name="plugin_manual_title">手动安装</string>
+
+    <string name="plugin_search_btn">搜索</string>
+
+    <string name="plugin_manual_title">手动安装</string>
+
     <string name="plugin_catalog_title">插件目录</string>
+
     <string name="setting_ext">扩展中心</string>
+
     <string name="setting_ext_sub">下载 Python、Git、JDK 等环境扩展，激活后并入引擎</string>
+
     <string name="setting_ext_active_count">%1$d 个已激活</string>
+
     <string name="ext_title">扩展中心</string>
+
     <string name="ext_subtitle">设备架构 %1$s · 已激活 %2$d / %3$d 个</string>
+
     <string name="ext_state_none">未下载</string>
+
     <string name="ext_state_downloaded">已下载 · 未激活</string>
+
     <string name="ext_state_activated">已激活可用</string>
+
     <string name="ext_action_download">下载</string>
+
     <string name="ext_action_activate">激活</string>
+
     <string name="ext_action_deactivate">停用</string>
+
     <string name="ext_activate_toast">已激活 · 重启引擎后生效</string>
+
     <string name="ext_deactivate_toast">已停用 · 重启引擎后生效</string>
+
     <string name="ext_download_failed">下载失败：%1$s</string>
+
     <string name="ext_download_start">开始下载 %1$s …</string>
+
     <string name="ext_uninstall_title">卸载扩展</string>
+
     <string name="ext_uninstall_msg">删除 %1$s 及其全部状态标记？若引擎正在使用该环境，将自动重启引擎。</string>
+
     <string name="ext_dialog_uninstall">卸载</string>
+
     <string name="ext_reinstall_title">重新安装扩展</string>
+
     <string name="ext_reinstall_msg">将重新下载并覆盖安装 %1$s（%2$s）。\n\n适用于负载缺失/安装残缺的情况：需重新下载，已装内容会被清空重建。</string>
+
     <string name="ext_dialog_reinstall">重装</string>
+
     <string name="ext_reinstall_start">开始重装 %1$s …</string>
+
     <string name="ext_more_cd">更多操作</string>
+
     <string name="ext_tool_check">一键检测</string>
+
     <string name="ext_tool_install_all">一键安装全部</string>
+
     <string name="ext_tool_repair">修复损坏</string>
+
     <string name="ext_check_title">扩展健康检查</string>
+
     <string name="ext_check_all_ok">已装 %1$d 个扩展，全部正常 ✓</string>
+
     <string name="ext_check_summary">已装 %1$d 个：健康 %2$d，异常 %3$d
 
 %4$s</string>
+
     <string name="ext_check_none">尚未安装任何扩展</string>
+
     <string name="ext_install_all_title">一键安装全部</string>
+
     <string name="ext_install_all_msg">将下载并安装 %1$d 个尚未安装的扩展（含各自依赖闭包，总体积视扩展而定）。
 
 安装过程在后台进行，可离开本页；新扩展需要重启引擎后进入 PATH。</string>
+
     <string name="ext_install_all_go">开始安装</string>
+
     <string name="ext_install_all_none">没有需要安装的扩展（都已装好）</string>
+
     <string name="ext_install_all_started">已排队 %1$d 个扩展，后台开始下载安装</string>
+
     <string name="ext_repair_title">修复损坏的扩展</string>
+
     <string name="ext_repair_msg">检测到 %1$d 个异常扩展：
 
 %2$s
 
 将强制重新下载并覆盖安装（含依赖闭包）。若报"权限残留"，请给一次 su 授权后重试。</string>
+
     <string name="ext_repair_go">一键修复</string>
+
     <string name="ext_repair_none">未检测到损坏的扩展 ✓</string>
+
     <string name="ext_repair_started">已排队修复 %1$d 个扩展</string>
+
     <string name="ext_checking">正在检测…</string>
+
     <string name="engine_restarting">引擎重启中…</string>
 
-    <!-- 权限模式对话框：不可用项的后缀与置灰提示 -->
     <string name="priv_pick_title">运行权限模式</string>
+
     <string name="priv_gray_hint">该模式当前不可用（能力未就绪）</string>
 
-    <!-- 关于页 -->
     <string name="about_title">关于</string>
+
     <string name="about_app_name">DSH Thai</string>
+
     <string name="about_version">版本 %1$s</string>
+
     <string name="about_intro">DSH Mobile 是 DeepSeek Harness（DSH）的 Android 本地引擎壳：在手机沙箱内运行完整的 Node.js Agent 引擎，无需任何服务器，会话与凭证都留在本机；只有模型请求会发出，发往你自己配置的 API 地址。</string>
+
     <string name="about_based">基于 DeepSeek 2026-08 开源的 DeepSeek Harness (dsh) Agent 框架构建</string>
+
     <string name="about_author">作者 Soodok</string>
+
     <string name="about_open_source">开源地址</string>
+
     <string name="about_repo">github.com/Soodok/Deepseek-Harness-Local-Android</string>
+
     <string name="about_copied">仓库地址已复制</string>
+
     <string name="about_qq_group">QQ 交流群</string>
+
     <string name="about_qq_group_id">1128769016</string>
+
     <string name="about_telegram">Telegram 交流群</string>
+
     <string name="about_telegram_sub">与其他用户交流（海外访问更稳定）</string>
+
     <string name="about_telegram_open">打开</string>
+
     <string name="about_telegram_url">https://t.me/+4VN3pYyH6i8yNDA1</string>
+
     <string name="about_telegram_copied">链接已复制</string>
+
     <string name="about_qq_group_tap">点击复制</string>
+
     <string name="about_qq_group_copied">群号已复制，打开 QQ 搜索即可加入</string>
+
     <string name="about_check_update">检查更新</string>
+
     <string name="about_update_idle">点击检查 GitHub 最新版本</string>
+
     <string name="about_update_checking">正在检查…</string>
+
     <string name="about_update_available">发现新版本 %1$s · 点击前往下载</string>
+
     <string name="about_update_latest">已是最新版本</string>
+
     <string name="about_update_failed">检查失败：%1$s</string>
+
     <string name="about_privacy_note">隐私说明：引擎、会话与凭证全部保存在本机。可选的云端语音识别/合成服务为自建部署，仅用于语音转换，不含任何监控、统计或追踪行为。</string>
+
     <string name="setting_access_open_failed">无法打开无障碍设置</string>
+
     <string name="ext_repo_line">Termux 仓库 · %1$s</string>
+
     <string name="ext_state_installing">安装中…</string>
+
     <string name="ext_state_pending_restart">已激活 · 重启引擎后生效</string>
+
     <string name="ext_downloading_pct">%1$s 下载中 %2$d%%</string>
+
     <string name="ext_download_done">%1$s 下载完成，可在下方激活</string>
+
     <string name="ext_unknown_error">未知错误</string>
+
     <string name="app_language">应用语言</string>
+
     <string name="webview_gate_title">WebView 版本过低</string>
+
     <string name="webview_gate_body">本设备的浏览器内核（Chrome %1$s）低于应用所需的 Chrome %2$d：AI 界面使用了新的语言语法，无法用补丁弥补，继续启动将只看到空白页面。
 
 请到应用商店更新「Android System WebView」后重新打开本应用。
 
 也可以选择继续启动，但界面将无法显示。</string>
+
     <string name="webview_gate_update">去更新</string>
+
     <string name="webview_gate_continue">仍然继续</string>
+
     <string name="ticker_working">正在处理…</string>
+
     <string name="app_language_sub">切换应用界面的显示语言（WebUI 跟随系统）</string>
+
     <string name="app_language_sub_current">切换显示语言 · 当前：%1$s</string>
+
     <string name="lang_zh">中文</string>
+
     <string name="lang_en">English</string>
+
     <string name="lang_de">德语</string>
+
     <string name="lang_th">泰语</string>
+
     <string name="lang_changed">语言已切换</string>
+
     <string name="ob_lang_label">语言 / Language</string>
+
     <string name="setting_storage">所有文件访问</string>
+
     <string name="setting_storage_sub">授权后 AI 可在共享存储（如 Download/Documents）建立与读写文件</string>
+
     <string name="storage_granted">已授权</string>
+
     <string name="storage_denied">未授权 · 点击开启</string>
+
     <string name="setting_tts">语音合成（TTS）</string>
+
     <string name="setting_tts_sub">Agent 的 say 经系统 TTS 朗读 · 点击播报测试并显示引擎状态</string>
+
     <string name="tts_missing">设备无 TTS 引擎</string>
+
     <string name="tts_engines">引擎 ×%1$d</string>
+
     <string name="setting_notif">通知权限</string>
+
     <string name="setting_notif_sub">任务完成推送（Android 13+）</string>
+
     <string name="notif_granted">已授权</string>
+
     <string name="notif_denied">未授权 · 点击开启</string>
 
-    <!-- 设置行通用的开/关状态文案 -->
     <string name="state_on">已开启</string>
+
     <string name="state_off">未开启</string>
-    <!-- 用户点按 TTS 行时交给系统语音引擎朗读的文本 -->
+
     <string name="tts_test_text">语音合成测试</string>
+
     <string name="access_enabled_toast">屏幕点击（无障碍）：已开启</string>
+
     <string name="error_restart_failed_streak">连续 %1$d 次启动失败，已停止自动重启</string>
+
     <string name="error_root_no_su">Root 模式已选，但未找到可用的 su 可执行文件（设备可能未 root）</string>
+
     <string name="error_shizuku_binder">Shizuku 服务不可用（未运行或未授权）</string>
+
     <string name="error_runtime_no_source">未配置 runtime 资源或下载地址</string>
+
     <string name="error_runtime_no_space">存储空间不足，无法安装运行时：需要约 %1$s MB，当前仅 %2$s MB 可用。请清理存储后重试。</string>
-    <!-- v1.2.104：能力桥 bind 失败时主动告知（旧实现静默，现场被误判成"无障碍没开"）-->
+
     <string name="bridge_down_title">能力桥启动失败</string>
+
     <string name="bridge_down_body">端口 %1$d 已被占用（占用者：%2$s），notify / 读屏等功能在重启 App 前不可用。</string>
+
     <string name="notif_agent_task">Agent 任务</string>
+
     <string name="notif_task_complete">任务已完成</string>
+
     <string name="notif_channel_agent">Agent 任务通知</string>
+
     <string name="notif_a11y_active_title">DSH 正在操作设备</string>
+
     <string name="notif_a11y_active_text">第 %1$d 步 · %2$s</string>
+
     <string name="notif_a11y_open_app">回到应用</string>
+
     <string name="notif_a11y_op_tap">点击</string>
+
     <string name="notif_a11y_op_swipe">滑动</string>
+
     <string name="notif_a11y_op_scroll">滚动</string>
+
     <string name="notif_a11y_op_input">输入</string>
+
     <string name="notif_a11y_op_key">按键</string>
+
     <string name="notif_a11y_op_launch">打开应用</string>
+
     <string name="notif_a11y_op_loop">连续操作</string>
+
     <string name="notif_a11y_op_other">操作</string>
+
     <string name="notif_lan_title">局域网 WebUI 已开启</string>
+
     <string name="notif_lan_text">%1$s · 点「关闭」可停止</string>
+
     <string name="notif_lan_action_off">关闭</string>
+
     <string name="notif_lan_channel">局域网 WebUI</string>
+
     <string name="notif_ext_installed_title">扩展安装完成</string>
+
     <string name="notif_ext_installed_body">%1$s 已激活，重启引擎后可用</string>
+
     <string name="notif_ext_failed_title">扩展安装失败</string>
+
     <string name="notif_agent_prefix">Agent · %1$s：%2$s</string>
+
     <string name="notif_turn_done_title">对话完成</string>
+
     <string name="notif_turn_done_body">AI 已完成本轮回复（会话 %1$s…）</string>
+
     <string name="overlay_idle">空闲</string>
+
     <string name="overlay_working">执行中 · %1$s</string>
+
     <string name="overlay_turn_done">对话完成</string>
+
     <string name="a11y_voice_input">语音输入</string>
+
     <string name="overlay_listening">聆听中…</string>
+
     <string name="overlay_speak_now">请说话</string>
+
     <string name="voice_close">关闭</string>
+
     <string name="voice_hint_placeholder">识别结果（可编辑）</string>
+
     <string name="voice_retry">重新说</string>
+
     <string name="voice_send">发送</string>
+
     <string name="voice_sent">已发送</string>
+
     <string name="voice_sent_to">已发送到：%1$s</string>
+
     <string name="voice_not_sent">没发出去——文字还留在输入框里</string>
-        <string name="voice_cloud_listening">云端识别中…</string>
+
+    <string name="voice_cloud_listening">云端识别中…</string>
+
     <string name="voice_switching_cloud">正在切换到云端识别…</string>
+
     <string name="setting_cloud_asr">云端语音识别</string>
+
     <string name="setting_cloud_asr_sub">设备无自带识别时使用</string>
+
     <string name="cloud_asr_title">云端语音识别</string>
+
     <string name="cloud_asr_desc">仅在设备没有自带识别服务时使用。识别时音频会上传。</string>
+
     <string name="cloud_asr_key">API Key</string>
+
     <string name="cloud_asr_key_hint">粘贴你的 API Key</string>
+
     <string name="cloud_asr_endpoint">接口地址</string>
+
     <string name="cloud_asr_model">模型</string>
-        <string name="cloud_asr_save">保存</string>
-        <string name="tts_voice_xiaoxiao">晓晓 · 女声（推荐）</string>
+
+    <string name="cloud_asr_save">保存</string>
+
+    <string name="tts_voice_xiaoxiao">晓晓 · 女声（推荐）</string>
+
     <string name="tts_voice_yunxi">云希 · 男声</string>
+
     <string name="tts_voice_xiaoyi">晓伊 · 女声</string>
+
     <string name="tts_voice_yunjian">云健 · 男声（沉稳）</string>
+
     <string name="asrapp_title">语音识别服务</string>
+
     <string name="asrapp_subtitle">安装我们的离线识别服务，然后按下面四步下载模型并在 DSH Mobile 里启用。</string>
+
     <string name="asrapp_open_failed">无法打开：%1$s</string>
 
-    <!-- 主卡片：我们的识别服务 -->
     <string name="asrapp_ours">DSH 离线识别</string>
+
     <string name="asrapp_ours_desc">系统级识别服务。sherpa-onnx 本地推理，模型走国内可直连的镜像。不显示桌面图标，从这里打开。</string>
+
     <string name="asrapp_download">前往 GitHub Releases 下载</string>
+
     <string name="asrapp_installed_open">已安装 · 点击打开</string>
 
-    <!-- 教程：四步 -->
     <string name="asrapp_guide_title">配置教程</string>
+
     <string name="asrapp_step1_title">① 下载安装包</string>
+
     <string name="asrapp_step1_body">点上面那张卡片，在浏览器里打开 GitHub Releases 页面，下载最新的 dsh-asr-service arm64-v8a 安装包（约 31MB）。下载后安装，系统提示时允许「来自浏览器的安装」。装完桌面不会出现图标，这是正常的。</string>
+
     <string name="asrapp_step2_title">② 打开并下载模型</string>
+
     <string name="asrapp_step2_body">从本页（上面那张卡片）或系统「语音输入」设置里打开它。进入「识别模型」，下载一个模型。建议先下 zipformer-zh-14m-int8（小、快）；想要更高准确率且空间够，选 paraformer-zh-int8。模型全部留在本机；下载源跟随系统语言（英文用 HuggingFace 官方源，中文用国内镜像），也可在应用设置里手动指定。</string>
+
     <string name="asrapp_step3_title">③ 设为系统识别服务</string>
+
     <string name="asrapp_step3_body">在应用里点「设为系统默认」。这一步需要 Shizuku 或 root；两者都没有时，去「设置 → 语言和输入法 → 语音输入」里选中它。若你的 ROM 把这个页面重定向了，也可以直接在 DSH Mobile 里指定（见下面的「识别引擎」设置）。</string>
+
     <string name="asrapp_step4_title">④ 在 DSH Mobile 里启用</string>
+
     <string name="asrapp_step4_body">回到「语音服务 → 语音识别」，把「识别引擎」设为 DSH 离线识别。之后点悬浮窗上的麦克风，识别就是全离线的了。任何时候都可以在识别服务应用里点「开始检测」验证每一环。</string>
 
     <string name="asrapp_trouble_title">遇到问题怎么办</string>
+
     <string name="asrapp_trouble_body">装完没有图标：正常，它是服务插件，从本页打开。模型下载失败：检查网络；英文环境走 huggingface.co，中文环境走 hf-mirror.com，也可在应用设置里换源。语音输入还是用错引擎：在「识别引擎」里手动指定。识别没有结果：在应用里跑一次「开始检测」，它会指出缺哪一步。</string>
 
     <string name="asrapp_repo_title">项目主页</string>
+
     <string name="asrapp_repo_desc">源码、其它架构安装包、更新说明。</string>
 
-<string name="asrapp_entry">本地识别应用</string>
+    <string name="asrapp_entry">本地识别应用</string>
+
     <string name="asrapp_entry_sub">安装我们的离线语音识别服务，供系统调用</string>
-<string name="asr_help_title">为什么需要语音服务？</string>
+
+    <string name="asr_help_title">为什么需要语音服务？</string>
+
     <string name="asr_help_body_1">为什么要配这个？</string>
+
     <string name="asr_help_body_2">Android 的语音识别依赖设备上已安装的识别服务。很多手机（尤其国内 ROM）出厂不带，语音输入会直接失败。</string>
+
     <string name="asr_help_body_3">两种解决办法：</string>
+
     <string name="asr_help_body_4">A) 装一个本地识别应用 —— 它会注册成系统识别服务，本应用自动使用它，这里不用填任何东西。推荐以下（均已核实声明了 RecognitionService）：</string>
+
     <string name="asr_help_body_5">  · Sayboard（Vosk）— github.com/ElishaAz/Sayboard
     F-Droid 可装，活跃。导入 vosk-model-cn-0.22（约 1.3GB），中文好得多。</string>
+
     <string name="asr_help_body_6">  · whisperIME — github.com/woheller69/whisperIME
     F-Droid 可装，活跃。多语言 Whisper（约 435MB），中文效果好。</string>
+
     <string name="asr_help_body_7">  · whisperIMEplus — github.com/woheller69/whisperIMEplus
     更快的 ONNX 版本，更新更勤。</string>
+
     <string name="asr_help_body_8">装好后到「系统设置 → 语言和输入法 → 语音输入」里选它。</string>
+
     <string name="asr_help_body_9">B) 用云端识别服务 —— 在下面填入它的 OpenAI 兼容转写地址、模型名和 API Key。有免费额度的服务商：硅基流动 siliconflow.cn、Groq groq.com、阿里 DashScope、智谱 BigModel、火山方舟，或你自己的服务器（whisper.cpp 自建）。</string>
+
     <string name="asr_help_body_10">留空则只使用系统识别。</string>
-        
-    
+
     <string name="voice_rate_label">语速 %1$s</string>
+
     <string name="asr_engine_label">识别引擎</string>
+
     <string name="asr_engine_hint">直接指定用哪个识别服务。很多 ROM 把系统「语音输入」设置页重定向了，插件在那里选不到，所以在这里选。</string>
+
     <string name="asr_engine_system">系统默认</string>
+
     <string name="asr_engine_plugin">DSH 离线识别（插件）</string>
-<string name="voice_service_title">语音服务</string>
+
+    <string name="voice_service_title">语音服务</string>
+
     <string name="voice_service_asr">语音识别</string>
+
     <string name="voice_service_asr_desc">优先用系统识别；设备没有时用你自己配置的 API。</string>
+
     <string name="voice_asr_free">免费 API</string>
+
     <string name="voice_asr_custom">自用 API</string>
+
     <string name="voice_service_tts">语音合成</string>
+
     <string name="voice_service_tts_desc">微软 Edge 神经网络音色，App 直连（不经任何中转服务器）。</string>
+
     <string name="voice_tts_on">Edge 神经网络音色</string>
+
     <string name="voice_tts_off">系统引擎</string>
+
     <string name="setting_voice_service">语音服务</string>
+
     <string name="setting_voice_service_sub">识别与合成，都在这里配置</string>
+
     <string name="tts_voice_xiaobei">小北 · 东北口音</string>
+
     <string name="tts_voice_xiaoni">小妮 · 陕西口音</string>
-<string name="cloud_tts_title">云端语音合成</string>
+
+    <string name="cloud_tts_title">云端语音合成</string>
+
     <string name="cloud_tts_desc">使用自建 TTS 服务（edge-tts 神经网络音色）。连不上时自动回落到系统引擎。</string>
+
     <string name="cloud_tts_endpoint">服务地址</string>
+
     <string name="cloud_tts_endpoint_hint">http://你的域名/tts</string>
+
     <string name="cloud_tts_hint">留空则继续使用系统自带 TTS 引擎</string>
+
     <string name="cloud_tts_token">访问令牌</string>
+
     <string name="cloud_tts_voice">音色</string>
+
     <string name="cloud_tts_rate">语速</string>
+
     <string name="cloud_tts_clear">清除</string>
+
     <string name="cloud_tts_test">试听</string>
+
     <string name="cloud_tts_cleared">已清除云端 TTS 配置与缓存</string>
+
     <string name="cloud_tts_need_endpoint">请先填写服务地址</string>
+
     <string name="setting_cloud_tts">云端语音合成</string>
+
     <string name="setting_cloud_tts_sub">神经网络音色，失败回落系统</string>
-<string name="cloud_asr_saved">已保存</string>
+
+    <string name="cloud_asr_saved">已保存</string>
+
     <string name="cloud_asr_clear">清除 Key</string>
+
     <string name="cloud_asr_need_key">请先填写 API Key</string>
+
     <string name="cloud_asr_free_hint">服务商可自选 —— 点右侧问号查看可选服务商与免费额度</string>
-<string name="voice_need_permission">需要麦克风权限才能语音输入</string>
+
+    <string name="voice_need_permission">需要麦克风权限才能语音输入</string>
+
     <string name="voice_no_service">此设备没有语音识别服务——安装 Google App 或改用打字输入</string>
+
     <string name="voice_recognized">已识别，正在发送</string>
+
     <string name="overlay_tts_done">对话完成</string>
+
     <string name="a11y_action_tap">点击</string>
+
     <string name="a11y_action_input">输入</string>
+
     <string name="a11y_action_swipe">滑动</string>
+
     <string name="a11y_action_key">导航</string>
+
     <string name="a11y_action_screen">读屏</string>
+
     <string name="error_engine_start">引擎启动失败：%1$s</string>
 
     <string name="setting_asr">语音识别服务</string>
+
     <string name="setting_asr_sub">离线 ASR 模型 · 按需下载</string>
+
     <string name="asr_state_ready">已就绪</string>
+
     <string name="asr_state_none">未下载</string>
+
     <string name="voice_need_app">请先打开一次 App 再发送语音</string>
+
     <string name="voice_need_app_hint">语音面板随处可用；发送需要主界面在运行</string>
+
     <string name="setting_mic">麦克风权限</string>
+
     <string name="setting_mic_sub">语音输入（语音识别）· 点击授权</string>
+
     <string name="mic_granted">已授权</string>
+
     <string name="mic_denied">未授权 · 点击授权</string>
-        <string name="overlay_no_last_action">还没有动作记录</string>
+
+    <string name="overlay_no_last_action">还没有动作记录</string>
+
     <string name="overlay_last_action_at">上次动作：%1$s</string>
-<string name="overlay_no_sessions">暂无活跃对话</string>
+
+    <string name="overlay_no_sessions">暂无活跃对话</string>
+
     <string name="overlay_session_line">%1$s · %2$s</string>
+
     <string name="voice_no_session">当前没有可发送的对话——请先打开一个</string>
+
     <string name="voice_opening_session">正在打开对话…</string>
+
     <string name="voice_session_timeout">对话未打开，请重试</string>
+
     <string name="voice_send_failed">发送失败：%1$s</string>
-        <string name="setting_lan_web">局域网访问 WebUI</string>
+
+    <string name="setting_lan_web">局域网访问 WebUI</string>
+
     <string name="setting_lan_web_sub">让同一网络下的电脑/平板用原生界面连上本机引擎。默认关闭。</string>
+
     <string name="setting_runtime_proxy">运行时下载代理</string>
+
     <string name="setting_runtime_proxy_sub">默认 gh-proxy.org；国内直连 GitHub 经常失败</string>
+
     <string name="setting_runtime_proxy_value_default">默认 · gh-proxy.org（国内网络推荐）</string>
+
     <string name="setting_runtime_proxy_value_direct">直连 GitHub（不使用代理）</string>
+
     <string name="setting_runtime_proxy_value_custom">自定义 · %1$s</string>
+
     <string name="setting_runtime_proxy_dialog_hint">运行时与更新索引都从这里下载。留空表示直连 GitHub；默认 %1$s。只支持前缀式代理（{代理}/{GitHub 地址}）。</string>
+
     <string name="setting_runtime_proxy_invalid">代理地址无效，请填写 http(s) 地址</string>
+
     <string name="setting_runtime_proxy_saved">下载代理已保存</string>
+
     <string name="setting_runtime_proxy_reset">恢复默认</string>
+
     <string name="setting_runtime_proxy_reset_done">已恢复默认代理</string>
+
     <string name="lan_web_consent">开启后，本机上这个具备完整权限的 AI（可读写文件、执行命令、控制屏幕）将对当前网络内所有设备开放。\n\n请只在可信网络（如家里 Wi-Fi）下使用。任何能访问该地址的人都可以控制这台手机，直到你关掉这个开关。</string>
+
     <string name="lan_dialog_title">局域网访问已开启</string>
+
     <string name="lan_dialog_code_label">访问验证码（点击可复制）</string>
+
     <string name="lan_dialog_copied_code">验证码 %1$s 已复制</string>
+
     <string name="lan_dialog_copied_host">访问地址已复制</string>
+
     <string name="lan_dialog_hint">在同一网络下的设备上打开该地址，输入这个验证码即可。每次开启都会重新生成新码。</string>
+
     <string name="code_toast_fallback">验证码 %1$s 已复制</string>
+
     <string name="code_copied_hint">验证码已复制</string>
+
     <string name="code_copy">复制</string>
+
     <string name="code_copied_toast">已复制 %1$s</string>
+
     <string name="overlay_exit_daemon">退出 daemon</string>
+
     <string name="splash_preparing">正在准备运行环境…</string>
+
     <string name="splash_tagline">本地引擎 · 数据不出设备</string>
+
     <string name="splash_starting">正在启动引擎…</string>
+
     <string name="splash_loading">正在加载界面…</string>
+
     <string name="splash_hint">请稍等几秒…</string>
+
     <string name="splash_extracting">正在解压运行环境…</string>
+
     <string name="splash_downloading">正在下载运行环境…</string>
+
     <string name="splash_failed">启动失败</string>
+
     <string name="splash_elapsed">%1$s · %2$s</string>
+
     <string name="splash_files">%1$,d / %2$,d 个文件</string>
+
     <string name="splash_runtime_reused">运行环境已就绪</string>
+
     <string name="splash_show_steps">查看加载步骤</string>
+
     <string name="splash_hide_steps">收起加载步骤</string>
+
     <string name="splash_steps_empty">还没有记录到步骤</string>
+
     <string name="splash_step_line">+%1$s   累计 %2$s   %3$s</string>
+
     <string name="boot_step_guardian">恢复内置补丁</string>
+
     <string name="boot_step_seed">写入 Agent 指令</string>
+
     <string name="boot_step_orphans">回收孤儿进程</string>
+
     <string name="boot_step_bridge">启动能力桥</string>
+
     <string name="boot_step_owner">检查文件属主</string>
-        <string name="boot_step_hardssh">安装 SSH 插件</string>
-<string name="boot_step_runtime">解压运行环境</string>
+
+    <string name="boot_step_hardssh">安装 SSH 插件</string>
+
+    <string name="boot_step_runtime">解压运行环境</string>
+
     <string name="boot_step_download">下载运行环境</string>
+
     <string name="boot_step_userdata">链接用户数据</string>
+
     <string name="boot_step_spawn">拉起引擎进程</string>
+
     <string name="boot_step_health">等待健康检查</string>
+
     <string name="setting_boot_trace">上次启动</string>
+
     <string name="setting_boot_trace_sub">查看最近一次启动各阶段耗时与文件加载量</string>
+
     <string name="boot_trace_title">上次启动详情</string>
+
     <string name="boot_trace_none">这台设备上还没有启动记录。</string>
+
     <string name="boot_trace_running">当前有一次启动正在进行中。</string>
-        <string name="error_auth_expired">登录状态或 API Key 已失效，引擎无法启动。请重新打开应用并登录，或在设置里更新 API Key。自动重启无法解决这个问题。</string>
-<string name="error_runtime_arch_mismatch">这个安装包内置的运行环境与设备 CPU 架构不匹配，无法在本机运行。请安装对应架构的安装包（手机请选 arm64-v8a）。</string>
+
+    <string name="error_auth_expired">登录状态或 API Key 已失效，引擎无法启动。请重新打开应用并登录，或在设置里更新 API Key。自动重启无法解决这个问题。</string>
+
+    <string name="error_runtime_arch_mismatch">这个安装包内置的运行环境与设备 CPU 架构不匹配，无法在本机运行。请安装对应架构的安装包（手机请选 arm64-v8a）。</string>
+
     <string name="setting_recover_chats">对话恢复</string>
+
     <string name="setting_recover_chats_sub">扫描磁盘上没出现在列表里的会话，重新登记回来</string>
+
     <string name="recover_scanning">正在扫描…</string>
+
     <string name="recover_none">没有发现丢失的对话，无需恢复</string>
+
     <string name="recover_done">已恢复 %1$d 个对话</string>
+
     <string name="recover_failed">恢复失败：%1$s</string>
+
     <string name="recover_confirm">发现 %1$d 个对话在磁盘上但不在工作区列表里，要加回来吗？</string>
+
     <string name="recover_restart_hint">重启引擎后可见</string>
+
     <string name="setting_plugin_kill">应急：停用全部第三方插件</string>
+
     <string name="setting_plugin_kill_sub">已装 %1$d 个 · 插件把界面弄坏但引擎还活着时用</string>
+
     <string name="setting_plugin_kill_sub_idle">一键把第三方插件全部停掉</string>
+
     <string name="setting_plugin_kill_restore">恢复第三方插件</string>
+
     <string name="setting_plugin_kill_restore_sub">已停用 %1$d 个 · 点此恢复</string>
+
     <string name="setting_plugin_kill_restore_sub_partial">已停用 %2$d 个 · 已单独恢复 %1$d 个 · 点此全部恢复</string>
+
     <string name="plugin_kill_disable_title">停用全部第三方插件？</string>
+
     <string name="plugin_kill_disable_body">引擎会重启，只加载自带插件。已安装的包和文件都保留，恢复不需要重新下载。\n\n将被停用（%1$d）：\n%2$s</string>
+
     <string name="plugin_kill_restore_title">恢复第三方插件？</string>
+
     <string name="plugin_kill_restore_body">引擎会重启并重新加载这些插件（%1$d）。期间已卸载的会自动跳过。\n\n%2$s</string>
+
     <string name="plugin_kill_restarting">正在重启引擎…</string>
+
     <string name="plugin_kill_none">没有安装第三方插件</string>
+
     <string name="plugin_kill_failed">插件状态修改失败：%1$s</string>
+
     <string name="plugin_kill_skipped">已跳过 %1$d 个被卸载的插件</string>
+
     <string name="plugin_kill_more">· 等 %1$d 个</string>
+
     <string name="plugin_kill_banner">第三方插件已全部停用 · 可在「已安装」逐个启用 · 点此全部恢复</string>
+
     <string name="plugin_kill_enable_one">单独启用</string>
+
     <string name="plugin_kill_disable_one">再停用</string>
+
     <string name="plugin_kill_enable_one_toast">%1$s 将在引擎重启后加载</string>
+
     <string name="plugin_kill_disable_one_toast">%1$s 将在引擎重启后保持停用</string>
+
     <string name="plugin_kill_installed_hint">已安装。停用期间不会加载 —— 可在「已安装」里单独启用它试试</string>
+
     <string name="setting_self_check">全面体检与修复</string>
+
     <string name="setting_self_check_sub">检查运行时、存储、软链、插件与配置，能修的自动修好</string>
+
     <string name="self_check_running">正在检查…</string>
+
     <string name="self_check_ok">全部检查通过</string>
+
     <string name="self_check_issues">发现 %1$d 个问题，已修复 %2$d 个</string>
+
     <string name="recover_confirm_yes">恢复</string>
+
     <string name="setting_export_data">导出数据</string>
+
     <string name="setting_export_data_sub">把对话、工作区和工作区列表打包成 .zip。不包含 API 密钥与登录态。</string>
+
     <string name="export_preparing">正在准备导出…</string>
+
     <string name="export_progress">正在导出… %1$d / %2$d 个文件</string>
+
     <string name="export_done">已导出对话文件 %1$d 个、工作区文件 %2$d 个</string>
+
     <string name="export_failed">导出失败：%1$s</string>
+
     <string name="export_log_hint">未保留任何备份文件。详细原因已写入 engine.log（以 [export] 开头的行）。</string>
+
     <string name="export_no_creds">不包含 API 密钥与登录态，恢复后需要重新登录。</string>
+
     <string name="export_no_registry">注意：未找到工作区列表（workspace.json），恢复后对话可能不会出现在列表里。</string>
-    <!-- 原生终端（对齐 DSHA 的 PTY 终端页） -->
+
     <string name="btn_terminal">终端</string>
+
     <string name="terminal_title">终端</string>
+
     <string name="terminal_new">新建</string>
+
     <string name="terminal_empty">暂无终端\n点击「新建」打开一个终端</string>
+
     <string name="terminal_number">终端 %1$d</string>
+
     <string name="terminal_closing">终端 %1$d · 关闭中…</string>
+
     <string name="terminal_switch_to">切换到终端 %1$d</string>
+
     <string name="terminal_close">关闭终端 %1$d</string>
+
     <string name="terminal_font_smaller">A−</string>
+
     <string name="terminal_font_larger">A+</string>
+
     <string name="terminal_session_ended">会话已结束（退出码 %1$s）</string>
+
     <string name="terminal_copied">已复制</string>
+
     <string name="terminal_start_failed">终端启动失败：%1$s</string>
+
     <string name="terminal_close_failed">关闭失败，会话仍保留：%1$s</string>
+
     <string name="terminal_session_ended_hint">会话已结束，请点击「新建」</string>
-    <!-- 日志查看器 -->
+
     <string name="btn_log">日志</string>
+
     <string name="log_viewer_title">日志</string>
+
     <string name="log_viewer_refresh">刷新</string>
+
     <string name="log_viewer_empty">暂无日志\n引擎启动后这里会显示 engine.log / boot.log 的尾部</string>
+
     <string name="log_viewer_size">%1$s · %2$s 字节</string>
+
     <string name="log_viewer_share">分享</string>
 
-    <!-- 桌宠悬浮窗（预留，插件驱动） -->
     <string name="setting_pet">桌面宠物</string>
+
     <string name="setting_pet_sub">由 dsh-pet-bridge 插件驱动的系统悬浮宠物</string>
+
     <string name="pet_title">桌面宠物</string>
+
     <string name="pet_enable">开启桌宠</string>
+
     <string name="pet_enable_sub">在其他应用上层显示宠物</string>
+
     <string name="pet_gate_install">去安装</string>
+
     <string name="pet_gate_plugin_missing_msg">还不能开启桌宠：请先安装并启用 dsh-pet-bridge 0.3.1+ 桥插件。没有桥插件，桌宠只会自己待机，不会响应工作状态。这是硬性要求，不能跳过。</string>
+
     <string name="pet_gate_pack_missing_msg">还不能开启桌宠：请先安装动画资源包。没有资源包就没有可显示的内容。这是硬性要求，不能跳过。</string>
+
     <string name="pet_permission">悬浮窗权限</string>
+
     <string name="pet_permission_sub">用于把宠物显示在其他应用上层</string>
+
     <string name="pet_permission_granted">已授权</string>
+
     <string name="pet_permission_denied">未授权</string>
+
     <string name="pet_permission_rationale">允许 DSH Mobile 在其他应用上层显示桌宠。你可以随时在系统设置里撤销。</string>
+
     <string name="pet_plugin">桥插件</string>
+
     <string name="pet_plugin_hint">dsh-pet-bridge 0.3.1+ 把 DSH 事件接到桌宠</string>
+
     <string name="pet_plugin_installed">已安装</string>
+
     <string name="pet_plugin_missing">未安装</string>
+
     <string name="pet_plugin_web_only">dsh-pet 是网页桌宠，请安装 dsh-pet-bridge</string>
+
     <string name="pet_plugin_outdated_msg">已安装的桥插件低于 0.3.1，会被拒绝（403）。请从 npm 或 github.com/XiaoPb/dsh-pet-bridge 安装 0.3.1+，然后重启引擎。</string>
+
     <string name="pet_plugin_restart">重启引擎</string>
+
     <string name="pet_plugin_restart_hint">桥插件需要重启引擎后才会加载</string>
+
     <string name="pet_plugin_upgrade">去插件中心</string>
+
     <string name="pet_status_engine_down">引擎未运行</string>
+
     <string name="pet_status_plugin_disabled">已安装，请重启引擎</string>
+
     <string name="pet_status_plugin_outdated">需 0.3.1+</string>
+
     <string name="pet_status_running">运行中</string>
+
     <string name="pet_status_stopped">已关闭</string>
+
     <string name="pet_status_connected">已连接</string>
+
     <string name="pet_status_waiting">等待插件事件</string>
+
     <string name="pet_status_bridge_missing">桌宠已暂停：桥插件未就绪</string>
+
     <string name="pet_bridge_missing_hint">开关是开的，但桥插件没装好或没启用，所以没有显示角色</string>
+
     <string name="pet_pack">动画包</string>
+
     <string name="pet_pack_none">未安装</string>
+
     <string name="pet_pack_none_hint">没有安装资源包，桌宠不会显示（占位形象已移除）</string>
+
     <string name="pet_pack_count">%1$d 段动画</string>
+
     <string name="pet_pack_import">从文件导入（.zip）</string>
+
     <string name="pet_pack_import_sub">仅支持 .zip 压缩包；rar/7z/tar.gz 请先解压再重新打包</string>
+
     <string name="pet_pack_keep_open">导入期间请保持本页打开</string>
+
     <string name="pet_pack_imported">已导入 %1$d 段动画</string>
+
     <string name="pet_pack_failed">导入失败：%1$s</string>
+
     <string name="pet_pack_err_apk">这是应用安装包（APK），不是资源包。请选择 .zip 资源包。</string>
+
     <string name="pet_pack_err_not_zip">不是有效的 zip 文件。</string>
+
     <string name="pet_pack_err_open">无法读取选中的文件。</string>
+
     <string name="pet_pack_err_unsafe">压缩包里有不安全路径，已拒绝导入。</string>
+
     <string name="pet_pack_err_no_config">缺少 pet-config.json，这不像一个资源包。</string>
+
     <string name="pet_pack_err_bad_config">pet-config.json 无法解析，或缺少必需的动画配置。</string>
+
     <string name="pet_pack_err_no_webp">压缩包里没有找到 WebP 动画。</string>
+
     <string name="pet_pack_err_bad_webp">这些文件后缀是 .webp，但不是有效的 WebP：%1$s</string>
+
     <string name="pet_pack_err_missing_anim">资源包缺少必需动画：%1$s</string>
+
     <string name="pet_pack_err_too_many">压缩包内文件数量过多。</string>
+
     <string name="pet_pack_err_too_large">资源包体积超过上限。</string>
+
     <string name="pet_pack_err_no_space">存储空间不足，无法安装这个资源包。</string>
+
     <string name="pet_pack_err_busy">已有导入任务在进行中。</string>
+
     <string name="pet_pack_err_encrypted">不支持加密压缩包。请解压后重新打包（不要设密码）。</string>
+
     <string name="pet_pack_clear">删除这个包</string>
+
     <string name="pet_pack_clear_confirm">删除「%1$s」？其它已安装的包不受影响。</string>
+
     <string name="pet_pack_installed_at">安装于 %1$s</string>
+
     <string name="pet_pack_license">动画素材不随安装包分发。请从资源仓库下载，或导入你自己的 dsh-pet 素材包（上游素材禁止商用）。</string>
+
     <string name="pet_pack_switch">切换包</string>
+
     <string name="pet_pack_select">已安装的包</string>
+
     <string name="pet_pack_summary">%1$d 段 · %2$s</string>
+
     <string name="pet_pack_download">下载资源包</string>
+
     <string name="pet_pack_download_sub">从资源仓库获取，可同时安装多个</string>
+
     <string name="pet_pack_downloading">下载 %1$s…%2$d%%</string>
+
     <string name="pet_pack_install_progress">正在安装 %1$s…</string>
+
     <string name="pet_pack_fetch_failed">获取索引失败：%1$s</string>
+
     <string name="pet_pack_download_failed">下载失败：%1$s</string>
+
     <string name="pet_pack_installed_toast">已安装 %1$s</string>
-    <!-- 后台下载（前台服务 + 通知栏） -->
+
     <string name="pet_pack_bg_channel">资源包下载</string>
+
     <string name="pet_pack_bg_channel_desc">资源包在后台下载时显示进度</string>
+
     <string name="pet_pack_bg_title">正在下载资源包</string>
-    <!-- 线路标注放标题：正文里包名+百分比已经占满，竖屏窄屏会把尾部的标注截掉 -->
+
     <string name="pet_pack_bg_title_src">%1$s · %2$s</string>
-    <!-- 完整一行（含线路）：通知展开态与设置页状态行共用 -->
+
     <string name="pet_pack_bg_preparing">正在准备 %1$s…</string>
+
     <string name="pet_pack_bg_downloading_src">下载 %1$s…%2$d%% · %3$s</string>
+
     <string name="pet_pack_src_proxy">经代理</string>
+
     <string name="pet_pack_src_direct">直连</string>
+
     <string name="pet_pack_src_checking">检测线路…</string>
+
     <string name="pet_pack_bg_downloading">%1$s · %2$d%%</string>
+
     <string name="pet_pack_bg_done">已安装 %1$s</string>
+
     <string name="pet_pack_bg_done_title">资源包已安装</string>
+
     <string name="pet_pack_bg_cancelled">已取消下载</string>
+
     <string name="pet_pack_bg_cancelling">正在取消…</string>
+
     <string name="pet_pack_bg_busy">已有下载任务在进行中</string>
+
     <string name="pet_pack_bg_dismiss">知道了</string>
+
     <string name="pet_pack_switched">已切换到 %1$s</string>
+
     <string name="pet_pack_deleted">已删除 %1$s</string>
+
     <string name="pet_pack_delete_failed">删除「%1$s」失败</string>
+
     <string name="pet_pack_source">下载源</string>
+
     <string name="pet_pack_source_sub">资源仓库 index.json 地址</string>
+
     <string name="pet_pack_delete">删除</string>
+
     <string name="pet_size">桌宠大小</string>
+
     <string name="pet_size_value">%1$d dp</string>
+
     <string name="pet_size_hint">大档位更吃内存；超出屏幕时按屏幕收缩</string>
+
     <string name="pet_menu_actions">动作</string>
+
     <string name="pet_test_bubble">测试气泡</string>
+
     <string name="pet_test_bubble_text">今天也一起把活儿干完吧。</string>
+
     <string name="pet_bubble_thinking">思考中…</string>
+
     <string name="pet_bubble_reading">正在读取 %1$s</string>
+
     <string name="pet_bubble_searching">正在搜索 %1$s</string>
+
     <string name="pet_bubble_editing">正在编辑 %1$s</string>
+
     <string name="pet_bubble_running">正在运行 %1$s</string>
+
     <string name="pet_bubble_working">执行中…</string>
+
     <string name="pet_bubble_step_done">完成一步</string>
+
     <string name="pet_bubble_done">完成</string>
+
     <string name="pet_bubble_error">出错了</string>
+
     <string name="pet_bubble_waiting">等待中…</string>
+
     <string name="pet_menu_title">桌宠动作</string>
+
     <string name="pet_menu_idle">待机</string>
+
     <string name="pet_menu_clicks">点击回应</string>
+
     <string name="pet_menu_random">随机动作</string>
+
     <string name="pet_menu_reset">回到初始位置</string>
+
     <string name="pet_menu_flip">翻转朝向</string>
+
     <string name="pet_menu_stop">收起来</string>
+
     <string name="pet_menu_settings">桌宠设置</string>
+
     <string name="pet_menu_no_pack">没有动画包</string>
+
     <string name="pet_notif_title">DSH 桌宠</string>
+
     <string name="pet_notif_stop">收起来</string>
+
     <string name="pet_notif_connected">已连接 dsh-pet-bridge</string>
+
     <string name="pet_notif_waiting">等待 dsh-pet-bridge</string>
+
     <string name="pet_notif_port_busy">7779 端口被占用</string>
+
     <string name="pet_notif_bridge_missing">已暂停：桥插件未就绪</string>
+
     <string name="pet_channel_name">桌宠</string>
+
     <string name="pet_channel_desc">保持桌宠悬浮窗运行</string>
+
     <string name="pet_error_port_busy">7779 端口已被占用</string>
+
     <string name="pet_error_no_permission">缺少悬浮窗权限</string>
+
     <string name="pet_sound_section">音效与碎碎念</string>
+
     <string name="pet_sound">点击音效</string>
+
     <string name="pet_sound_sub">拍一拍桌宠时播放短音</string>
+
     <string name="pet_lines">台词库</string>
+
     <string name="pet_lines_sub">内置碎碎念台词：编辑、导入导出、恢复内置</string>
+
     <string name="pet_lines_categories">分类</string>
+
     <string name="pet_lines_count">%1$d 句</string>
+
     <string name="pet_lines_customized">（已修改）</string>
+
     <string name="pet_lines_export">导出台词</string>
+
     <string name="pet_lines_export_sub">全部分类存成 JSON 文件</string>
+
     <string name="pet_lines_import">导入台词</string>
+
     <string name="pet_lines_import_sub">从 JSON 文件恢复（允许只含部分分类）</string>
+
     <string name="pet_lines_reset_all">全部恢复内置</string>
+
     <string name="pet_lines_reset_all_sub">删除所有分类的手动修改</string>
+
     <string name="pet_lines_reset_all_confirm">将删除所有分类的手动修改，全部恢复内置台词。确定吗？</string>
+
     <string name="pet_lines_edit_hint">一行一句；空行会被忽略</string>
+
     <string name="pet_lines_save">保存</string>
+
     <string name="pet_lines_saved">已保存（%1$d 句）</string>
+
     <string name="pet_lines_reset_cat">恢复默认</string>
+
     <string name="pet_lines_reset_cat_confirm">恢复该分类的内置台词？当前修改会丢失。</string>
+
     <string name="pet_lines_reset_done">已恢复</string>
+
     <string name="pet_lines_exported">导出成功</string>
+
     <string name="pet_lines_export_failed">导出失败</string>
+
     <string name="pet_lines_imported">导入成功：%1$d 个分类</string>
+
     <string name="pet_lines_import_failed">导入失败：文件格式不正确</string>
+
     <string name="pet_lines_cat_boot">开机问候</string>
+
     <string name="pet_lines_cat_tap">单击回应</string>
+
     <string name="pet_lines_cat_tap_many">被连点</string>
+
     <string name="pet_lines_cat_fling">被甩飞</string>
+
     <string name="pet_lines_cat_edge">贴边</string>
+
     <string name="pet_lines_cat_morning">早上好</string>
+
     <string name="pet_lines_cat_evening">晚上好</string>
+
     <string name="pet_lines_cat_late_night">深夜</string>
+
     <string name="pet_lines_cat_idle_long">久置发呆</string>
+
     <string name="pet_lines_cat_random">瞎聊乱弹</string>
+
     <string name="pet_lines_cat_working">工作陪聊</string>
+
     <string name="pet_lines_cat_ws_thinking">工作状态 · 思考中</string>
+
     <string name="pet_lines_cat_ws_working">工作状态 · 处理中</string>
+
     <string name="pet_lines_cat_ws_result">工作状态 · 一步完成</string>
+
     <string name="pet_lines_cat_ws_waiting">工作状态 · 等待确认</string>
+
     <string name="pet_lines_cat_ws_success">工作状态 · 完成</string>
+
     <string name="pet_lines_cat_ws_error">工作状态 · 出错</string>
+
     <string name="about_runtime">运行时</string>
+
     <string name="runtime_setup_title">需要下载运行时</string>
+
     <string name="runtime_setup_message">当前是 noruntime 简单包，不含 Node.js 运行时。现在下载 %1$s（建议 Wi-Fi）？之后 App 升级不会重复下载。</string>
+
     <string name="runtime_setup_download">下载并启动</string>
+
     <string name="runtime_setup_full">下载完整包</string>
+
     <string name="runtime_setup_later">稍后</string>
+
     <string name="about_runtime_idle">检查运行时更新</string>
+
     <string name="about_runtime_checking">正在检查运行时…</string>
+
     <string name="about_runtime_available">运行时 %1$s 可用，点击安装</string>
+
     <string name="about_runtime_latest">运行时 %1$s 已是最新</string>
+
     <string name="about_runtime_failed">运行时检查失败：%1$s</string>
+
     <string name="about_runtime_installing">正在安装运行时… %1$d%%</string>
+
     <string name="about_runtime_installed">运行时已安装，正在重启引擎</string>
+
     <string name="about_runtime_no_pin">无法获取已签名的运行时索引</string>
+
     <string name="about_runtime_busy">运行时正在安装，请稍候再试</string>
+
     <string name="about_runtime_engine_busy">引擎未能在预期时间内停止，本次未替换运行时。请稍后重试。</string>
+
+    <string name="pet_enable_without_plugin">仍要启用</string>
+
+    <string name="pet_enable_without_plugin_msg">未安装 dsh-pet-bridge 0.3.1+</string>
+
 </resources>

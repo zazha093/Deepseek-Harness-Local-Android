@@ -10,7 +10,7 @@ name: debug-apk
 on:
   workflow_dispatch:
   push:
-    branches: ["feat/translate-plugin-desc"]
+    branches: ["feat/translate-plugin-desc", "sync/upstream-1.4.40"]
 
 env:
   TZ: Asia/Shanghai

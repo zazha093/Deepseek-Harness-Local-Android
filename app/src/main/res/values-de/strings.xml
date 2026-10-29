@@ -1,889 +1,1649 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- v1.2.120：Deutsch (de) — vollständige Übersetzung, behält alle Keys +
-     Platzhalter/Zwischenräume des Default (values/) bei. -->
 <resources>
 
     <string name="app_name">DSH Thai</string>
+
     <string name="notif_channel_engine">Agenten-Engine</string>
+
     <string name="notif_channel_engine_desc">Status der lokalen DeepSeek-Harness-Engine</string>
+
     <string name="notif_title">DSH-Engine läuft</string>
+
     <string name="status_idle">Warten auf Start</string>
+
     <string name="status_exiting">Wird beendet …</string>
+
     <string name="status_installing">Runtime wird installiert …</string>
+
     <string name="status_starting">Engine wird gestartet …</string>
-<<<<<<< HEAD
-    <string name="status_healthy">Engine bereit · http://127.0.0.1:13080</string>
-=======
+
     <string name="status_healthy">Engine bereit</string>
->>>>>>> upstream/main
+
     <string name="status_plugin_recovered">Wiederhergestellt: defektes Plugin %1$s deaktiviert · Engine bereit</string>
+
     <string name="status_safe_mode">Sicherheitsmodus: Plugin-Konfigurationen quarantänisiert, die Engine läuft mit leerer Konfiguration (Workspaces und Sitzungen unberührt)</string>
+
     <string name="status_backoff">Prozess wurde unerwartet beendet, Neustart in %1$d s (Versuch %2$d)</string>
+
     <string name="status_backoff_hint">Engine beendet: %1$s · Neustart in %2$d s (Versuch #%3$d)</string>
+
     <string name="status_failed">Start fehlgeschlagen: %1$s</string>
+
     <string name="btn_restart">Neustart</string>
+
     <string name="btn_start_engine">Engine starten</string>
+
     <string name="btn_hide">Ausblenden</string>
+
     <string name="btn_back">← Startseite</string>
+
     <string name="status_preview">Vorschau · 127.0.0.1:%1$d</string>
+
     <string name="menu_title">Einstellungen</string>
+
     <string name="menu_landscape">Bildschirmausrichtung</string>
+
     <string name="menu_hide_toolbar">Symbolleiste ausblenden</string>
+
     <string name="menu_scale">Seitenzoom</string>
+
     <string name="scale_title">Seitenzoom</string>
+
     <string name="menu_priv">Berechtigungsmodus</string>
+
     <string name="menu_priv_title">Berechtigungsmodus</string>
+
     <string name="menu_accessibility">Bildschirmtippen (Bedienungshilfen)</string>
+
     <string name="accessibility_enable">Den Bedienungshilfen-Dienst "DSH Bildschirmtippen" aktivieren</string>
+
     <string name="priv_normal">Normal</string>
+
     <string name="priv_shizuku">Shizuku</string>
+
     <string name="priv_root">Root</string>
+
     <string name="notif_action_exit">Beenden</string>
 
-    <!-- Bedienungshilfen-Dienst (simulierte Bildschirmtippen) -->
     <string name="accessibility_label">DSH Bildschirmtippen</string>
+
     <string name="accessibility_desc">Ermöglicht DSH, Bildschirmtippen und Wischgesten zu simulieren (z. B. Automatisierung). Dieser Dienst deklariert ausschließlich die Fähigkeit zur Gesten-Injektion und liest keine Bildschirminhalte.</string>
+
     <string name="accessibility_hint">Der Bedienungshilfen-Dienst ist aus — "Bildschirmtippen" ist nicht verfügbar</string>
 
-    <!-- Erster Start: Onboarding -->
     <string name="ob_title">Willkommen bei DSH Mobile</string>
+
     <string name="ob_subtitle">Beim ersten Start wird alles nach Ihren Wünschen eingerichtet — diese Seite erscheint danach nicht mehr.</string>
+
     <string name="ob_orientation_label">Standard-Bildschirmausrichtung</string>
+
     <string name="ob_theme_label">Darstellung</string>
+
     <string name="ob_theme_desc">Wähle das Theme der nativen Oberfläche. Die Chat-Oberfläche folgt den dsh-Einstellungen.</string>
+
     <string name="theme_dark">Dunkel</string>
+
     <string name="theme_light">Hell</string>
+
     <string name="theme_system">System folgen</string>
+
     <string name="ob_orientation_desc">Hochformat (Handy) eignet sich zum einhändigen Stöbern; Querformat wechselt zum Desktop-Layout; Automatisch folgt der Gerätedrehung (Desktop-Layout nur bei physischem Querformat)</string>
+
     <string name="ob_orient_portrait">Hochformat (Handy)</string>
+
     <string name="ob_orient_landscape">Querformat (Desktop-Layout)</string>
+
     <string name="ob_orient_auto">Automatisch (folgt der Drehung)</string>
+
     <string name="ob_priv_label">Berechtigungsmodus</string>
+
     <string name="ob_priv_desc">Bestimmt, wie viel Systembereich die KI erreichen kann. Jederzeit in den Einstellungen änderbar</string>
+
     <string name="ob_priv_normal">Normal</string>
+
     <string name="ob_priv_normal_desc">Läuft in der Sandbox — Sicherheit zuerst</string>
+
     <string name="ob_priv_shizuku">Shizuku</string>
+
     <string name="ob_priv_shizuku_desc">Die KI kann Befehle als adb ausführen (Prozesse wachhalten/beenden); die Engine selbst bleibt in der Sandbox</string>
+
     <string name="ob_priv_root">Root</string>
+
     <string name="ob_priv_root_desc">Die gesamte Engine startet als Root mit vollem Gerätezugriff (hohes Risiko)</string>
+
     <string name="ob_cap_root_checking">Wird geprüft …</string>
+
     <string name="ob_cap_root_present">✔ Root (su) erkannt</string>
+
     <string name="ob_cap_root_absent">⚠ Root (su) nicht erkannt — der Root-Modus kann die Engine nicht erhöhen</string>
+
     <string name="ob_priv_root_gray_hint">Kein su gefunden, Root-Modus nicht verfügbar</string>
+
     <string name="ob_cap_shizuku_present">✔ Shizuku autorisiert</string>
+
     <string name="ob_cap_shizuku_request">● Shizuku läuft, Autorisierung wird angefordert … bitte im Dialog "Erlauben" tippen</string>
+
     <string name="ob_cap_shizuku_absent">⚠ Shizuku läuft nicht — zuerst die Shizuku-App öffnen und deren Dienst starten</string>
+
     <string name="ob_start">Los geht\'s</string>
+
     <string name="ob_priv_root_warn_title">Hochrisiko-Bestätigung (1/2)</string>
+
     <string name="ob_priv_root_warn">Der Root-Modus lässt die Engine als Root laufen. Er kann die aktuelle Laufzeitumgebung beschädigen und Sitzungs- oder Workspace-Daten verlieren.\n\nFortfahren?</string>
+
     <string name="ob_priv_root_warn2_title">Letzte Bestätigung (2/2)</string>
+
     <string name="ob_priv_root_warn2">Dieser Modus ist äußerst gefährlich — die Engine kann jede Datei außerhalb der Sandbox lesen und schreiben.\n\nRoot-Modus aktivieren?</string>
 
     <string name="ob_priv_root_paths_warn">Der Root-Modus ist aktiv. Ändere, verschiebe oder lösche keine Dateien in den App-Verzeichnissen (files/engine, files/dsh-home) oder im Arbeitsbereich.\n\nVon einem Root-Prozess geschriebene Dateien gehören root und haben enge Rechte. Die App kann sie danach nicht lesen - Symptome wie \'Plugin lädt nicht\' oder \'Engine startet nicht\', meist nur durch Löschen der App-Daten zu beheben.\n\nEigene Dateien (Dokumente, Code, Projekte) gehören in einen externen Ordner wie Documents/ - dort soll der Agent arbeiten.\n\nFür Änderungen in den App-Verzeichnissen bitte die App-Einstellungen nutzen, keinen Root-Dateimanager.</string>
 
     <string name="error_boot_timeout">Start nach %1$d Minuten Wiederholung abgebrochen. Ursache ist meist ein defektes Plugin, ein belegter Port oder Reste einer früheren Version. Details unter Einstellungen → Letzter Start; alternativ Einstellungen → Unterhaltungen wiederherstellen / Gesundheitscheck.</string>
+
     <string name="ob_dialog_continue">Fortfahren</string>
+
     <string name="ob_dialog_cancel">Abbrechen</string>
 
-    <!-- Einstellungen (eigenständige Seite, MIUI-ähnliche gruppierte Karten) -->
     <string name="settings_title">Einstellungen</string>
+
     <string name="settings_back">Zurück</string>
+
     <string name="settings_section_display">Anzeige</string>
+
     <string name="settings_section_priv">Berechtigungen</string>
+
     <string name="settings_section_other">Sonstiges</string>
 
     <string name="setting_landscape">Bildschirmausrichtung</string>
+
     <string name="setting_landscape_sub">Hochformat sperrt Hochformat · Querformat sperrt Querformat mit Desktop-Layout · Automatisch folgt der Gerätedrehung</string>
+
     <string name="setting_orient_portrait">Hochformat</string>
+
     <string name="setting_orient_landscape">Querformat</string>
+
     <string name="setting_orient_auto">Automatisch</string>
 
     <string name="setting_applied_now">sofort wirksam</string>
+
     <string name="setting_scale">Seitenzoom</string>
-        <string name="setting_files_dir">Dateiordner</string>
+
+    <string name="setting_files_dir">Dateiordner</string>
+
     <string name="setting_files_dir_sub">Vom KI erzeugte Dateien werden hier gespeichert (im Dateimanager sichtbar)</string>
+
     <string name="files_dir_copied">Pfad kopiert</string>
-<string name="setting_immersive">Statusleiste ausblenden</string>
+
+    <string name="setting_immersive">Statusleiste ausblenden</string>
+
     <string name="setting_immersive_sub">Statusleiste ausblenden, damit Seiten den ganzen Bildschirm füllen; vom oberen Rand wischen, um sie kurz einzublenden. Standardmäßig aus, damit die Kamera-Notch frei bleibt</string>
+
     <string name="setting_scale_sub">Skalierung der Webseitenanzeige anpassen (Browser-Zoom)</string>
+
     <string name="setting_theme">Darstellung</string>
+
     <string name="setting_theme_sub">Dunkel, hell oder dem System folgen</string>
 
     <string name="setting_priv_mode">Berechtigungsmodus</string>
+
     <string name="setting_priv_mode_sub">Bestimmt, wie viel Systembereich die KI erreichen kann. Beim Wechsel startet die Engine neu</string>
+
     <string name="setting_root_status">Root-Fähigkeit</string>
+
     <string name="setting_root_sub">Führt die Engine als su aus, damit die KI Systemrechte erhält (das Gerät muss gerootet sein). Beim Wechsel startet die Engine neu</string>
+
     <string name="setting_root_status_yes">su erkannt</string>
+
     <string name="setting_root_status_no">su nicht erkannt</string>
+
     <string name="setting_shizuku_status">Shizuku-Status</string>
+
     <string name="setting_shizuku_sub">Führt Befehle über Shizuku als adb aus (Prozesse wachhalten/beenden); die Engine selbst bleibt in der Sandbox</string>
+
     <string name="setting_shizuku_granted">Autorisiert</string>
+
     <string name="setting_shizuku_request">Warten auf Autorisierung</string>
+
     <string name="setting_shizuku_absent">Nicht gestartet</string>
+
     <string name="setting_access">Bildschirmtippen (Bedienungshilfen)</string>
+
     <string name="setting_access_sub_on">Aktiviert — Bildschirmtippen können simuliert werden</string>
+
     <string name="setting_access_sub_off">Nicht aktiviert — zum Aktivieren in den Systemeinstellungen tippen</string>
 
     <string name="setting_restart_engine">Engine neu starten</string>
+
     <string name="setting_restart_engine_sub">Runtime und Erweiterungen neu laden (Selbstheilung nach Absturz)</string>
+
     <string name="setting_about">Über</string>
+
     <string name="setting_about_sub">DSH Mobile · Version %1$s</string>
 
-    <!-- Erweiterungs-Center (v1.2.0): rot = nicht heruntergeladen, gelb = heruntergeladen aber inaktiv, grün = aktiviert -->
     <string name="settings_section_ext">Erweiterungen</string>
-    <!-- v1.2.113：Community-Plugins-Center -->
+
     <string name="setting_plugin">Community-Plugins</string>
+
     <string name="setting_plugin_sub">dsh-Ökosystem-Plugins mit einem Klick installieren</string>
+
     <string name="setting_user_prompt">Eigene Anweisungen</string>
+
     <string name="setting_user_prompt_sub">Eigene dauerhafte Anweisungen ergänzend zur eingebauten Umgebungsbeschreibung</string>
+
     <string name="user_prompt_intro">Diese Anweisungen werden an die eingebaute Umgebungsbeschreibung der App angehängt und gelten für jede neue Sitzung. Die App überschreibt sie nie, auch bei Updates nicht. Du kannst die KI auch bitten, hier für dich zu schreiben.</string>
+
     <string name="user_prompt_placeholder">Zum Beispiel: Antworte immer auf Deutsch. Oder: Wenn ich "sichern" sage, kopiere den Arbeitsbereich in den Documents-Ordner.</string>
+
     <string name="user_prompt_save">Speichern</string>
+
     <string name="user_prompt_saved">Gespeichert. Gilt in neuen Sitzungen.</string>
+
     <string name="user_prompt_path">Gespeichert im Nutzerabschnitt von AGENTS.md (von der App verwaltet, deiner wird nie überschrieben)</string>
 
-    <!-- Datei-Editor in der App (v1.4.0, Issue #25). Der Button "Konfigurationsdatei
-         öffnen" übergibt den Pfad an einen Desktop-Texteditor, den Android nicht hat;
-         die Engine leitet die Anfrage jetzt an diesen Bildschirm weiter. -->
     <string name="file_editor_title">Datei</string>
+
     <string name="file_editor_save">Speichern</string>
+
     <string name="file_editor_saved">Gespeichert</string>
+
     <string name="file_editor_reload">Neu laden</string>
+
     <string name="file_editor_reloaded">Vom Datenträger neu geladen</string>
+
     <string name="file_editor_path">Pfad</string>
+
     <string name="file_editor_read_failed">Diese Datei konnte nicht gelesen werden</string>
+
     <string name="file_editor_save_failed">Speichern fehlgeschlagen: %1$s</string>
+
     <string name="file_editor_too_large">Diese Datei ist %1$s groß und zu groß zum Bearbeiten. Bitte die KI im Chat bitten, sie zu öffnen oder zu ändern.</string>
+
     <string name="file_editor_binary">Diese Datei ist kein UTF-8-Text und kann hier nicht bearbeitet werden.</string>
+
     <string name="file_editor_unsaved_title">Änderungen verwerfen?</string>
+
     <string name="file_editor_unsaved_body">Diese Datei hat ungespeicherte Änderungen.</string>
+
     <string name="file_editor_discard">Verwerfen</string>
+
     <string name="file_editor_keep_editing">Weiter bearbeiten</string>
+
     <string name="file_editor_copy_path">Pfad kopieren</string>
+
     <string name="file_editor_path_copied">Pfad kopiert</string>
 
-            <string name="setting_config_files">Konfigurationsdateien</string>
+    <string name="setting_config_files">Konfigurationsdateien</string>
+
     <string name="setting_config_files_sub">AGENTS.md, Arbeitsbereichsregister oder Plugin-Profil öffnen</string>
+
     <string name="config_files_none">Noch keine Konfigurationsdateien — starte zuerst den Motor</string>
+
     <string name="config_files_failed">Kann nicht geöffnet werden: %1$s</string>
-<string name="setting_import_data">Daten importieren</string>
+
+    <string name="setting_import_data">Daten importieren</string>
+
     <string name="setting_import_data_sub">Backup-.zip wiederherstellen (nur .zip) — führt zusammen, überschreibt nie</string>
+
     <string name="import_err_not_zip">Das ist kein gültiges .zip-Backup. Es werden nur zip-Archive unterstützt.</string>
+
     <string name="import_err_encrypted">Verschlüsselte Archive werden nicht unterstützt. Bitte entpacken und ohne Passwort neu packen.</string>
+
     <string name="import_preparing">Backup wird gelesen…</string>
+
     <string name="import_progress">%1$d / %2$d Dateien werden wiederhergestellt…</string>
+
     <string name="import_done">%1$d Unterhaltungen, %2$d Arbeitsbereichsdateien wiederhergestellt (%3$d vorhandene behalten)</string>
+
     <string name="import_failed">Import fehlgeschlagen: %1$s</string>
+
     <string name="import_done_title">Wiederherstellung abgeschlossen</string>
+
     <string name="import_done_body">%1$d Datei(en) wiederhergestellt. Starte den Motor neu, damit sie in der Liste erscheinen.</string>
+
     <string name="import_done_restart">Jetzt neu starten</string>
-<string name="plugin_center_title">Community-Plugins</string>
+
+    <string name="plugin_center_title">Community-Plugins</string>
+
     <string name="plugin_center_sub">dsh-Ökosystem-Plugins mit einem Klick installieren (npm)</string>
+
     <string name="plugin_install">Installieren</string>
+
     <string name="plugin_installing">Wird installiert …</string>
+
     <string name="plugin_installed">Installiert</string>
-                <string name="settings_section_appearance">Erscheinungsbild</string>
+
+    <string name="settings_section_appearance">Erscheinungsbild</string>
+
     <string name="settings_section_appearance_sub">Anzeige, Zoom, Farben und Layout</string>
+
     <string name="settings_section_permission">Berechtigungen</string>
+
     <string name="settings_section_permission_sub">Laufzeitmodus und Systemfreigaben</string>
+
     <string name="settings_section_voice">Sprache</string>
+
     <string name="settings_section_voice_sub">Synthese, Erkennung und Dienste</string>
+
     <string name="settings_section_extension">Erweiterungen</string>
+
     <string name="settings_section_extension_sub">Toolchains, Plugins und Erkenner</string>
+
     <string name="settings_section_data">Daten &amp; Sitzungen</string>
+
     <string name="settings_section_data_sub">Anweisungen, Export und Wiederherstellung</string>
+
     <string name="settings_section_network">Netzwerk</string>
+
     <string name="settings_section_network_sub">LAN-Zugriff</string>
+
     <string name="settings_section_maintenance">Wartung</string>
+
     <string name="settings_section_maintenance_sub">Diagnose, Protokolle und Neustart</string>
+
     <string name="settings_section_about">Info</string>
+
     <string name="settings_section_about_sub">Sprache und App-Informationen</string>
-<string name="setting_accent">Akzentfarbe</string>
+
+    <string name="setting_accent">Akzentfarbe</string>
+
     <string name="setting_accent_sub">Hervorhebungsfarbe für Schaltflächen, Tabs und Status</string>
+
     <string name="setting_layout_mode">Einstellungs-Layout</string>
+
     <string name="setting_layout_mode_sub">Liste, Karten oder zweispaltiges Raster</string>
+
     <string name="accent_sky">Himmelblau (Standard)</string>
+
     <string name="accent_indigo">Indigo</string>
+
     <string name="accent_teal">Türkis</string>
+
     <string name="accent_violet">Violett</string>
+
     <string name="accent_amber">Bernstein</string>
+
     <string name="settings_layout_list">Liste</string>
+
     <string name="settings_layout_card">Karten</string>
+
     <string name="settings_layout_grid">Raster</string>
+
     <string name="plugin_category_all">Alle</string>
-<string name="plugin_tab_market">Markt</string>
+
+    <string name="plugin_tab_market">Markt</string>
+
     <string name="plugin_tab_installed">Installiert</string>
-        <string name="plugin_sort_name_asc">Name A→Z</string>
+
+    <string name="plugin_sort_name_asc">Name A→Z</string>
+
     <string name="plugin_sort_name_desc">Name Z→A</string>
+
     <string name="plugin_sort_recent">Zuletzt aktualisiert</string>
+
     <string name="plugin_sort_downloads">Meistgeladen</string>
+
     <string name="plugin_sort_size">Kleinste zuerst</string>
-<string name="plugin_sort_title">Sortieren</string>
+
+    <string name="plugin_sort_title">Sortieren</string>
+
     <string name="plugin_check_updates">Updates prüfen</string>
+
     <string name="plugin_compat_pure">Reines JS</string>
-    <string name="plugin_engine_too_old_body">Dieses Plugin benötigt dsh-Engine >= %1$s, diese App enthält aber %2$s. Das Plugin ist in Ordnung — die eingebaute Engine ist schlicht älter als vom Plugin vorausgesetzt. Nach einem App-Update mit neuerer Engine funktioniert es.</string>
+
+    <string name="plugin_engine_too_old_body">Dieses Plugin benötigt dsh-Engine &gt;= %1$s, diese App enthält aber %2$s. Das Plugin ist in Ordnung — die eingebaute Engine ist schlicht älter als vom Plugin vorausgesetzt. Nach einem App-Update mit neuerer Engine funktioniert es.</string>
+
     <string name="plugin_engine_old_title">Plugin benoetigt neuere Engine</string>
+
     <string name="plugin_engine_old_force">Diese Version erzwingen</string>
+
     <string name="plugin_engine_old_why">Dieses Plugin benötigt eine neuere dsh-Engine (installiert: %1$s); die Engine hat die Installation deshalb abgelehnt.</string>
+
     <string name="plugin_engine_old_req">Erforderlich: %1$s</string>
+
     <string name="plugin_engine_old_note">Das Plugin ist in Ordnung, und es ist kein Netzwerkproblem - die eingebaute Engine ist aelter als vom Plugin vorausgesetzt. Warte auf ein App-Update oder waehle Diese Version erzwingen auf der Plugin-Seite.</string>
+
     <string name="plugin_engine_old_no_version">Die eingebaute Engine-Version ist nicht lesbar; keine Ausnahme geschrieben.</string>
+
     <string name="plugin_engine_old_exempt_failed">Ausnahme konnte nicht geschrieben werden: %1$s</string>
+
     <string name="plugin_compat_engine_old">Engine zu alt — dieses Plugin benötigt eine neuere eingebaute dsh-Engine</string>
+
     <string name="plugin_compat_native">Braucht nativen Code</string>
+
     <string name="plugin_compat_fork">Engine-Fork</string>
+
     <string name="plugin_compat_unknown">Ungeprüft</string>
+
     <string name="plugin_official">Empfohlen</string>
+
     <string name="plugin_detail_title">Plugin-Details</string>
+
     <string name="plugin_detail_size">Größe</string>
+
     <string name="plugin_detail_repo">Repository</string>
+
     <string name="plugin_detail_compat">Kompatibilität</string>
+
     <string name="plugin_detail_reasons">Begründung</string>
+
     <string name="plugin_detail_versions">Versionen</string>
+
     <string name="plugin_loading_detail">Details werden geladen…</string>
+
     <string name="plugin_updates_found">%1$d Update(s) verfügbar</string>
+
     <string name="plugin_updates_none">Alle Plugins sind aktuell</string>
+
     <string name="plugin_none_installed">Noch keine Plugins installiert</string>
-<string name="plugin_upgrade">Aktualisieren</string>
+
+    <string name="plugin_upgrade">Aktualisieren</string>
+
     <string name="plugin_upgrading">Aktualisiere…</string>
+
     <string name="plugin_failed">Fehlgeschlagen: %1$s</string>
+
     <string name="plugin_checking">Wird geprüft…</string>
+
     <string name="plugin_translate_thai">Translate to Thai</string>
+
     <string name="plugin_translating">Translating…</string>
+
     <string name="plugin_translated_to_thai">Translated to Thai</string>
+
     <string name="plugin_translate_failed">Translation failed</string>
+
     <string name="plugin_native_title">Dieses Plugin benötigt nativen Code</string>
+
     <string name="plugin_native_body">Es deklariert Build-Schritte oder native Module:
 
 %1$s
 
 Unter Android lassen sich diese meist nicht kompilieren (fehlende Toolchain-Header), es kann also installiert werden, aber nicht funktionieren. Trotzdem installieren?</string>
+
     <string name="plugin_check_unknown_title">Plugin konnte nicht geprüft werden</string>
+
     <string name="plugin_check_unknown_body">Die Registry-Abfrage ist fehlgeschlagen (%1$s), die Kompatibilität ist unbekannt. Falls es native Module braucht, funktioniert es unter Android möglicherweise nicht.
 
 Trotzdem installieren?</string>
+
     <string name="plugin_install_anyway">Trotzdem installieren</string>
 
     <string name="download_started">Download gestartet: %1$s</string>
+
     <string name="download_failed">Download fehlgeschlagen: %1$s</string>
+
     <string name="download_blob_unsupported">Diese Download-Methode (blob) wurde nicht abgefangen. Nutze stattdessen den Einzeldatei-Download.</string>
+
     <string name="plugin_empty">Noch keine kompatiblen Community-Plugins — sie erscheinen hier automatisch</string>
+
     <string name="plugin_search_hint">Community-Plugins suchen …</string>
+
     <string name="plugin_searching">npm wird durchsucht …</string>
+
     <string name="plugin_search_none">Keine passenden Plugins auf npm gefunden</string>
+
     <string name="plugin_search_fail">npm-Suche fehlgeschlagen — mitgelieferte Auswahl wird angezeigt</string>
+
     <string name="plugin_search_clear">Löschen</string>
-    <string name="plugin_search_btn">Suchen</string>    <string name="plugin_manual_title">Manuelle Installation</string>
+
+    <string name="plugin_search_btn">Suchen</string>
+
+    <string name="plugin_manual_title">Manuelle Installation</string>
+
     <string name="plugin_catalog_title">Katalog</string>
+
     <string name="setting_ext">Erweiterungs-Center</string>
+
     <string name="setting_ext_sub">Python, Git, JDK und weitere Umgebungen herunterladen — aktivierte fließen in die Engine ein</string>
+
     <string name="setting_ext_active_count">%1$d aktiviert</string>
+
     <string name="ext_title">Erweiterungs-Center</string>
+
     <string name="ext_subtitle">%1$s-Gerät · %2$d von %3$d aktiviert</string>
+
     <string name="ext_state_none">Nicht heruntergeladen</string>
+
     <string name="ext_state_downloaded">Heruntergeladen · nicht aktiviert</string>
+
     <string name="ext_state_activated">Aktiviert</string>
+
     <string name="ext_action_download">Herunterladen</string>
+
     <string name="ext_action_activate">Aktivieren</string>
+
     <string name="ext_action_deactivate">Deaktivieren</string>
+
     <string name="ext_activate_toast">Aktiviert · zum Anwenden Engine neu starten</string>
+
     <string name="ext_deactivate_toast">Deaktiviert · zum Anwenden Engine neu starten</string>
+
     <string name="ext_download_failed">Download fehlgeschlagen: %1$s</string>
+
     <string name="ext_download_start">%1$s wird heruntergeladen …</string>
+
     <string name="ext_uninstall_title">Erweiterung deinstallieren</string>
+
     <string name="ext_uninstall_msg">%1$s und alle seine Statusmarker entfernen? Wenn die Engine diese Umgebung gerade nutzt, startet sie automatisch neu.</string>
+
     <string name="ext_dialog_uninstall">Deinstallieren</string>
+
     <string name="ext_reinstall_title">Erweiterung neu installieren</string>
+
     <string name="ext_reinstall_msg">%1$s (%2$s) erneut herunterladen und überschreiben.\n\nNutzen Sie dies, wenn die Nutzlast fehlt oder die Installation unvollständig ist: Der Download wird wiederholt, vorhandene Inhalte werden geleert und neu aufgebaut.</string>
+
     <string name="ext_dialog_reinstall">Neu installieren</string>
+
     <string name="ext_reinstall_start">%1$s wird neu installiert …</string>
+
     <string name="ext_more_cd">Weitere Aktionen</string>
+
     <string name="ext_tool_check">Alles prüfen</string>
+
     <string name="ext_tool_install_all">Alle installieren</string>
+
     <string name="ext_tool_repair">Reparieren</string>
+
     <string name="ext_check_title">Gesundheitsprüfung der Erweiterungen</string>
+
     <string name="ext_check_all_ok">%1$d Erweiterung(en) installiert, alle gesund ✓</string>
+
     <string name="ext_check_summary">%1$d installiert: %2$d gesund, %3$d defekt
 
 %4$s</string>
+
     <string name="ext_check_none">Noch keine Erweiterungen installiert</string>
+
     <string name="ext_install_all_title">Alle Erweiterungen installieren</string>
+
     <string name="ext_install_all_msg">Lädt und installiert %1$d noch nicht installierte Erweiterung(en) (einschließlich ihrer Abhängigkeits-Closures; Gesamtgröße je Erweiterung unterschiedlich).
 
 Installation läuft im Hintergrund — Sie können diese Seite verlassen. Neue Erweiterungen stehen PATH nach einem Engine-Neustart zur Verfügung.</string>
+
     <string name="ext_install_all_go">Installation starten</string>
+
     <string name="ext_install_all_none">Nichts zu installieren — alles ist bereits installiert</string>
+
     <string name="ext_install_all_started">%1$d Erweiterung(en) eingereiht; Download läuft im Hintergrund</string>
+
     <string name="ext_repair_title">Defekte Erweiterungen reparieren</string>
+
     <string name="ext_repair_msg">%1$d defekte Erweiterung(en) gefunden:
 
 %2$s
 
 Sie werden erneut heruntergeladen und installiert (mit Abhängigkeits-Closures). Falls ein Fehler wegen Berechtigungsrest auftritt, su einmal erlauben und erneut versuchen.</string>
+
     <string name="ext_repair_go">Reparieren</string>
+
     <string name="ext_repair_none">Keine defekten Erweiterungen gefunden ✓</string>
+
     <string name="ext_repair_started">Reparatur für %1$d Erweiterung(en) eingereiht</string>
+
     <string name="ext_checking">Wird geprüft …</string>
+
     <string name="engine_restarting">Engine wird neu gestartet …</string>
 
-    <!-- Berechtigungsmodus-Dialog: Suffix und ausgegrahter Hinweis für nicht verfügbare Einträge -->
     <string name="priv_pick_title">Berechtigungsmodus</string>
+
     <string name="priv_gray_hint">Gerade nicht verfügbar (Fähigkeit nicht bereit)</string>
 
-    <!-- Über -->
     <string name="about_title">Über</string>
+
     <string name="about_app_name">DSH Thai</string>
+
     <string name="about_version">Version %1$s</string>
+
     <string name="about_intro">DSH Mobile ist eine lokale Engine-Hülle für DeepSeek Harness (DSH) unter Android: Sie führt die vollständige Node.js-Agent-Engine in der Sandbox des Telefons aus — kein Server nötig, Sitzungen bleiben auf dem Gerät. Nur Modellanfragen gehen hinaus - an den API-Endpunkt, den du selbst konfigurierst.</string>
+
     <string name="about_based">Basiert auf dem DeepSeek-Harness-(dsh)-Agent-Framework, im August 2026 von DeepSeek Open Source gestellt</string>
+
     <string name="about_author">Autor: Soodok</string>
+
     <string name="about_open_source">Quellcode</string>
+
     <string name="about_repo">github.com/Soodok/Deepseek-Harness-Local-Android</string>
+
     <string name="about_copied">Repo-URL kopiert</string>
+
     <string name="about_qq_group">QQ-Gruppe</string>
+
     <string name="about_qq_group_id">1128769016</string>
+
     <string name="about_telegram">Telegram-Gruppe</string>
+
     <string name="about_telegram_sub">Austausch mit anderen Nutzern (ausserhalb Chinas besser erreichbar)</string>
+
     <string name="about_telegram_open">Oeffnen</string>
+
     <string name="about_telegram_url">https://t.me/+4VN3pYyH6i8yNDA1</string>
+
     <string name="about_telegram_copied">Link kopiert</string>
+
     <string name="about_qq_group_tap">Zum Kopieren tippen</string>
+
     <string name="about_qq_group_copied">Gruppennummer kopiert — in QQ danach suchen</string>
+
     <string name="about_check_update">Nach Updates suchen</string>
+
     <string name="about_update_idle">Tippen, um GitHub Releases zu prüfen</string>
+
     <string name="about_update_checking">Wird geprüft …</string>
+
     <string name="about_update_available">Neue Version %1$s verfügbar · zum Öffnen tippen</string>
+
     <string name="about_update_latest">Bereits auf der neuesten Version</string>
+
     <string name="about_update_failed">Prüfung fehlgeschlagen: %1$s</string>
+
     <string name="about_privacy_note">Datenschutz: Engine, Sitzungen und Zugangsdaten bleiben auf diesem Gerät. Die optionalen Cloud-ASR/TTS-Endpunkte sind selbst gehostet, werden nur zur Sprachumwandlung genutzt und enthalten keinerlei Analytics oder Tracking.</string>
+
     <string name="setting_access_open_failed">Bedienungshilfen-Einstellungen konnten nicht geöffnet werden</string>
+
     <string name="ext_repo_line">Termux-Repo · %1$s</string>
+
     <string name="ext_state_installing">Wird installiert …</string>
+
     <string name="ext_state_pending_restart">Aktiviert · zum Anwenden Engine neu starten</string>
+
     <string name="ext_downloading_pct">%1$s · %2$d%% heruntergeladen</string>
+
     <string name="ext_download_done">%1$s heruntergeladen — unten aktivieren</string>
+
     <string name="ext_unknown_error">Unbekannter Fehler</string>
+
     <string name="app_language">App-Sprache</string>
+
     <string name="webview_gate_title">WebView benötigt ein Update</string>
+
     <string name="webview_gate_body">Die Browser-Engine auf diesem Gerät (Chrome %1$s) ist zu alt für diese Anwendung: die KI-Oberfläche benötigt Chrome %2$d+ und kann auf Syntaxebene nicht gepolyfillt werden. Die Seite würde leer rendern.
 
 Aktualisieren Sie das Android System WebView in Ihrem App-Store und öffnen Sie diese App erneut.
 
 Sie können auch ohne Update fortfahren, die Oberfläche wird dann aber nicht angezeigt.</string>
+
     <string name="webview_gate_update">So aktualisieren Sie</string>
+
     <string name="webview_gate_continue">Trotzdem fortfahren</string>
+
     <string name="ticker_working">In Arbeit …</string>
+
     <string name="app_language_sub">Anzeigesprache der App-Oberfläche (das WebUI folgt dem System)</string>
+
     <string name="app_language_sub_current">Anzeigesprache · aktuell: %1$s</string>
+
     <string name="lang_zh">Chinesisch</string>
+
     <string name="lang_en">Englisch</string>
+
     <string name="lang_de">Deutsch</string>
+
     <string name="lang_th">Thai</string>
+
     <string name="lang_changed">Sprache geändert</string>
+
     <string name="ob_lang_label">Sprache</string>
+
     <string name="setting_storage">Zugriff auf alle Dateien</string>
+
     <string name="setting_storage_sub">Erlaubt der KI, Dateien im gemeinsamen Speicher (Download / Dokumente) zu erstellen und zu lesen/schreiben</string>
+
     <string name="storage_granted">Autorisiert</string>
+
     <string name="storage_denied">Nicht autorisiert · zum Aktivieren tippen</string>
+
     <string name="setting_tts">Text-zu-Sprache (TTS)</string>
+
     <string name="setting_tts_sub">Das say des Agenten liest über die System-TTS vor · tippen Sie auf Test, um die Engine zu hören</string>
+
     <string name="tts_missing">Keine TTS-Engine auf dem Gerät</string>
+
     <string name="tts_engines">Engines ×%1$d</string>
+
     <string name="setting_notif">Benachrichtigungen</string>
+
     <string name="setting_notif_sub">Push bei Aufgabenabschluss (Android 13+)</string>
+
     <string name="notif_granted">Autorisiert</string>
+
     <string name="notif_denied">Nicht autorisiert · zum Aktivieren tippen</string>
 
-    <!-- Generische Ein-/Aus-Werte für Einstellungszeilen -->
     <string name="state_on">Ein</string>
+
     <string name="state_off">Aus</string>
-    <!-- Text, der der System-TTS-Engine übergeben wird, wenn der TTS-Eintrag getippt wird -->
+
     <string name="tts_test_text">Text-zu-Sprache-Test</string>
+
     <string name="access_enabled_toast">Bildschirmtippen (Bedienungshilfen): Ein</string>
+
     <string name="error_restart_failed_streak">Start %1$d mal in Folge fehlgeschlagen — automatische Neustarts gestoppt</string>
+
     <string name="error_root_no_su">Der Root-Modus ist ausgewählt, aber es wurde keine nutzbare su-Binärdatei gefunden (das Gerät ist möglicherweise nicht gerootet)</string>
+
     <string name="error_shizuku_binder">Shizuku-Binder nicht verfügbar (Server läuft nicht oder nicht autorisiert)</string>
+
     <string name="error_runtime_no_source">Weder assets/runtime.zip noch eine Download-URL ist konfiguriert</string>
+
     <string name="error_runtime_no_space">Nicht genügend freier Speicher für die Runtime: etwa %1$s MB benötigt, nur %2$s MB verfügbar. Speicher freigeben und erneut versuchen.</string>
-    <!-- v1.2.104：Fähigkeits-Bridge bindet fehlschlägt, aktiv informieren (vorher still, Fehldiagnose "Bedienungshilfen nicht aktiv") -->
+
     <string name="bridge_down_title">Fähigkeits-Bridge konnte nicht starten</string>
+
     <string name="bridge_down_body">Port %1$d ist bereits belegt (Inhaber: %2$s). Benachrichtigung / Bildschirmsteuerung bleiben bis zum Neustart der App nicht verfügbar.</string>
+
     <string name="notif_agent_task">Agenten-Aufgabe</string>
+
     <string name="notif_task_complete">Aufgabe abgeschlossen</string>
+
     <string name="notif_channel_agent">Benachrichtigungen zu Agenten-Aufgaben</string>
+
     <string name="notif_ext_installed_title">Erweiterung installiert</string>
+
     <string name="notif_ext_installed_body">%1$s ist aktiviert — zur Nutzung Engine neu starten</string>
+
     <string name="notif_ext_failed_title">Erweiterungsinstallation fehlgeschlagen</string>
+
     <string name="notif_agent_prefix">Agent · %1$s: %2$s</string>
+
     <string name="notif_turn_done_title">Unterhaltung beendet</string>
+
     <string name="notif_turn_done_body">Die KI hat ihre Antwort beendet (Sitzung %1$s …)</string>
+
     <string name="overlay_idle">Untätig</string>
+
     <string name="overlay_working">In Arbeit · %1$s</string>
+
     <string name="overlay_turn_done">Unterhaltung beendet</string>
+
     <string name="a11y_voice_input">Spracheingabe</string>
+
     <string name="overlay_listening">Hört zu …</string>
+
     <string name="overlay_speak_now">Jetzt sprechen</string>
+
     <string name="voice_close">Schließen</string>
+
     <string name="voice_hint_placeholder">Erkannter Text (bearbeitbar)</string>
+
     <string name="voice_retry">Erneut sprechen</string>
+
     <string name="voice_send">Senden</string>
+
     <string name="voice_sent">An die KI gesendet</string>
+
     <string name="voice_sent_to">Gesendet an: %1$s</string>
+
     <string name="voice_not_sent">Nicht gesendet — der Text steht noch im Eingabefeld</string>
-        <string name="voice_cloud_listening">Cloud-ASR hört zu …</string>
+
+    <string name="voice_cloud_listening">Cloud-ASR hört zu …</string>
+
     <string name="voice_switching_cloud">Wechsel zu Cloud-ASR …</string>
+
     <string name="setting_cloud_asr">Cloud-Spracherkennung</string>
+
     <string name="setting_cloud_asr_sub">Wird genutzt, wenn das Gerät keinen eingebauten Erkenner hat</string>
+
     <string name="cloud_asr_title">Cloud-Spracherkennung</string>
+
     <string name="cloud_asr_desc">Wird nur genutzt, wenn das Gerät keinen eingebauten Erkenner hat. Audio wird zur Transkription hochgeladen.</string>
+
     <string name="cloud_asr_key">API-Schlüssel</string>
+
     <string name="cloud_asr_key_hint">Ihren API-Schlüssel einfügen</string>
+
     <string name="cloud_asr_endpoint">Endpunkt</string>
+
     <string name="cloud_asr_model">Modell</string>
-        <string name="cloud_asr_save">Speichern</string>
-        <string name="tts_voice_xiaoxiao">Xiaoxiao · weiblich (empfohlen)</string>
+
+    <string name="cloud_asr_save">Speichern</string>
+
+    <string name="tts_voice_xiaoxiao">Xiaoxiao · weiblich (empfohlen)</string>
+
     <string name="tts_voice_yunxi">Yunxi · männlich</string>
+
     <string name="tts_voice_xiaoyi">Xiaoyi · weiblich</string>
+
     <string name="tts_voice_yunjian">Yunjian · männlich (ruhig)</string>
-            <string name="asrapp_title">Spracherkenner</string>
+
+    <string name="asrapp_title">Spracherkenner</string>
+
     <string name="asrapp_subtitle">Installieren Sie unseren Offline-Erkenner und folgen Sie den Schritten unten, um ein Modell herunterzuladen und zu aktivieren.</string>
+
     <string name="asrapp_open_failed">Kann nicht geöffnet werden: %1$s</string>
 
-    <!-- Hauptkarte: unserer Erkennungsdienst -->
     <string name="asrapp_ours">DSH-Offline-Erkennung</string>
+
     <string name="asrapp_ours_desc">Systemweiter Erkenner. Lokale Inferenz über sherpa-onnx, Modelle von einem in China erreichbaren Mirror. Kein Desktop-Symbol — von hier aus öffnen.</string>
+
     <string name="asrapp_download">Von GitHub Releases herunterladen</string>
+
     <string name="asrapp_installed_open">Installiert — zum Öffnen tippen</string>
 
-    <!-- Schritt-für-Schritt-Anleitung: vier Schritte -->
     <string name="asrapp_guide_title">Einrichtungsanleitung</string>
+
     <string name="asrapp_step1_title">1. APK herunterladen</string>
+
     <string name="asrapp_step1_body">Tippen Sie oben auf den Eintrag, um die GitHub-Releases-Seite im Browser zu öffnen, und laden Sie die neueste dsh-asr-service arm64-v8a-APK (ca. 31 MB) herunter. Installieren Sie sie und erlauben Sie bei Nachfrage die Installation aus dem Browser. Es wird kein Symbol auf dem Startbildschirm hinzugefügt.</string>
+
     <string name="asrapp_step2_title">2. Öffnen und ein Modell herunterladen</string>
+
     <string name="asrapp_step2_body">Öffnen Sie sie von dieser Seite (Eintrag oben) oder über die System-Spracheingabe-Einstellungen. Gehen Sie zu "Modelle" und laden Sie eines herunter. zipformer-zh-14m-int8 ist klein und schnell — gut für den Anfang. Wählen Sie paraformer-zh-int8, wenn Sie bessere Genauigkeit wünschen und genügend Speicher haben. Modelle bleiben auf Ihrem Gerät; die Download-Quelle folgt Ihrer Systemsprache (HuggingFace offiziell für Englisch, ein in China erreichbarer Mirror für Chinesisch) und kann in den App-Einstellungen überschrieben werden.</string>
+
     <string name="asrapp_step3_title">3. Zum System-Erkenner machen</string>
+
     <string name="asrapp_step3_body">Tippen Sie in der App auf "Als Systemstandard setzen". Dafür ist Shizuku oder Root nötig; ohne beides gehen Sie zu Einstellungen · Sprachen &amp; Eingabe · Spracheingabe und wählen die App dort. Auf ROMs, die diese Seite umleiten, können Sie sie stattdessen direkt hier in DSH Mobile auswählen (siehe Einstellung "Erkennungs-Engine").</string>
+
     <string name="asrapp_step4_title">4. In DSH Mobile aktivieren</string>
+
     <string name="asrapp_step4_body">Gehen Sie zurück zu "Sprachdienste · Spracherkennung" und setzen Sie "Erkennungs-Engine" auf den DSH-Offline-Erkenner. Tippen Sie dann auf das schwebende Mikrofon: Die Erkennung läuft nun vollständig offline. Tippen Sie jederzeit auf "Prüfung ausführen" in der Erkenner-App, um alle Schritte zu verifizieren.</string>
 
     <string name="asrapp_trouble_title">Falls etwas nicht funktioniert</string>
+
     <string name="asrapp_trouble_body">Kein Symbol nach der Installation: erwartet — es ist ein Dienst-Plugin, öffnen Sie es von dieser Seite. Modell-Download schlägt fehl: Netzwerk prüfen, der Mirror ist hf-mirror.com. Spracheingabe nutzt weiterhin den falschen Erkenner: unter "Erkennungs-Engine" explizit setzen. Erkennung liefert nichts: "Prüfung ausführen" in der App nennt den fehlenden Schritt.</string>
 
     <string name="asrapp_repo_title">Projektseite</string>
+
     <string name="asrapp_repo_desc">Quellcode, weitere ABIs und Release-Notizen</string>
 
     <string name="asrapp_entry">Lokale Erkenner-Apps</string>
+
     <string name="asrapp_entry_sub">Installieren Sie unseren Offline-Spracherkenner für das System</string>
+
     <string name="asr_help_title">Warum ein Sprachdienst?</string>
+
     <string name="asr_help_body_1">Warum dies konfigurieren?</string>
+
     <string name="asr_help_body_2">Android bietet Spracherkennung nur, wenn auf dem Gerät ein Erkenner installiert ist. Viele Telefone (besonders chinesische ROMs) liefern keinen mit, daher scheitert Spracheingabe vollständig.</string>
+
     <string name="asr_help_body_3">Zwei Wege zur Behebung:</string>
+
     <string name="asr_help_body_4">A) Eine lokale Erkenner-App installieren — sie registriert sich als System-Erkennungsdienst und diese App nutzt sie automatisch. Hier ist nichts auszufüllen. Empfohlen (alle verifiziert haben android.speech.RecognitionService deklariert):</string>
+
     <string name="asr_help_body_5">  · Sayboard (Vosk) — github.com/ElishaAz/Sayboard
     F-Droid, aktiv. Importieren Sie vosk-model-cn-0.22 (~1,3 GB) für deutlich besseres Chinesisch.</string>
+
     <string name="asr_help_body_6">  · whisperIME — github.com/woheller69/whisperIME
     F-Droid, aktiv. Mehrsprachiges Whisper (~435 MB), gutes Chinesisch.</string>
+
     <string name="asr_help_body_7">  · whisperIMEplus — github.com/woheller69/whisperIMEplus
     Schnellere ONNX-Version, häufiger aktualisiert.</string>
+
     <string name="asr_help_body_8">Dann unter Einstellungen &gt; System &gt; Sprachen &amp; Eingabe &gt; Spracheingabe auswählen.</string>
+
     <string name="asr_help_body_9">B) Einen Cloud-ASR-Dienst nutzen — dort unten seinen OpenAI-kompatiblen Transkriptions-Endpunkt, Modellnamen und API-Schlüssel einfügen. Anbieter mit kostenlosen Kontingenten: SiliconFlow (siliconflow.cn), Groq (groq.com), Alibaba DashScope, Zhipu BigModel, Volcengine Ark oder Ihr eigener Server (whisper.cpp).</string>
+
     <string name="asr_help_body_10">Felder leer lassen, um nur den System-Erkenner zu nutzen.</string>
 
-    
     <string name="voice_rate_label">Geschwindigkeit %1$s</string>
+
     <string name="asr_engine_label">Erkennungs-Engine</string>
+
     <string name="asr_engine_hint">Den Erkenner direkt auswählen. Nötig, weil die Systemseite "Spracheingabe" auf vielen ROMs umgeleitet wird, sodass das DSH-Plugin dort nicht ausgewählt werden kann.</string>
+
     <string name="asr_engine_system">Systemstandard</string>
+
     <string name="asr_engine_plugin">DSH-Offline-Erkennung (Plugin)</string>
+
     <string name="voice_service_title">Sprachdienste</string>
+
     <string name="voice_service_asr">Spracherkennung</string>
+
     <string name="voice_service_asr_desc">System-Erkenner zuerst; eigene API, wenn das Gerät keinen hat.</string>
+
     <string name="voice_asr_free">Kostenlose API</string>
+
     <string name="voice_asr_custom">Eigene API</string>
+
     <string name="voice_service_tts">Sprachsynthese</string>
+
     <string name="voice_service_tts_desc">Neural Voices von Microsoft Edge, direkt aus der App verbunden (kein Relay-Server).</string>
+
     <string name="voice_tts_on">Edge-Neural-Voice</string>
+
     <string name="voice_tts_off">System-Engine</string>
+
     <string name="setting_voice_service">Sprachdienste</string>
+
     <string name="setting_voice_service_sub">Erkennung + Synthese, beides hier konfigurierbar</string>
+
     <string name="tts_voice_xiaobei">Xiaobei · nordöstlicher Akzent</string>
+
     <string name="tts_voice_xiaoni">Xiaoni · Shaanxi-Akzent</string>
+
     <string name="cloud_tts_title">Cloud-Text-zu-Sprache</string>
+
     <string name="cloud_tts_desc">Neural Voices von Ihrem eigenen TTS-Server (edge-tts). Fällt bei Nichterreichbarkeit auf die System-Engine zurück.</string>
+
     <string name="cloud_tts_endpoint">Dienst-URL</string>
+
     <string name="cloud_tts_endpoint_hint">http://ihr-host/tts</string>
+
     <string name="cloud_tts_hint">Leer lassen, um weiterhin die System-TTS-Engine zu nutzen</string>
+
     <string name="cloud_tts_token">Zugangs-Token</string>
+
     <string name="cloud_tts_voice">Stimme</string>
+
     <string name="cloud_tts_rate">Geschwindigkeit</string>
+
     <string name="cloud_tts_clear">Löschen</string>
+
     <string name="cloud_tts_test">Test</string>
+
     <string name="cloud_tts_cleared">Cloud-TTS-Konfiguration und Cache geleert</string>
+
     <string name="cloud_tts_need_endpoint">Zuerst die Dienst-URL eingeben</string>
+
     <string name="setting_cloud_tts">Cloud-Text-zu-Sprache</string>
+
     <string name="setting_cloud_tts_sub">Neural Voices, fällt auf das System zurück</string>
+
     <string name="cloud_asr_saved">Gespeichert</string>
+
     <string name="cloud_asr_clear">Schlüssel löschen</string>
+
     <string name="cloud_asr_need_key">Zuerst einen API-Schlüssel eingeben</string>
+
     <string name="cloud_asr_free_hint">Wählen Sie einen Anbieter Ihres Vertrauens — tippen Sie auf "?", um Dienste mit kostenlosen Kontingenten anzuzeigen</string>
+
     <string name="voice_need_permission">Für Spracheingabe ist die Mikrofon-Berechtigung erforderlich</string>
+
     <string name="voice_no_service">Keine Spracherkennung auf diesem Gerät — installieren Sie die Google-App oder tippen Sie stattdessen</string>
+
     <string name="voice_recognized">erkannt, wird gesendet</string>
+
     <string name="overlay_tts_done">Unterhaltung beendet</string>
+
     <string name="a11y_action_tap">Tippen</string>
+
     <string name="a11y_action_input">Eingabe</string>
+
     <string name="a11y_action_swipe">Wischen</string>
+
     <string name="a11y_action_key">Navigation</string>
+
     <string name="a11y_action_screen">Bildschirm lesen</string>
+
     <string name="error_engine_start">Engine-Start fehlgeschlagen: %1$s</string>
 
     <string name="setting_asr">Spracherkennung</string>
+
     <string name="setting_asr_sub">Offline-ASR-Modelle · bei Bedarf herunterladen</string>
+
     <string name="asr_state_ready">Bereit</string>
+
     <string name="asr_state_none">Nicht heruntergeladen</string>
+
     <string name="voice_need_app">Öffnen Sie die App einmal, um Spracheingabe zu senden</string>
+
     <string name="voice_need_app_hint">Das Sprachpanel funktioniert überall; Senden erfordert den Hauptbildschirm</string>
+
     <string name="setting_mic">Mikrofon</string>
+
     <string name="setting_mic_sub">Spracheingabe (Spracherkennung) · tippen Sie auf Autorisieren</string>
+
     <string name="mic_granted">Autorisiert</string>
+
     <string name="mic_denied">Nicht autorisiert · tippen Sie auf Aktivieren</string>
-        <string name="overlay_no_last_action">Noch keine Aktion aufgezeichnet</string>
+
+    <string name="overlay_no_last_action">Noch keine Aktion aufgezeichnet</string>
+
     <string name="overlay_last_action_at">Letzte Aktion: %1$s</string>
+
     <string name="overlay_no_sessions">Keine aktiven Sitzungen</string>
+
     <string name="overlay_session_line">%1$s · %2$s</string>
+
     <string name="voice_no_session">Keine Unterhaltung zum Senden — zuerst eine öffnen</string>
+
     <string name="voice_opening_session">Unterhaltung wird geöffnet …</string>
+
     <string name="voice_session_timeout">Unterhaltung hat sich nicht geöffnet, erneut versuchen</string>
+
     <string name="voice_send_failed">Senden fehlgeschlagen: %1$s</string>
 
-    <!-- v1.3.0: LAN WebUI -->
     <string name="setting_lan_web">LAN-WebUI-Zugriff</string>
+
     <string name="setting_lan_web_sub">Ermöglicht Browsern im selben Netzwerk den Zugriff auf die WebUI dieses Telefons (Port 3090).</string>
+
     <string name="setting_runtime_proxy">Runtime-Download-Proxy</string>
+
     <string name="setting_runtime_proxy_sub">Standard gh-proxy.org; direkte GitHub-Downloads sind in einigen Regionen unzuverlässig</string>
+
     <string name="setting_runtime_proxy_value_default">Standard · gh-proxy.org (empfohlen)</string>
+
     <string name="setting_runtime_proxy_value_direct">Direkt über GitHub (ohne Proxy)</string>
+
     <string name="setting_runtime_proxy_value_custom">Benutzerdefiniert · %1$s</string>
+
     <string name="setting_runtime_proxy_dialog_hint">Runtime und Update-Index werden über dieses Präfix geladen. Leer lassen für direkten GitHub-Zugriff; Standard %1$s. Nur Präfix-Proxys ({Proxy}/{GitHub-URL}).</string>
+
     <string name="setting_runtime_proxy_invalid">Ungültige Proxy-Adresse – bitte eine http(s)-URL eingeben</string>
+
     <string name="setting_runtime_proxy_saved">Download-Proxy gespeichert</string>
+
     <string name="setting_runtime_proxy_reset">Zurücksetzen</string>
+
     <string name="setting_runtime_proxy_reset_done">Standard-Proxy wiederhergestellt</string>
+
     <string name="lan_web_consent">Beim Aktivieren wird ein zufälliger 6-stelliger Code erzeugt (in die Zwischenablage kopiert und nur einmal angezeigt). Jeder im selben Netzwerk kann mit diesem Code die WebUI öffnen und den Agenten steuern. Nur in vertrauenswürdigen Netzwerken aktivieren.</string>
+
     <string name="lan_dialog_title">LAN-WebUI ist aktiv</string>
+
     <string name="lan_dialog_code_label">Zugriffscode (antippen zum Kopieren)</string>
+
     <string name="lan_dialog_hint">Öffne die Adresse in einem Browser am Computer und gib den Code ein. Der Code wird nur einmal angezeigt.</string>
+
     <string name="lan_dialog_copied_code">Code %1$s kopiert</string>
+
     <string name="lan_dialog_copied_host">Adresse kopiert</string>
 
-    <!-- v1.3.0: Benachrichtigungen -->
     <string name="notif_a11y_active_title">DSH bedient das Gerät</string>
+
     <string name="notif_a11y_active_text">Schritt %1$d · %2$s</string>
+
     <string name="notif_a11y_open_app">App öffnen</string>
+
     <string name="notif_a11y_op_tap">tippen</string>
+
     <string name="notif_a11y_op_swipe">wischen</string>
+
     <string name="notif_a11y_op_scroll">scrollen</string>
+
     <string name="notif_a11y_op_input">eingeben</string>
+
     <string name="notif_a11y_op_key">Taste drücken</string>
+
     <string name="notif_a11y_op_launch">App öffnen</string>
+
     <string name="notif_a11y_op_loop">Sequenz ausführen</string>
+
     <string name="notif_a11y_op_other">bedienen</string>
+
     <string name="notif_lan_title">LAN-WebUI ist aktiv</string>
+
     <string name="notif_lan_text">%1$s · zum Beenden „Stoppen" tippen</string>
+
     <string name="notif_lan_action_off">Stoppen</string>
+
     <string name="notif_lan_channel">LAN-WebUI</string>
 
-    <!-- v1.3.0: Plugin-Verwaltung -->
     <string name="plugin_uninstall">Deinstallieren</string>
+
     <string name="plugin_uninstalling">Wird deinstalliert…</string>
+
     <string name="code_toast_fallback">Code %1$s kopiert</string>
+
     <string name="code_copied_hint">Code kopiert</string>
+
     <string name="code_copy">Kopieren</string>
+
     <string name="code_copied_toast">%1$s kopiert</string>
+
     <string name="overlay_exit_daemon">Daemon beenden</string>
+
     <string name="splash_preparing">Laufzeit wird vorbereitet…</string>
+
     <string name="splash_tagline">Lokale Engine · Daten bleiben auf dem Gerät</string>
+
     <string name="splash_starting">Engine wird gestartet…</string>
+
     <string name="splash_loading">Oberfläche wird geladen…</string>
+
     <string name="splash_hint">Bitte warte ein paar Sekunden…</string>
+
     <string name="splash_extracting">Laufzeit wird entpackt…</string>
+
     <string name="splash_downloading">Laufzeit wird heruntergeladen…</string>
+
     <string name="splash_failed">Start fehlgeschlagen</string>
+
     <string name="splash_elapsed">%1$s · %2$s</string>
+
     <string name="splash_files">%1$,d / %2$,d Dateien</string>
+
     <string name="splash_runtime_reused">Laufzeit bereits installiert</string>
+
     <string name="splash_show_steps">Schritte anzeigen</string>
+
     <string name="splash_hide_steps">Schritte ausblenden</string>
+
     <string name="splash_steps_empty">Noch keine Schritte aufgezeichnet</string>
+
     <string name="splash_step_line">+%1$s   bei %2$s   %3$s</string>
+
     <string name="boot_step_guardian">Integrierte Patches wiederherstellen</string>
+
     <string name="boot_step_seed">Agent-Anweisungen schreiben</string>
+
     <string name="boot_step_orphans">Verwaiste Prozesse aufräumen</string>
+
     <string name="boot_step_bridge">Fähigkeits-Bridge starten</string>
+
     <string name="boot_step_owner">Dateieigentümer prüfen</string>
-        <string name="boot_step_hardssh">SSH-Plugin installieren</string>
-<string name="boot_step_runtime">Laufzeit entpacken</string>
+
+    <string name="boot_step_hardssh">SSH-Plugin installieren</string>
+
+    <string name="boot_step_runtime">Laufzeit entpacken</string>
+
     <string name="boot_step_download">Laufzeit herunterladen</string>
+
     <string name="boot_step_userdata">Benutzerdaten verknüpfen</string>
+
     <string name="boot_step_spawn">Engine-Prozess starten</string>
+
     <string name="boot_step_health">Auf Health-Check warten</string>
+
     <string name="setting_boot_trace">Letzter Start</string>
+
     <string name="setting_boot_trace_sub">Zeiten und Dateianzahlen des letzten Starts</string>
+
     <string name="boot_trace_title">Details zum letzten Start</string>
+
     <string name="boot_trace_none">Auf diesem Gerät wurde noch kein Start aufgezeichnet.</string>
+
     <string name="boot_trace_running">Ein Start läuft gerade.</string>
-        <string name="error_auth_expired">Anmeldung oder API-Schlüssel ist abgelaufen, die Engine kann nicht starten. Bitte melde dich erneut an oder aktualisiere den API-Schlüssel in den Einstellungen. Automatische Neustarts helfen nicht.</string>
-<string name="error_runtime_arch_mismatch">Dieses Paket enthält eine Laufzeit für eine andere CPU-Architektur und kann auf diesem Gerät nicht laufen. Bitte installiere das richtige APK (arm64-v8a für Smartphones).</string>
+
+    <string name="error_auth_expired">Anmeldung oder API-Schlüssel ist abgelaufen, die Engine kann nicht starten. Bitte melde dich erneut an oder aktualisiere den API-Schlüssel in den Einstellungen. Automatische Neustarts helfen nicht.</string>
+
+    <string name="error_runtime_arch_mismatch">Dieses Paket enthält eine Laufzeit für eine andere CPU-Architektur und kann auf diesem Gerät nicht laufen. Bitte installiere das richtige APK (arm64-v8a für Smartphones).</string>
+
     <string name="setting_recover_chats">Unterhaltungen wiederherstellen</string>
+
     <string name="setting_recover_chats_sub">Sitzungen auf dem Datenträger finden, die in der Liste fehlen, und wieder eintragen</string>
+
     <string name="recover_scanning">Wird durchsucht…</string>
+
     <string name="recover_none">Keine fehlenden Unterhaltungen gefunden</string>
+
     <string name="recover_done">%1$d Unterhaltung(en) wiederhergestellt</string>
+
     <string name="recover_failed">Wiederherstellung fehlgeschlagen: %1$s</string>
+
     <string name="recover_confirm">%1$d Unterhaltung(en) auf dem Datenträger gefunden, die nicht in der Arbeitsbereichsliste stehen. Hinzufügen?</string>
+
     <string name="recover_restart_hint">Nach einem Neustart der Engine sichtbar</string>
+
     <string name="setting_plugin_kill">Notfall: alle Fremd-Plugins abschalten</string>
+
     <string name="setting_plugin_kill_sub">%1$d installiert – wenn ein Plugin die Oberfläche lahmlegt, der Motor aber läuft</string>
+
     <string name="setting_plugin_kill_sub_idle">Alle Fremd-Plugins mit einem Tipp abschalten</string>
+
     <string name="setting_plugin_kill_restore">Fremd-Plugins wieder aktivieren</string>
+
     <string name="setting_plugin_kill_restore_sub">%1$d Plugin(s) abgeschaltet – zum Zurückholen tippen</string>
+
     <string name="setting_plugin_kill_restore_sub_partial">%1$d von %2$d einzeln wieder aktiviert – zum Zurückholen aller tippen</string>
+
     <string name="plugin_kill_disable_title">Alle Fremd-Plugins abschalten?</string>
+
     <string name="plugin_kill_disable_body">Der Motor startet neu und lädt nur mitgelieferte Plugins. Installierte Pakete und Dateien bleiben erhalten – keine erneuten Downloads.\n\nWird abgeschaltet (%1$d):\n%2$s</string>
+
     <string name="plugin_kill_restore_title">Fremd-Plugins wieder aktivieren?</string>
+
     <string name="plugin_kill_restore_body">Der Motor startet neu und lädt diese wieder (%1$d). Inzwischen deinstallierte werden übersprungen.\n\n%2$s</string>
+
     <string name="plugin_kill_restarting">Motor wird neu gestartet…</string>
+
     <string name="plugin_kill_none">Keine Fremd-Plugins installiert</string>
+
     <string name="plugin_kill_failed">Plugin-Status konnte nicht geändert werden: %1$s</string>
+
     <string name="plugin_kill_skipped">%1$d deinstallierte Plugin(s) übersprungen</string>
+
     <string name="plugin_kill_more">· und %1$d weitere</string>
+
     <string name="plugin_kill_banner">Alle Fremd-Plugins sind abgeschaltet – einzeln unter „Installiert“ aktivieren oder tippen, um alle zurückzuholen</string>
+
     <string name="plugin_kill_enable_one">Einzeln aktivieren</string>
+
     <string name="plugin_kill_disable_one">Wieder abschalten</string>
+
     <string name="plugin_kill_enable_one_toast">%1$s wird nach dem Neustart des Motors geladen</string>
+
     <string name="plugin_kill_disable_one_toast">%1$s bleibt nach dem Neustart abgeschaltet</string>
+
     <string name="plugin_kill_installed_hint">Installiert – bleibt deaktiviert, bis du es unter „Installiert“ einzeln aktivierst</string>
+
     <string name="setting_self_check">Vollständige Prüfung &amp; Reparatur</string>
+
     <string name="setting_self_check_sub">Prüft Laufzeit, Speicher, Verknüpfungen, Plugins und Einstellungen – repariert was sicher möglich ist</string>
+
     <string name="self_check_running">Wird geprüft…</string>
+
     <string name="self_check_ok">Alle Prüfungen bestanden</string>
+
     <string name="self_check_issues">%1$d Problem(e) gefunden, %2$d repariert</string>
+
     <string name="recover_confirm_yes">Wiederherstellen</string>
+
     <string name="setting_export_data">Daten exportieren</string>
+
     <string name="setting_export_data_sub">Unterhaltungen, Arbeitsbereiche und die Arbeitsbereichsliste als .zip sichern. API-Schlüssel und Anmeldungen sind nicht enthalten.</string>
+
     <string name="export_preparing">Export wird vorbereitet…</string>
+
     <string name="export_progress">Exportiere… %1$d / %2$d Dateien</string>
+
     <string name="export_done">%1$d Unterhaltungsdatei(en) und %2$d Arbeitsbereichsdatei(en) exportiert</string>
+
     <string name="export_failed">Export fehlgeschlagen: %1$s</string>
+
     <string name="export_log_hint">Es wurde keine Sicherungsdatei behalten. Details stehen in engine.log (Zeilen mit [export]).</string>
+
     <string name="export_no_creds">API-Schlüssel und Anmeldungen sind nicht enthalten. Nach dem Wiederherstellen erneut anmelden.</string>
+
     <string name="export_no_registry">Hinweis: Die Arbeitsbereichsliste (workspace.json) wurde nicht gefunden. Unterhaltungen erscheinen nach dem Wiederherstellen eventuell nicht in der Liste.</string>
-    <!-- Native Terminal (an DSHA PTY-Terminal angelehnt) -->
+
     <string name="btn_terminal">Terminal</string>
+
     <string name="terminal_title">Terminal</string>
+
     <string name="terminal_new">Neu</string>
+
     <string name="terminal_empty">Kein Terminal\nTippe „Neu“, um eines zu öffnen</string>
+
     <string name="terminal_number">Terminal %1$d</string>
+
     <string name="terminal_closing">Terminal %1$d · wird geschlossen…</string>
+
     <string name="terminal_switch_to">Zu Terminal %1$d wechseln</string>
+
     <string name="terminal_close">Terminal %1$d schließen</string>
+
     <string name="terminal_font_smaller">A−</string>
+
     <string name="terminal_font_larger">A+</string>
+
     <string name="terminal_session_ended">Sitzung beendet (Exit %1$s)</string>
+
     <string name="terminal_copied">Kopiert</string>
+
     <string name="terminal_start_failed">Terminal konnte nicht gestartet werden: %1$s</string>
+
     <string name="terminal_close_failed">Schließen fehlgeschlagen, Sitzung bleibt: %1$s</string>
+
     <string name="terminal_session_ended_hint">Sitzung ist beendet – tippe „Neu“</string>
-    <!-- Logbetrachter -->
+
     <string name="btn_log">Logs</string>
+
     <string name="log_viewer_title">Logs</string>
+
     <string name="log_viewer_refresh">Aktualisieren</string>
+
     <string name="log_viewer_empty">Noch kein Log\nSobald die Engine gestartet ist, erscheint hier das Ende von engine.log / boot.log.</string>
+
     <string name="log_viewer_size">%1$s · %2$s Bytes</string>
+
     <string name="log_viewer_share">Teilen</string>
 
-    <!-- Desktop-Pet-Overlay (reserviert, plugin-gesteuert) -->
     <string name="setting_pet">Desktop-Pet</string>
+
     <string name="setting_pet_sub">Schwebendes Haustier, gesteuert vom dsh-pet-bridge-Plugin</string>
+
     <string name="pet_title">Desktop-Pet</string>
+
     <string name="pet_enable">Desktop-Pet aktivieren</string>
+
     <string name="pet_enable_sub">Haustier über anderen Apps anzeigen</string>
+
     <string name="pet_gate_install">Installieren</string>
+
     <string name="pet_gate_plugin_missing_msg">Das Desktop-Pet kann noch nicht aktiviert werden: Installiere zuerst das Bridge-Plugin dsh-pet-bridge 0.3.1+ und aktiviere es. Ohne Bridge bleibt das Pet im Leerlauf und reagiert nie auf Arbeit. Das ist eine harte Voraussetzung und kann nicht übersprungen werden.</string>
+
     <string name="pet_gate_pack_missing_msg">Das Desktop-Pet kann noch nicht aktiviert werden: Installiere zuerst ein Animationspaket. Ohne Paket gibt es nichts anzuzeigen. Das ist eine harte Voraussetzung und kann nicht übersprungen werden.</string>
+
     <string name="pet_permission">Overlay-Berechtigung</string>
+
     <string name="pet_permission_sub">Erforderlich, um das Pet über anderen Apps anzuzeigen</string>
+
     <string name="pet_permission_granted">Erteilt</string>
+
     <string name="pet_permission_denied">Nicht erteilt</string>
+
     <string name="pet_permission_rationale">Erlaube DSH Mobile, das Desktop-Pet über anderen Apps anzuzeigen. Du kannst dies jederzeit in den Systemeinstellungen widerrufen.</string>
+
     <string name="pet_plugin">Bridge-Plugin</string>
+
     <string name="pet_plugin_hint">dsh-pet-bridge 0.3.1+ verbindet DSH-Ereignisse mit dem Pet</string>
+
     <string name="pet_plugin_installed">Installiert</string>
+
     <string name="pet_plugin_missing">Nicht installiert</string>
+
     <string name="pet_plugin_web_only">dsh-pet ist das In-Page-Pet; installiere dsh-pet-bridge</string>
+
     <string name="pet_plugin_outdated_msg">Die installierte Bridge ist älter als 0.3.1 und wird abgelehnt (403). Installiere 0.3.1+ von npm oder github.com/XiaoPb/dsh-pet-bridge und starte die Engine neu.</string>
+
     <string name="pet_plugin_restart">Engine neu starten</string>
+
     <string name="pet_plugin_restart_hint">Das Bridge-Plugin wird erst nach einem Engine-Neustart geladen</string>
+
     <string name="pet_plugin_upgrade">Plugin-Store öffnen</string>
+
     <string name="pet_status_engine_down">Engine läuft nicht</string>
+
     <string name="pet_status_plugin_disabled">Installiert, Engine neu starten</string>
+
     <string name="pet_status_plugin_outdated">Braucht 0.3.1+</string>
+
     <string name="pet_status_running">Läuft</string>
+
     <string name="pet_status_stopped">Aus</string>
+
     <string name="pet_status_connected">Verbunden</string>
+
     <string name="pet_status_waiting">Warte auf Plugin-Ereignisse</string>
+
     <string name="pet_status_bridge_missing">Pet pausiert: Bridge nicht bereit</string>
+
     <string name="pet_bridge_missing_hint">Der Schalter ist an, aber das Bridge-Plugin fehlt oder ist deaktiviert — deshalb wird keine Figur gezeichnet</string>
+
     <string name="pet_pack">Animationspaket</string>
+
     <string name="pet_pack_none">Nicht installiert</string>
+
     <string name="pet_pack_none_hint">Kein Paket installiert — das Pet bleibt versteckt (Platzhalter entfernt)</string>
+
     <string name="pet_pack_count">%1$d Animationen</string>
+
     <string name="pet_pack_import">Aus Datei importieren (.zip)</string>
+
     <string name="pet_pack_import_sub">Nur .zip-Archive – rar/7z/tar.gz vorher entpacken und neu packen</string>
+
     <string name="pet_pack_keep_open">Bitte diesen Bildschirm während des Imports geöffnet lassen</string>
+
     <string name="pet_pack_imported">%1$d Animationen importiert</string>
+
     <string name="pet_pack_failed">Import fehlgeschlagen: %1$s</string>
+
     <string name="pet_pack_err_apk">Das ist ein App-Paket (APK), kein Animationspaket. Bitte eine .zip-Datei wählen.</string>
+
     <string name="pet_pack_err_not_zip">Keine gültige Zip-Datei.</string>
+
     <string name="pet_pack_err_open">Die ausgewählte Datei kann nicht gelesen werden.</string>
+
     <string name="pet_pack_err_unsafe">Das Archiv enthält unsichere Pfade und wurde abgelehnt.</string>
+
     <string name="pet_pack_err_no_config">pet-config.json fehlt – das ist kein Animationspaket.</string>
+
     <string name="pet_pack_err_bad_config">pet-config.json ist unlesbar oder enthält keine Pflichtanimationen.</string>
+
     <string name="pet_pack_err_no_webp">Im Archiv wurden keine WebP-Animationen gefunden.</string>
+
     <string name="pet_pack_err_bad_webp">Heißt .webp, ist aber kein gültiges WebP: %1$s</string>
+
     <string name="pet_pack_err_missing_anim">Pflichtanimationen fehlen im Paket: %1$s</string>
+
     <string name="pet_pack_err_too_many">Zu viele Dateien im Archiv.</string>
+
     <string name="pet_pack_err_too_large">Das Paket überschreitet die Größenbeschränkung.</string>
+
     <string name="pet_pack_err_no_space">Nicht genug freier Speicher für dieses Paket.</string>
+
     <string name="pet_pack_err_busy">Es läuft bereits ein Import.</string>
+
     <string name="pet_pack_err_encrypted">Verschlüsselte Archive werden nicht unterstützt. Bitte entpacken und ohne Passwort neu packen.</string>
+
     <string name="pet_pack_clear">Dieses Paket löschen</string>
+
     <string name="pet_pack_clear_confirm">„%1$s“ löschen? Andere installierte Pakete bleiben unberührt.</string>
+
     <string name="pet_pack_installed_at">Installiert am %1$s</string>
+
     <string name="pet_pack_license">Animations-Assets sind nicht enthalten. Installiere ein Paket aus dem Asset-Repo oder importiere eine eigene Datei (Upstream-Assets sind nicht kommerziell).</string>
+
     <string name="pet_pack_switch">Paket wechseln</string>
+
     <string name="pet_pack_select">Installierte Pakete</string>
+
     <string name="pet_pack_summary">%1$d Clips · %2$s</string>
+
     <string name="pet_pack_download">Pakete herunterladen</string>
+
     <string name="pet_pack_download_sub">Aus dem Asset-Repo; mehrere Pakete können parallel existieren</string>
+
     <string name="pet_pack_downloading">Lade %1$s…%2$d%%</string>
+
     <string name="pet_pack_install_progress">Installiere %1$s…</string>
+
     <string name="pet_pack_fetch_failed">Index konnte nicht geladen werden: %1$s</string>
+
     <string name="pet_pack_download_failed">Download fehlgeschlagen: %1$s</string>
+
     <string name="pet_pack_installed_toast">%1$s installiert</string>
+
     <string name="pet_pack_bg_channel">Paket-Downloads</string>
+
     <string name="pet_pack_bg_channel_desc">Fortschritt, während ein Pet-Paket im Hintergrund geladen wird</string>
+
     <string name="pet_pack_bg_title">Pet-Paket wird geladen</string>
+
     <string name="pet_pack_bg_title_src">%1$s · %2$s</string>
+
     <string name="pet_pack_bg_preparing">%1$s wird vorbereitet…</string>
+
     <string name="pet_pack_bg_downloading_src">Lade %1$s…%2$d%% · %3$s</string>
+
     <string name="pet_pack_src_proxy">über Proxy</string>
+
     <string name="pet_pack_src_direct">direkt</string>
+
     <string name="pet_pack_src_checking">Route wird geprüft…</string>
+
     <string name="pet_pack_bg_downloading">%1$s · %2$d%%</string>
+
     <string name="pet_pack_bg_done">%1$s installiert</string>
+
     <string name="pet_pack_bg_done_title">Paket installiert</string>
+
     <string name="pet_pack_bg_cancelled">Download abgebrochen</string>
+
     <string name="pet_pack_bg_cancelling">Wird abgebrochen…</string>
+
     <string name="pet_pack_bg_busy">Es läuft bereits ein anderer Download</string>
+
     <string name="pet_pack_bg_dismiss">OK</string>
+
     <string name="pet_pack_switched">Zu %1$s gewechselt</string>
+
     <string name="pet_pack_deleted">%1$s gelöscht</string>
+
     <string name="pet_pack_delete_failed">%1$s konnte nicht gelöscht werden</string>
+
     <string name="pet_pack_source">Download-Quelle</string>
+
     <string name="pet_pack_source_sub">index.json-Adresse des Asset-Repos</string>
+
     <string name="pet_pack_delete">Löschen</string>
+
     <string name="pet_size">Pet-Größe</string>
+
     <string name="pet_size_value">%1$d dp</string>
+
     <string name="pet_size_hint">Größere Stufen brauchen mehr Speicher; wird auf den Bildschirm verkleinert</string>
+
     <string name="pet_menu_actions">Aktionen</string>
+
     <string name="pet_test_bubble">Testblase</string>
+
     <string name="pet_test_bubble_text">Lass uns die Arbeit heute zusammen schaffen.</string>
+
     <string name="pet_bubble_thinking">Denkt nach…</string>
+
     <string name="pet_bubble_reading">Liest %1$s</string>
+
     <string name="pet_bubble_searching">Sucht %1$s</string>
+
     <string name="pet_bubble_editing">Bearbeitet %1$s</string>
+
     <string name="pet_bubble_running">Führt %1$s aus</string>
+
     <string name="pet_bubble_working">Arbeitet…</string>
+
     <string name="pet_bubble_step_done">Schritt abgeschlossen</string>
+
     <string name="pet_bubble_done">Fertig</string>
+
     <string name="pet_bubble_error">Etwas ist schiefgelaufen</string>
+
     <string name="pet_bubble_waiting">Wartet…</string>
+
     <string name="pet_menu_title">Pet-Aktionen</string>
+
     <string name="pet_menu_idle">Leerlauf</string>
+
     <string name="pet_menu_clicks">Klick-Reaktionen</string>
+
     <string name="pet_menu_random">Zufällige Aktionen</string>
+
     <string name="pet_menu_reset">Position zurücksetzen</string>
+
     <string name="pet_menu_flip">Umdrehen</string>
+
     <string name="pet_menu_stop">Wegpacken</string>
+
     <string name="pet_menu_settings">Pet-Einstellungen</string>
+
     <string name="pet_menu_no_pack">Kein Animationspaket</string>
+
     <string name="pet_notif_title">DSH Desktop-Pet</string>
+
     <string name="pet_notif_stop">Wegpacken</string>
+
     <string name="pet_notif_connected">Verbunden mit dsh-pet-bridge</string>
+
     <string name="pet_notif_waiting">Warte auf dsh-pet-bridge</string>
+
     <string name="pet_notif_port_busy">Port 7779 ist belegt</string>
+
     <string name="pet_notif_bridge_missing">Pausiert: Bridge nicht bereit</string>
+
     <string name="pet_channel_name">Desktop-Pet</string>
+
     <string name="pet_channel_desc">Hält das schwebende Pet am Laufen</string>
+
     <string name="pet_error_port_busy">Port 7779 ist bereits belegt</string>
+
     <string name="pet_error_no_permission">Overlay-Berechtigung fehlt</string>
+
     <string name="pet_sound_section">Sound &amp; Geplapper</string>
+
     <string name="pet_sound">Tipp-Sound</string>
+
     <string name="pet_sound_sub">Kurzer Pop beim Antippen des Haustiers</string>
+
     <string name="pet_lines">Sprüche-Bibliothek</string>
+
     <string name="pet_lines_sub">Integrierte Sprüche: bearbeiten, Import/Export, zurücksetzen</string>
+
     <string name="pet_lines_categories">Kategorien</string>
+
     <string name="pet_lines_count">%1$d Sprüche</string>
+
     <string name="pet_lines_customized"> (bearbeitet)</string>
+
     <string name="pet_lines_export">Sprüche exportieren</string>
+
     <string name="pet_lines_export_sub">Alle Kategorien als JSON-Datei speichern</string>
+
     <string name="pet_lines_import">Sprüche importieren</string>
+
     <string name="pet_lines_import_sub">Aus JSON-Datei wiederherstellen (Teilmengen erlaubt)</string>
+
     <string name="pet_lines_reset_all">Alle auf Standard zurücksetzen</string>
+
     <string name="pet_lines_reset_all_sub">Alle manuellen Änderungen löschen</string>
+
     <string name="pet_lines_reset_all_confirm">Alle manuellen Änderungen verwerfen und die integrierten Sprüche wiederherstellen?</string>
+
     <string name="pet_lines_edit_hint">Ein Spruch pro Zeile; Leerzeilen werden ignoriert</string>
+
     <string name="pet_lines_save">Speichern</string>
+
     <string name="pet_lines_saved">Gespeichert (%1$d Sprüche)</string>
+
     <string name="pet_lines_reset_cat">Standard wiederherstellen</string>
+
     <string name="pet_lines_reset_cat_confirm">Integrierte Sprüche dieser Kategorie wiederherstellen? Deine Änderungen gehen verloren.</string>
+
     <string name="pet_lines_reset_done">Wiederhergestellt</string>
+
     <string name="pet_lines_exported">Exportiert</string>
+
     <string name="pet_lines_export_failed">Export fehlgeschlagen</string>
+
     <string name="pet_lines_imported">%1$d Kategorien importiert</string>
+
     <string name="pet_lines_import_failed">Import fehlgeschlagen: ungültige Datei</string>
+
     <string name="pet_lines_cat_boot">Startgrüße</string>
+
     <string name="pet_lines_cat_tap">Einfaches Antippen</string>
+
     <string name="pet_lines_cat_tap_many">Schnelles Antippen</string>
+
     <string name="pet_lines_cat_fling">Wegschleuder-Reaktion</string>
+
     <string name="pet_lines_cat_edge">Am Rand</string>
+
     <string name="pet_lines_cat_morning">Morgen</string>
+
     <string name="pet_lines_cat_evening">Abend</string>
+
     <string name="pet_lines_cat_late_night">Späte Nacht</string>
+
     <string name="pet_lines_cat_idle_long">Lange untätig</string>
+
     <string name="pet_lines_cat_random">Beiläufiges Geplapper</string>
+
     <string name="pet_lines_cat_working">Arbeitsbegleitung</string>
+
     <string name="pet_lines_cat_ws_thinking">Arbeitsstatus · Denken</string>
+
     <string name="pet_lines_cat_ws_working">Arbeitsstatus · Beschäftigt</string>
+
     <string name="pet_lines_cat_ws_result">Arbeitsstatus · Schritt erledigt</string>
+
     <string name="pet_lines_cat_ws_waiting">Arbeitsstatus · Wartet auf dich</string>
+
     <string name="pet_lines_cat_ws_success">Arbeitsstatus · Erfolgreich</string>
+
     <string name="pet_lines_cat_ws_error">Arbeitsstatus · Fehler</string>
+
     <string name="about_runtime">Runtime</string>
+
     <string name="runtime_setup_title">Runtime erforderlich</string>
+
     <string name="runtime_setup_message">Dieses Paket enthält keine Node.js-Laufzeit. Jetzt %1$s herunterladen (WLAN empfohlen)? Spätere App-Updates laden sie nicht erneut.</string>
+
     <string name="runtime_setup_download">Herunterladen und starten</string>
+
     <string name="runtime_setup_full">Vollversion holen</string>
+
     <string name="runtime_setup_later">Später</string>
+
     <string name="about_runtime_idle">Auf Runtime-Updates prüfen</string>
+
     <string name="about_runtime_checking">Runtime wird geprüft…</string>
+
     <string name="about_runtime_available">Runtime %1$s verfügbar – zum Installieren tippen</string>
+
     <string name="about_runtime_latest">Laufzeit %1$s ist aktuell</string>
+
     <string name="about_runtime_failed">Runtime-Prüfung fehlgeschlagen: %1$s</string>
+
     <string name="about_runtime_installing">Runtime wird installiert… %1$d%%</string>
+
     <string name="about_runtime_installed">Runtime installiert – Engine wird neu gestartet</string>
+
     <string name="about_runtime_no_pin">Signierter Runtime-Index nicht verfügbar</string>
+
     <string name="about_runtime_busy">Runtime wird installiert – bitte warten</string>
+
     <string name="about_runtime_engine_busy">Die Engine wurde nicht rechtzeitig beendet – die Runtime wurde nicht ersetzt. Bitte gleich erneut versuchen.</string>
+
+    <string name="pet_enable_without_plugin">Trotzdem aktivieren</string>
+
+    <string name="pet_enable_without_plugin_msg">dsh-pet-bridge 0.3.1+ nicht installiert</string>
+
 </resources>
