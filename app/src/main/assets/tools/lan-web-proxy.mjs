@@ -35,7 +35,7 @@ const argOf = (name, dflt) => {
   const i = argv.indexOf('--' + name);
   return i >= 0 && argv[i + 1] ? argv[i + 1] : dflt;
 };
-const PORT = Number(argOf('port', '3090'));
+const PORT = Number(argOf('port', '13090'));
 const PW = argOf('pw', process.env.DSH_LAN_PW || '');
 const UPSTREAM = argOf('upstream', '127.0.0.1:13080');
 const [UP_HOST, UP_PORT] = UPSTREAM.split(':');

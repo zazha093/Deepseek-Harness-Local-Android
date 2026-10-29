@@ -37,7 +37,7 @@ object LanWebProxy {
     private const val TAG = "LanWebProxy"
 
     /** 独立端口（禁止占用 13080/13083） */
-    const val PORT = 3090
+    const val PORT = 13090
 
     /** 「已开启」常驻通知的 channel / id（v1.2.188） */
     private const val NOTIF_CHANNEL = "lan_web"

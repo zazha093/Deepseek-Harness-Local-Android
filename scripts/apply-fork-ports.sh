@@ -36,7 +36,7 @@ declare -A PORT_MAP=(
 )
 
 # 临时文件存储将要修改的行
-CHANGES_FILE="fork-port-changes-$(date +%s).txt"
+CHANGES_FILE="${TMPDIR:-~/backups}/fork-port-changes-$(date +%s).txt"
 > "$CHANGES_FILE"
 
 echo "=== Fork Port Replacement ==="

@@ -604,7 +604,7 @@ object AgentBridge {
 
         // 3080 HTTP 探测
         val httpProbe = runCatching {
-            val c = (java.net.URL("http://127.0.0.1:3080/").openConnection()
+            val c = (java.net.URL("http://127.0.0.1:13080/").openConnection()
                     as java.net.HttpURLConnection).apply { connectTimeout = 4000; readTimeout = 4000 }
             val code = c.responseCode
             // readNBytes(int) 是 API 33+；Android 11 上会 NoSuchMethod——用 Kotlin readBytes 截断
@@ -617,10 +617,10 @@ object AgentBridge {
         val crlf = "\r\n"
         val wsProbe = listOf("/ws", "/", "/api/ws", "/socket").joinToString("<br>") { p ->
             runCatching {
-                java.net.Socket("127.0.0.1", 3080).use { sock ->
+                java.net.Socket("127.0.0.1", 13080).use { sock ->
                     sock.soTimeout = 4000
                     val req = "GET $p HTTP/1.1" + crlf +
-                        "Host: 127.0.0.1:3080" + crlf +
+                        "Host: 127.0.0.1:13080" + crlf +
                         "Upgrade: websocket" + crlf +
                         "Connection: Upgrade" + crlf +
                         "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" + crlf +
