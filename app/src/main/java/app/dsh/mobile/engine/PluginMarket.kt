@@ -658,8 +658,8 @@ object PluginMarket {
                                     }
                                 }
                                 val translated = entry.copy(
-                                    desc = if (targetLanguage == "th") translatedText else entry.desc,
-                                    descEn = if (targetLanguage != "th") translatedText else entry.descEn,
+                                    desc = if (targetLanguage == "th") translatedText ?: entry.desc else entry.desc,
+                                    descEn = if (targetLanguage != "th") translatedText ?: entry.descEn else entry.descEn,
                                 )
                                 translatedEntries.add(translated)
                             } catch (e: Exception) {
