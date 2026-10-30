@@ -456,6 +456,7 @@
     <string name="plugin_translate_failed">Translation failed</string>
 
     <string name="plugin_translate_all">全部翻译</string>
+    <string name="plugin_translating">翻译中…</string>
     <string name="plugin_translating_progress">翻译中… %1$d/%2$d</string>
     <string name="plugin_translate_none">没有需要翻译的插件</string>
     <string name="plugin_translate_success">已翻译 %1$d 个插件</string>

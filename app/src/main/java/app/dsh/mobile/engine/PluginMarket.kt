@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.json.JSONArray
@@ -681,10 +682,10 @@ object PluginMarket {
             } catch (e: Exception) {
                 // 整体超时或取消：已完成的保留，其余补上原条目
                 val donePkgs = translatedEntries.map { it.pkg }.toSet()
-                for (e in toTranslate) {
-                    if (e.pkg !in donePkgs) {
-                        translatedEntries.add(e)
-                        errors.add("${e.pkg}: ${e.message ?: "timeout"}")
+                for (entry in toTranslate) {
+                    if (entry.pkg !in donePkgs) {
+                        translatedEntries.add(entry)
+                        errors.add("${entry.pkg}: ${e.message ?: "timeout"}")
                     }
                 }
             } finally {
