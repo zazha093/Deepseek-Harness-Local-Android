@@ -546,32 +546,32 @@ object PluginMarket {
             val json = JSONObject(response)
             // FCC OpenAI-compatible format: choices[0].message.content
             // Defensive parsing: check every level for null/missing
-            if (!json.has("choices") || json.isNull("choices")) {
+            var result: String? = null
+            if (json.has("choices") && !json.isNull("choices")) {
+                val choices = json.getJSONArray("choices")
+                if (choices.length() > 0) {
+                    val firstChoice = choices.getJSONObject(0)
+                    if (firstChoice.has("message") && !firstChoice.isNull("message")) {
+                        val message = firstChoice.getJSONObject("message")
+                        if (message.has("content") && !message.isNull("content")) {
+                            val content = message.getString("content").trim()
+                            if (content.isNotBlank()) result = content
+                        } else {
+                            Log.w(TAG, "FCC response missing 'content' in message")
+                        }
+                    } else {
+                        Log.w(TAG, "FCC response missing 'message' in choices[0]")
+                    }
+                } else {
+                    Log.w(TAG, "FCC response 'choices' array is empty")
+                }
+            } else {
                 Log.w(TAG, "FCC response missing 'choices' field")
-                return@try null
             }
-            val choices = json.getJSONArray("choices")
-            if (choices.length() == 0) {
-                Log.w(TAG, "FCC response 'choices' array is empty")
-                return@try null
-            }
-            val firstChoice = choices.getJSONObject(0)
-            if (!firstChoice.has("message") || firstChoice.isNull("message")) {
-                Log.w(TAG, "FCC response missing 'message' in choices[0]")
-                return@try null
-            }
-            val message = firstChoice.getJSONObject("message")
-            if (!message.has("content") || message.isNull("content")) {
-                Log.w(TAG, "FCC response missing 'content' in message")
-                return@try null
-            }
-            val content = message.getString("content").trim()
-            if (content.isNotBlank()) content else null
+            result
         } catch (e: Exception) {
             Log.w(TAG, "FCC Translation failed [${e.javaClass.simpleName}]: ${e.message}")
             null
-        } finally {
-            // HttpURLConnection auto-disconnects on error, but be explicit
         }
     }
 
