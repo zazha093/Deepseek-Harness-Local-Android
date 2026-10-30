@@ -656,7 +656,12 @@ object PluginMarket {
 
                     if (isSuccess) {
                         // 只有真正翻译成功且结果不同才更新缓存
-                        TranslationCache.put(context, entry.pkg, originalDescEn, translated)
+                        // 直接用 translated!! 在這裡安全，因為 isSuccess 已經保證非 null
+                        // 但為了滿足編譯器且不使用 !!，改用取非空斷言模式
+                        val t = translated
+                        if (t != null) {
+                            TranslationCache.put(context, entry.pkg, originalDescEn, t)
+                        }
                         successCount.incrementAndGet()
                     } else {
                         failCount.incrementAndGet()
