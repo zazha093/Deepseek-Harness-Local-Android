@@ -597,12 +597,14 @@ object PluginMarket {
      * 支持每条重试 2 次（间隔 1.5s, 3s），worker 间隔 300ms。
      * 跳过已在 TranslationCache 中的条目。
      *
+     * @param context 用于访问 TranslationCache 的上下文
      * @param entries 待翻译的条目列表
      * @param onProgress 进度回调 (已完成数, 总数)
      * @param onDone 完成回调 (成功数, 失败数)
      * @return 可取消的句柄，调用 cancel() 可中断进行中的任务
      */
     fun translateAllPlugins(
+        context: Context,
         entries: List<Entry>,
         onProgress: (Int, Int) -> Unit,
         onDone: (Int, Int) -> Unit,
@@ -611,7 +613,7 @@ object PluginMarket {
         val toTranslate = entries.filter { e ->
             e.descEn.isNotBlank() && e.descEn != e.desc
         }.filterNot { e ->
-            TranslationCache.getGlobal(e.pkg, e.descEn) != null
+            TranslationCache.get(context, e.pkg, e.descEn) != null
         }
 
         if (toTranslate.isEmpty()) {
@@ -654,7 +656,7 @@ object PluginMarket {
 
                     if (isSuccess) {
                         // 只有真正翻译成功且结果不同才更新缓存
-                        TranslationCache.putGlobal(entry.pkg, originalDescEn, translated)
+                        TranslationCache.put(context, entry.pkg, originalDescEn, translated)
                         successCount.incrementAndGet()
                     } else {
                         failCount.incrementAndGet()

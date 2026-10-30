@@ -1005,16 +1005,17 @@ class PluginStoreActivity : ThemedActivity() {
         tvSubtitle.text = getString(R.string.plugin_translating_progress, 0, sourceEntries.size)
 
         translateHandle = PluginMarket.translateAllPlugins(
+            context = this,
             entries = sourceEntries,
-            onProgress = { done, total ->
-                if (isFinishing || isDestroyed) return
+            onProgress = onProgress@{ done, total ->
+                if (isFinishing || isDestroyed) return@onProgress
                 runOnUiThread {
                     btnTranslateAll.text = getString(R.string.plugin_translating_progress, done, total)
                     tvSubtitle.text = getString(R.string.plugin_translating_progress, done, total)
                 }
             },
-            onDone = { success, failed ->
-                if (isFinishing || isDestroyed) return
+            onDone = onDone@{ success, failed ->
+                if (isFinishing || isDestroyed) return@onDone
                 runOnUiThread {
                     translateHandle = null
                     loading = false
