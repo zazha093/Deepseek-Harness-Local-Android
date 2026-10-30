@@ -507,7 +507,7 @@ object PluginMarket {
     }
 
     /**
-     * Translate text to Thai using FCC (Claude) API.
+     * Translate text to Thai using Google Translate free API.
      * Must be called from a background thread (not UI thread).
      *
      * @param text Text to translate (auto-detect source language)
@@ -515,67 +515,24 @@ object PluginMarket {
      */
     fun translateToThai(text: String): String? {
         if (text.isBlank()) return null
-        val url = "http://127.0.0.1:8082/v1/chat/completions"
-        val systemPrompt = "Translate the following text to Thai. Keep technical terms, plugin names, and code identifiers in English. Provide a natural, concise translation."
-        val requestBody = JSONObject().apply {
-            put("model", "claude-3-haiku-20240307")
-            put("messages", JSONArray().apply {
-                put(JSONObject().apply {
-                    put("role", "system")
-                    put("content", systemPrompt)
-                })
-                put(JSONObject().apply {
-                    put("role", "user")
-                    put("content", text)
-                })
-            })
-        }.toString()
-
+        val encoded = URLEncoder.encode(text, "UTF-8")
+        val url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=th&dt=t&q=$encoded"
         return try {
-            val conn = URL(url).openConnection() as HttpURLConnection
-            conn.requestMethod = "POST"
-            conn.connectTimeout = 15000
-            conn.readTimeout = 30000
-            conn.doOutput = true
-            conn.setRequestProperty("Accept", "application/json")
-            conn.setRequestProperty("Content-Type", "application/json")
-            conn.setRequestProperty("Authorization", "Bearer freecc")
-            conn.setRequestProperty("User-Agent", "dsh-android-plugin-market")
-            conn.outputStream.bufferedWriter().use { it.write(requestBody) }
-
-            if (conn.responseCode !in 200..299) {
-                throw IllegalStateException("HTTP ${conn.responseCode}: ${conn.errorStream?.bufferedReader()?.readText()}")
-            }
-
-            val response = conn.inputStream.bufferedReader().use { it.readText() }
-            val json = JSONObject(response)
-            // FCC OpenAI-compatible format: choices[0].message.content
-            // Defensive parsing: check every level for null/missing
-            var result: String? = null
-            if (json.has("choices") && !json.isNull("choices")) {
-                val choices = json.getJSONArray("choices")
-                if (choices.length() > 0) {
-                    val firstChoice = choices.getJSONObject(0)
-                    if (firstChoice.has("message") && !firstChoice.isNull("message")) {
-                        val message = firstChoice.getJSONObject("message")
-                        if (message.has("content") && !message.isNull("content")) {
-                            val content = message.getString("content").trim()
-                            if (content.isNotBlank()) result = content
-                        } else {
-                            Log.w(TAG, "FCC response missing 'content' in message")
-                        }
-                    } else {
-                        Log.w(TAG, "FCC response missing 'message' in choices[0]")
-                    }
-                } else {
-                    Log.w(TAG, "FCC response 'choices' array is empty")
+            val response = httpGet(url)
+            // Response format: [[["translated","original",...],...],"srcLang",...]
+            val jsonArray = JSONArray(response)
+            val firstArray = jsonArray.getJSONArray(0)
+            val translated = StringBuilder()
+            for (i in 0 until firstArray.length()) {
+                val segment = firstArray.getJSONArray(i)
+                if (segment.length() > 0) {
+                    translated.append(segment.getString(0))
                 }
-            } else {
-                Log.w(TAG, "FCC response missing 'choices' field")
             }
-            result
+            val result = translated.toString()
+            if (result.isBlank()) null else result
         } catch (e: Exception) {
-            Log.w(TAG, "FCC Translation failed [${e.javaClass.simpleName}]: ${e.message}")
+            Log.w(TAG, "Translation failed: ${e.message}")
             null
         }
     }
