@@ -449,8 +449,6 @@
 
     <string name="plugin_translate_thai">Translate to Thai</string>
 
-    <string name="plugin_translating">Translating…</string>
-
     <string name="plugin_translated_to_thai">Translated to Thai</string>
 
     <string name="plugin_translate_failed">Translation failed</string>
