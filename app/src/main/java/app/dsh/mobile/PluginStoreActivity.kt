@@ -12,9 +12,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import app.dsh.mobile.engine.PluginCenter
 import app.dsh.mobile.engine.PluginKillSwitch
 import app.dsh.mobile.engine.PluginMarket
@@ -64,6 +61,7 @@ class PluginStoreActivity : ThemedActivity() {
     private lateinit var btnSort: TextView
     private lateinit var btnCheckUpdates: TextView
     private lateinit var btnTranslateAll: TextView
+    private var translateHandle: AutoCloseable? = null
     private val dp by lazy { resources.displayMetrics.density }
 
     /** 当前标签：true = 市场，false = 已安装 */
@@ -982,9 +980,19 @@ class PluginStoreActivity : ThemedActivity() {
         }
     }
 
-    /** 批量翻译所有插件描述为当前界面语言 */
+    /** 批量翻译所有插件描述为泰语 */
     private fun translateAll() {
-        if (loading) return
+        if (loading) {
+            // 正在翻译时再次点击 -> 取消当前任务
+            translateHandle?.close()
+            translateHandle = null
+            loading = false
+            btnTranslateAll.isEnabled = true
+            btnTranslateAll.text = getString(R.string.plugin_translate_all)
+            tvSubtitle.text = ""
+            return
+        }
+
         val sourceEntries = if (onMarket) marketEntries else installedEntries
         if (sourceEntries.isEmpty()) {
             android.widget.Toast.makeText(this, R.string.plugin_translate_none, android.widget.Toast.LENGTH_SHORT).show()
@@ -992,45 +1000,56 @@ class PluginStoreActivity : ThemedActivity() {
         }
 
         loading = true
-        btnTranslateAll.isEnabled = false
-        btnTranslateAll.text = getString(R.string.plugin_translating)
+        btnTranslateAll.isEnabled = true
+        btnTranslateAll.text = getString(R.string.plugin_translate_all)
+        tvSubtitle.text = getString(R.string.plugin_translating_progress, 0, sourceEntries.size)
 
-        PluginMarket.translateAllPlugins(
-            scope = lifecycleScope,
+        translateHandle = PluginMarket.translateAllPlugins(
             entries = sourceEntries,
-            targetLanguage = java.util.Locale.getDefault().language,
-            onProgress = { translated, total, currentPkg ->
-                if (isFinishing || isDestroyed) return@onProgress
-                btnTranslateAll.text = getString(R.string.plugin_translating_progress, translated, total)
-                tvSubtitle.text = getString(R.string.plugin_translating_progress, translated, total)
+            onProgress = { done, total ->
+                if (isFinishing || isDestroyed) return
+                runOnUiThread {
+                    btnTranslateAll.text = getString(R.string.plugin_translating_progress, done, total)
+                    tvSubtitle.text = getString(R.string.plugin_translating_progress, done, total)
+                }
             },
-            onDone = { translatedEntries, errors ->
-                if (isFinishing || isDestroyed) return@onDone
-                loading = false
-                btnTranslateAll.isEnabled = true
-                btnTranslateAll.text = getString(R.string.plugin_translate_all)
+            onDone = { success, failed ->
+                if (isFinishing || isDestroyed) return
+                runOnUiThread {
+                    translateHandle = null
+                    loading = false
+                    btnTranslateAll.isEnabled = true
+                    btnTranslateAll.text = getString(R.string.plugin_translate_all)
+                    tvSubtitle.text = ""
 
-                // 更新对应列表
-                if (onMarket) {
-                    marketEntries = translatedEntries
-                } else {
-                    installedEntries = translatedEntries
-                }
-                render()
+                    // 重新加载列表以显示翻译结果（通过 TranslationCache 更新）
+                    val currentEntries = if (onMarket) marketEntries else installedEntries
+                    if (onMarket) {
+                        marketEntries = currentEntries
+                    } else {
+                        installedEntries = currentEntries
+                    }
+                    render()
 
-                val successCount = translatedCount(sourceEntries, translatedEntries)
-                val msg = if (errors.isEmpty()) {
-                    getString(R.string.plugin_translate_success, successCount)
-                } else {
-                    getString(R.string.plugin_translate_partial, successCount, errors.size)
-                }
-                android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_LONG).show()
+                    val msg = if (failed == 0) {
+                        getString(R.string.plugin_translate_success, success)
+                    } else {
+                        getString(R.string.plugin_translate_partial, success, failed)
+                    }
+                    android.widget.Toast.makeText(this@PluginStoreActivity, msg, android.widget.Toast.LENGTH_LONG).show()
 
-                if (errors.isNotEmpty()) {
-                    android.util.Log.w("PluginStore", "Translation errors: ${errors.joinToString("; ")}")
+                    if (failed > 0) {
+                        android.util.Log.w("PluginStore", "Translate All: success=$success, failed=$failed")
+                    }
                 }
             }
         )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        translateHandle?.close()
+        translateHandle = null
     }
 
     /** 统计实际翻译成功的条目数（描述发生变化） */

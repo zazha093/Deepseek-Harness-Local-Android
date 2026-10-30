@@ -2,23 +2,16 @@ package app.dsh.mobile.engine
 
 import android.content.Context
 import android.util.Log
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
-import java.nio.charset.Charsets
+import java.nio.charset.StandardCharsets
 import java.util.Collections
-import java.util.Locale
-import java.util.concurrent.Semaphore
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -356,7 +349,7 @@ object PluginMarket {
 
     private fun buildCatalog(ctx: Context?): List<Entry> = runCatching {
         val text = ctx?.assets?.open(CATALOG_ASSET)?.use {
-            it.readBytes().toString(Charsets.UTF_8)
+            it.readBytes().toString(StandardCharsets.UTF_8)
         } ?: return emptyList()
         val root = JSONObject(text)
         val arr = root.getJSONArray("plugins")
@@ -399,7 +392,7 @@ object PluginMarket {
     fun categories(ctx: Context): List<Pair<String, String>> = runCatching {
         val lang = java.util.Locale.getDefault().language
         categoriesCache?.get(lang)?.let { return it }
-        val text = ctx.assets.open(CATALOG_ASSET).use { it.readBytes().toString(Charsets.UTF_8) }
+        val text = ctx.assets.open(CATALOG_ASSET).use { it.readBytes().toString(StandardCharsets.UTF_8) }
         val cats = JSONObject(text).getJSONObject("metadata").getJSONObject("categories")
         val chinese = java.util.Locale.getDefault().language == "zh"
         cats.keys().asSequence().map { id ->
@@ -593,110 +586,112 @@ object PluginMarket {
     }.getOrDefault(0L)
 
     // ─────────────────────────────────────────────────────────────────────
-    // 批量翻译：将所有插件的英文描述翻译为目标语言
+    // 批量翻译：将所有插件的英文描述翻译为泰语
     // ─────────────────────────────────────────────────────────────────────
 
     /**
-     * 批量翻译所有插件的描述文本为泰语。
+     * 批量翻译所有插件的描述文本为泰语（使用线程池，无协程）。
      *
-     * 使用协程 + Semaphore(3) 限制并发，配合 15 秒超时与生命周期感知。
-     * 翻译失败的条目保留原文，错误收集后统一回调。
-     * 固定目标语言为泰语 ("th")，使用现有的 translateToThai (FCC) 实现。
+     * 使用固定大小线程池(3)限制并发，配合 AtomicInteger 计数进度。
+     * 翻译失败/结果为空/结果与原文相同均不缓存，计为失败。
+     * 支持每条重试 2 次（间隔 1.5s, 3s），worker 间隔 300ms。
+     * 跳过已在 TranslationCache 中的条目。
      *
-     * @param scope 协程作用域（建议传 Activity 的 lifecycleScope）
      * @param entries 待翻译的条目列表
-     * @param targetLanguage 目标语言代码（固定为 "th"，忽略传入值）
-     * @param onProgress 进度回调 (已完成数, 总数, 当前包名)
-     * @param onDone 完成回调 (翻译后的条目列表, 错误信息列表)
+     * @param onProgress 进度回调 (已完成数, 总数)
+     * @param onDone 完成回调 (成功数, 失败数)
+     * @return 可取消的句柄，调用 cancel() 可中断进行中的任务
      */
     fun translateAllPlugins(
-        scope: CoroutineScope,
         entries: List<Entry>,
-        targetLanguage: String = "th",
-        onProgress: (Int, Int, String) -> Unit,
-        onDone: (List<Entry>, List<String>) -> Unit,
-    ) {
-        // 只翻译有英文描述且非目标语言的条目
+        onProgress: (Int, Int) -> Unit,
+        onDone: (Int, Int) -> Unit,
+    ): AutoCloseable {
+        // 只翻译有英文描述且非泰语的条目，且不在缓存中
         val toTranslate = entries.filter { e ->
             e.descEn.isNotBlank() && e.descEn != e.desc
-        }
-        if (toTranslate.isEmpty()) {
-            onDone(entries, emptyList())
-            return
+        }.filterNot { e ->
+            TranslationCache.getGlobal(e.pkg, e.descEn) != null
         }
 
-        val semaphore = Semaphore(3)
-        val errors = Collections.synchronizedList(mutableListOf<String>())
-        val translatedEntries = Collections.synchronizedList(mutableListOf<Entry>())
+        if (toTranslate.isEmpty()) {
+            onDone(0, 0)
+            return object : AutoCloseable { override fun close() {} }
+        }
+
+        val executor = Executors.newFixedThreadPool(3)
+        val successCount = AtomicInteger(0)
+        val failCount = AtomicInteger(0)
         val completed = AtomicInteger(0)
         val total = toTranslate.size
 
-        // 使用 SupervisorJob 避免单个翻译失败导致整体取消
-        val job = SupervisorJob()
-        val childScope = scope.coroutineContext + job
-
-        childScope.launch(Dispatchers.IO) {
+        val task = Thread {
             try {
-                // 整体超时：每条 15s + 缓冲
-                val overallTimeoutMs = 15_000L * (total / 3 + 1) + 5_000L
-                withTimeout(overallTimeoutMs) {
-                    toTranslate.forEach { entry ->
-                        childScope.launch(Dispatchers.IO) {
-                            var permitAcquired = false
-                            try {
-                                semaphore.acquire()
-                                permitAcquired = true
-                                // 使用现有的 translateToThai (FCC) 进行翻译
-                                // 注意：translateToThai 硬编码为泰语，这里仅当目标语言为 "th" 时使用
-                                val translatedText = when (targetLanguage) {
-                                    "th" -> translateToThai(entry.descEn)
-                                    else -> {
-                                        // 对于其他语言，暂时使用英文原文或简单的占位
-                                        // TODO: 实现多语言翻译支持
-                                        Log.w(TAG, "translateAllPlugins: targetLanguage=$targetLanguage not fully supported yet, using English")
-                                        entry.descEn
-                                    }
-                                }
-                                val translated = entry.copy(
-                                    desc = if (targetLanguage == "th") translatedText ?: entry.desc else entry.desc,
-                                    descEn = if (targetLanguage != "th") translatedText ?: entry.descEn else entry.descEn,
-                                )
-                                translatedEntries.add(translated)
-                            } catch (e: Exception) {
-                                // 单条翻译失败：记录错误，保留原条目
-                                errors.add("${entry.pkg}: ${e.message ?: e.javaClass.simpleName}")
-                                translatedEntries.add(entry)
-                            } finally {
-                                if (permitAcquired) semaphore.release()
-                                val current = completed.incrementAndGet()
-                                // 回主线程报进度
-                                scope.launch(Dispatchers.Main) {
-                                    onProgress(current, total, entry.pkg)
-                                }
+                toTranslate.forEach { entry ->
+                    Thread.sleep(300) // worker 间隔 300ms
+
+                    var translated: String? = null
+                    var lastEx: Exception? = null
+                    val delays = longArrayOf(1500, 3000) // retry delays: 1.5s, 3s
+
+                    // 最多重试 2 次（共 3 次尝试）
+                    for (attempt in 0..2) {
+                        try {
+                            translated = translateToThai(entry.descEn)
+                            if (translated != null && translated.isNotBlank() && translated != entry.descEn) {
+                                break // 成功
                             }
+                        } catch (e: Exception) {
+                            lastEx = e
+                        }
+                        if (attempt < 2) {
+                            Thread.sleep(delays[attempt])
                         }
                     }
-                    // 等待所有子协程完成
-                    job.join()
-                }
-            } catch (e: Exception) {
-                // 整体超时或取消：已完成的保留，其余补上原条目
-                val donePkgs = translatedEntries.map { it.pkg }.toSet()
-                for (entry in toTranslate) {
-                    if (entry.pkg !in donePkgs) {
-                        translatedEntries.add(entry)
-                        errors.add("${entry.pkg}: ${e.message ?: "timeout"}")
+
+                    val originalDescEn = entry.descEn
+                    val isSuccess = translated != null && translated.isNotBlank() && translated != originalDescEn
+
+                    if (isSuccess) {
+                        // 只有真正翻译成功且结果不同才更新缓存
+                        TranslationCache.putGlobal(entry.pkg, originalDescEn, translated)
+                        successCount.incrementAndGet()
+                    } else {
+                        failCount.incrementAndGet()
+                        if (lastEx != null) {
+                            Log.w(TAG, "translateAllPlugins: ${entry.pkg} failed after retries: ${lastEx.message}")
+                        } else if (translated == null || translated.isBlank()) {
+                            Log.w(TAG, "translateAllPlugins: ${entry.pkg} returned empty/null")
+                        } else {
+                            Log.w(TAG, "translateAllPlugins: ${entry.pkg} returned same text")
+                        }
+                    }
+
+                    val current = completed.incrementAndGet()
+                    // 在 UI 线程报告进度
+                    val handler = android.os.Handler(android.os.Looper.getMainLooper())
+                    handler.post {
+                        onProgress(current, total)
                     }
                 }
+            } catch (e: InterruptedException) {
+                // 任务被取消
             } finally {
-                // 合并：已翻译的替换原列表对应项，未翻译的保持不变
-                val translatedMap = translatedEntries.associateBy { it.pkg }
-                val merged = entries.map { e ->
-                    translatedMap[e.pkg]?.let { it.copy() } ?: e
+                executor.shutdownNow()
+                // 最终回调
+                val handler = android.os.Handler(android.os.Looper.getMainLooper())
+                handler.post {
+                    onDone(successCount.get(), failCount.get())
                 }
-                scope.launch(Dispatchers.Main) {
-                    onDone(merged, errors)
-                }
+            }
+        }
+
+        task.start()
+
+        return object : AutoCloseable {
+            override fun close() {
+                task.interrupt()
+                executor.shutdownNow()
             }
         }
     }
