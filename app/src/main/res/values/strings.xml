@@ -455,6 +455,14 @@
 
     <string name="plugin_translate_failed">Translation failed</string>
 
+    <string name="plugin_translate_all">Translate All</string>
+    <string name="plugin_translating_progress">Translating… %1$d/%2$d</string>
+    <string name="plugin_translate_none">No plugins to translate</string>
+    <string name="plugin_translate_success">Translated %1$d plugin(s)</string>
+    <string name="plugin_translate_partial">Translated %1$d, failed %2$d</string>
+
+    <string name="plugin_show_original">Show original</string>
+
     <string name="plugin_native_title">This plugin needs native code</string>
 
     <string name="plugin_native_body">It declares build steps or native modules:

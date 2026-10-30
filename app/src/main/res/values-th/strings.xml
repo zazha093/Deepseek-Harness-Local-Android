@@ -423,6 +423,14 @@
 
     <string name="plugin_translate_failed">การแปลล้มเหลว</string>
 
+    <string name="plugin_translate_all">ทั้งหมดแปล</string>
+    <string name="plugin_translating_progress">กำลังแปล… %1$d/%2$d</string>
+    <string name="plugin_translate_none">ไม่มีปลั๊กอินที่ต้องแปล</string>
+    <string name="plugin_translate_success">แปลแล้ว %1$d ตัว</string>
+    <string name="plugin_translate_partial">แปลสำเร็จ %1$d, ล้มเหลว %2$d</string>
+
+    <string name="plugin_show_original">ดูต้นฉบับ</string>
+
     <string name="plugin_native_title">ปลั๊กอินนี้ต้องการโค้ดเนทิฟ</string>
 
     <string name="plugin_native_body">มันประกาศขั้นตอนการสร้างหรือโมดูลดั้งเดิม:\n\n%1$s\n\nบน Android ปกติคอมไพล์ไม่ได้ (ไม่มีหัวข้อเครื่องมือที่พาธที่คาดหวัง) จึงอาจติดตั้งได้แต่ใช้งานไม่ได้ ติดตั้งต่อหรือไม่?</string>

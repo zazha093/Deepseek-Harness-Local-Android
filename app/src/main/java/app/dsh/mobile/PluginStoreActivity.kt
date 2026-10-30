@@ -12,6 +12,9 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import app.dsh.mobile.engine.PluginCenter
 import app.dsh.mobile.engine.PluginKillSwitch
 import app.dsh.mobile.engine.PluginMarket
@@ -60,6 +63,7 @@ class PluginStoreActivity : ThemedActivity() {
     private lateinit var btnTabInstalled: TextView
     private lateinit var btnSort: TextView
     private lateinit var btnCheckUpdates: TextView
+    private lateinit var btnTranslateAll: TextView
     private val dp by lazy { resources.displayMetrics.density }
 
     /** 当前标签：true = 市场，false = 已安装 */
@@ -105,6 +109,7 @@ class PluginStoreActivity : ThemedActivity() {
         btnTabInstalled = findViewById(R.id.btnTabInstalled)
         btnSort = findViewById(R.id.btnSort)
         btnCheckUpdates = findViewById(R.id.btnCheckUpdates)
+        btnTranslateAll = findViewById(R.id.btnTranslateAll)
         findViewById<ImageView>(R.id.btnBack).setOnClickListener { finish() }
 
         btnSort.text = getString(sortMode.labelRes)
@@ -113,6 +118,7 @@ class PluginStoreActivity : ThemedActivity() {
         btnTabInstalled.setOnClickListener { switchTab(false) }
         btnSort.setOnClickListener { showSortDialog() }
         btnCheckUpdates.setOnClickListener { checkUpdates() }
+        btnTranslateAll.setOnClickListener { translateAll() }
 
         // v1.4.27：应急总开关生效时的常驻提示（点一下直接恢复）
         val killBanner = findViewById<TextView>(R.id.tvKillBanner)
@@ -668,25 +674,40 @@ class PluginStoreActivity : ThemedActivity() {
 
         dialog.show()
 
-        // 负按钮：翻译成泰语（在 show() 之后设置 listener，防止 AlertDialog 自动 dismiss）
+        // 负按钮：翻译/切换语言（在 show() 之后设置 listener，防止 AlertDialog 自动 dismiss）
+        // 使用 final 变量保存原始消息和翻译缓存，实现切换功能
+        val originalDesc = e.desc.ifBlank { e.descEn }
+        val originalMessage = shownMsg  // 保存原始消息用于切换回去
+        var isShowingTranslation = false
+        var cachedTranslation: String? = null
+
         dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener {
             val translateBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+
+            // 如果正在显示翻译，切换回原始消息
+            if (isShowingTranslation) {
+                shownMsg = originalMessage
+                dialog.setMessage(shownMsg)
+                isShowingTranslation = false
+                translateBtn.text = getString(R.string.plugin_translate_thai)
+                return@setOnClickListener
+            }
+
+            // 否则显示翻译
             translateBtn.isEnabled = false
             translateBtn.text = getString(R.string.plugin_translating)
 
             // 检查缓存
-            val originalDesc = e.desc.ifBlank { e.descEn }
             val cached = TranslationCache.get(this@PluginStoreActivity, e.pkg, originalDesc)
             if (cached != null) {
+                cachedTranslation = cached
                 runOnUiThread {
                     if (isFinishing || isDestroyed) return@runOnUiThread
-                    val currentMsg = shownMsg
-                    if (!currentMsg.contains(cached)) {
-                        shownMsg = cached
-                        dialog.setMessage(shownMsg)
-                    }
+                    shownMsg = cached
+                    dialog.setMessage(shownMsg)
+                    isShowingTranslation = true
                     translateBtn.isEnabled = true
-                    translateBtn.text = getString(R.string.plugin_translate_thai)
+                    translateBtn.text = getString(R.string.plugin_show_original)
                 }
                 return@setOnClickListener
             }
@@ -698,20 +719,21 @@ class PluginStoreActivity : ThemedActivity() {
                     if (isFinishing || isDestroyed) return@runOnUiThread
                     if (translated != null) {
                         TranslationCache.put(this@PluginStoreActivity, e.pkg, originalDesc, translated)
-                        val currentMsg = shownMsg
-                        if (!currentMsg.contains(translated)) {
-                            shownMsg = translated
-                            dialog.setMessage(shownMsg)
-                        }
+                        cachedTranslation = translated
+                        shownMsg = translated
+                        dialog.setMessage(shownMsg)
+                        isShowingTranslation = true
+                        translateBtn.text = getString(R.string.plugin_show_original)
                     } else {
+                        // 翻译失败时显示错误，但不切换状态
                         val currentMsg = shownMsg
                         if (!currentMsg.contains(getString(R.string.plugin_translate_failed))) {
                             shownMsg = currentMsg + "\n\n" + getString(R.string.plugin_translate_failed)
                             dialog.setMessage(shownMsg)
                         }
+                        translateBtn.text = getString(R.string.plugin_translate_thai)
                     }
                     translateBtn.isEnabled = true
-                    translateBtn.text = getString(R.string.plugin_translate_thai)
                 }
             }.start()
         }
@@ -957,6 +979,65 @@ class PluginStoreActivity : ThemedActivity() {
                     btn.isClickable = true
                 }
             }
+        }
+    }
+
+    /** 批量翻译所有插件描述为当前界面语言 */
+    private fun translateAll() {
+        if (loading) return
+        val sourceEntries = if (onMarket) marketEntries else installedEntries
+        if (sourceEntries.isEmpty()) {
+            android.widget.Toast.makeText(this, R.string.plugin_translate_none, android.widget.Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        loading = true
+        btnTranslateAll.isEnabled = false
+        btnTranslateAll.text = getString(R.string.plugin_translating)
+
+        PluginMarket.translateAllPlugins(
+            scope = lifecycleScope,
+            entries = sourceEntries,
+            targetLanguage = java.util.Locale.getDefault().language,
+            onProgress = { translated, total, currentPkg ->
+                if (isFinishing || isDestroyed) return@onProgress
+                btnTranslateAll.text = getString(R.string.plugin_translating_progress, translated, total)
+                tvSubtitle.text = getString(R.string.plugin_translating_progress, translated, total)
+            },
+            onDone = { translatedEntries, errors ->
+                if (isFinishing || isDestroyed) return@onDone
+                loading = false
+                btnTranslateAll.isEnabled = true
+                btnTranslateAll.text = getString(R.string.plugin_translate_all)
+
+                // 更新对应列表
+                if (onMarket) {
+                    marketEntries = translatedEntries
+                } else {
+                    installedEntries = translatedEntries
+                }
+                render()
+
+                val successCount = translatedCount(sourceEntries, translatedEntries)
+                val msg = if (errors.isEmpty()) {
+                    getString(R.string.plugin_translate_success, successCount)
+                } else {
+                    getString(R.string.plugin_translate_partial, successCount, errors.size)
+                }
+                android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_LONG).show()
+
+                if (errors.isNotEmpty()) {
+                    android.util.Log.w("PluginStore", "Translation errors: ${errors.joinToString("; ")}")
+                }
+            }
+        )
+    }
+
+    /** 统计实际翻译成功的条目数（描述发生变化） */
+    private fun translatedCount(original: List<Entry>, translated: List<Entry>): Int {
+        val origMap = original.associateBy { it.pkg }
+        return translated.count { e ->
+            origMap[e.pkg]?.let { o -> o.desc != e.desc } ?: false
         }
     }
 
