@@ -682,7 +682,7 @@ class PluginStoreActivity : ThemedActivity() {
                     if (isFinishing || isDestroyed) return@runOnUiThread
                     val currentMsg = shownMsg
                     if (!currentMsg.contains(cached)) {
-                        shownMsg = currentMsg + "\n\n---\n" + getString(R.string.plugin_translated_to_thai) + ":\n" + cached
+                        shownMsg = cached
                         dialog.setMessage(shownMsg)
                     }
                     translateBtn.isEnabled = true
@@ -700,7 +700,7 @@ class PluginStoreActivity : ThemedActivity() {
                         TranslationCache.put(this@PluginStoreActivity, e.pkg, originalDesc, translated)
                         val currentMsg = shownMsg
                         if (!currentMsg.contains(translated)) {
-                            shownMsg = currentMsg + "\n\n---\n" + getString(R.string.plugin_translated_to_thai) + ":\n" + translated
+                            shownMsg = translated
                             dialog.setMessage(shownMsg)
                         }
                     } else {
