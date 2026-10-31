@@ -1179,7 +1179,7 @@ class EngineSupervisor(private val ctx: Context) {
         Log.w(TAG, "port $port — thorough reclaim (kill every holder of this port)")
         val d = "$"
         // 用 /proc 找所有监听该端口的 uid（tcp/tcp6 的本地地址:端口列），再杀掉这些 pid。
-        // 匹配逻辑：读 /proc/net/tcp{,6}，找 state=0A（LISTEN）且 local_port == 3080，
+        // 匹配逻辑：读 /proc/net/tcp{,6}，找 state=0A（LISTEN）且 local_port == $port，
         // 取其 inode，再扫 /proc/<pid>/fd 找指向 socket:[inode] 的进程。
         val script = """
             PORT_HEX=${'$'}(printf '%04X' $port)

@@ -240,8 +240,8 @@ For duplicate detection, compare page/target + action + verification result, not
 ## Extension Center (install on demand, China-direct mirrors)
 
 - **Not preinstalled but installable**: Python, Git, OpenJDK-17/21, Clang, Go, Rust, Ruby, PHP, Lua, Perl, FFmpeg, ImageMagick, OpenSSH, adb, aapt+apksigner+gradle, vim.
-- List: `curl -s http://127.0.0.1:3083/ext/list` → [{id,name,category,state,version,installing}]; state red=absent, yellow=installed-inactive, green=active. Check here before claiming a tool is missing.
-- Install: `curl -s -X POST http://127.0.0.1:3083/ext/install -d '{"id":"python"}'` → 202 started (200 already green, 409 in progress). The app resolves the full closure, verifies SHA-256, activates, then notifies. Poll until green. `"force":true` wipes and reinstalls that extension directory. New PATH entries only take effect after an engine restart — ask the user to tap Settings → Restart engine (中文界面：设置 → 重启引擎).
+- List: `curl -s http://127.0.0.1:13083/ext/list` → [{id,name,category,state,version,installing}]; state red=absent, yellow=installed-inactive, green=active. Check here before claiming a tool is missing.
+- Install: `curl -s -X POST http://127.0.0.1:13083/ext/install -d '{"id":"python"}'` → 202 started (200 already green, 409 in progress). The app resolves the full closure, verifies SHA-256, activates, then notifies. Poll until green. `"force":true` wipes and reinstalls that extension directory. New PATH entries only take effect after an engine restart — ask the user to tap Settings → Restart engine (中文界面：设置 → 重启引擎).
 - Active now: none yet.
 
 ## Building Android apps on-device
@@ -261,11 +261,11 @@ zipalign -f 4 app-unsigned.apk app-aligned.apk && apksigner sign --ks my.keystor
 
 ## Reaching the WebUI from another device (LAN)
 
-Upstream refuses `0.0.0.0` on purpose, and a naive port-forward breaks in four ways: no secure context (`crypto.randomUUID` missing), loopback-gated UI features, and same-origin checks on `/api`. The easiest path is to install the OpenSSH extension and forward over SSH (`ssh -L`) — that sidesteps all four; hand the user the resulting `http://127.0.0.1:3080` URL.
+Upstream refuses `0.0.0.0` on purpose, and a naive port-forward breaks in four ways: no secure context (`crypto.randomUUID` missing), loopback-gated UI features, and same-origin checks on `/api`. The easiest path is to install the OpenSSH extension and forward over SSH (`ssh -L`) — that sidesteps all four; hand the user the resulting `http://127.0.0.1:13080` URL.
 
 The app also has a built-in LAN proxy (Settings → 局域网访问 WebUI): it listens on its own port, polyfills `crypto.randomUUID`, rewrites the loopback gate and `SameSite=Strict` cookies, and forwards WebSocket upgrades, with a 6-digit code shown once when the user enables it. Prefer telling the user about that switch instead of hand-writing a proxy.
 
-Only if a custom LAN URL is required, write a small node reverse proxy that listens on a new port, not 3080/3083. It must polyfill `crypto.randomUUID`, rewrite `isLoopbackHostname(pageLocation)` to a truthy call, set upstream `Host`/`Origin` to `127.0.0.1:3080`, forward WebSocket upgrades, and append the latest `?token=` read from `${'$'}PREFIX/engine.log`. Warn that this exposes an agent with full file and command access: use trusted networks only and set a password.
+Only if a custom LAN URL is required, write a small node reverse proxy that listens on a new port, not 13080/13083. It must polyfill `crypto.randomUUID`, rewrite `isLoopbackHostname(pageLocation)` to a truthy call, set upstream `Host`/`Origin` to `127.0.0.1:13080`, forward WebSocket upgrades, and append the latest `?token=` read from `${'$'}PREFIX/engine.log`. Warn that this exposes an agent with full file and command access: use trusted networks only and set a password.
 
 ## Extension troubleshooting (self-heal, then report)
 
@@ -290,11 +290,11 @@ Report the exact command, the exact error, what you already tried, and either th
 
 There is no display server. Start a server with **node** (`node:http`, or a pure-JS framework via pnpm) on a loopback port such as 3000, then reply with the plain URL `http://127.0.0.1:<port>` — the app opens it as a live preview when the user taps it. Prefer node because it is the first-class server runtime here; do not assume `python -m http.server` or busybox httpd is available.
 
-Do not bind, proxy onto, or squat 3080 / 3083 — those are the engine's WebUI and the app's capability bridge. Binding either breaks the app silently. Pick any other port; a LAN proxy must listen on its own port and forward to 3080. If a scan shows them listening, that is the app itself — leave them alone. An `EADDRINUSE` on 3083 means one of your own earlier processes squatted it: kill that one, never the app's.
+Do not bind, proxy onto, or squat 13080 / 13083 — those are the engine's WebUI and the app's capability bridge. Binding either breaks the app silently. Pick any other port; a LAN proxy must listen on its own port and forward to 13080. If a scan shows them listening, that is the app itself — leave them alone. An `EADDRINUSE` on 13083 means one of your own earlier processes squatted it: kill that one, never the app's.
 
 ## Android powers: notifications and screen control
 
-The documented environment already puts `scr`, `loop`, `notify`, and `say` on your PATH; run them directly. They authenticate to the app bridge internally. There is normally no need to hunt for the bridge token, curl port 3083, inspect wrapper scripts, or list `${'$'}PREFIX/bin`. If a command really is missing, use the `command not found` procedure in Extension troubleshooting.
+The documented environment already puts `scr`, `loop`, `notify`, and `say` on your PATH; run them directly. They authenticate to the app bridge internally. There is normally no need to hunt for the bridge token, curl port 13083, inspect wrapper scripts, or list `${'$'}PREFIX/bin`. If a command really is missing, use the `command not found` procedure in Extension troubleshooting.
 
 - `notify <message>` — system notification. Call it when a long task finishes, or when you need the user's attention while they are away.
 - `scr dump` — compact screen read: `序号 text @x,y [flags] [role]`, one line per node (~6KB per screen); flags `c`lickable, `s`crollable, `e`ditable, `v`=checked, `o`=unchecked. **Role** marks the control kind: `[switch]` (a toggle — tapping flips it), `[row]` (a navigable row — tapping opens a page), `[button]`, `[edit]`, `[slider]`, `[list]`, `[scroll]`. Check the role before tapping: a `[row]` whose label looks like a setting usually opens a subpage where the actual `[switch]` lives — tapping the row flips nothing. `d:` means the label came from contentDescription; strip this prefix from target text. Keep titles/dialog text as well as controls because they identify page state. Keep unlabeled v/o nodes and their coordinates to associate a switch with its row label. Coordinates are current node centers and are valid for this snapshot only. `dump-click` is clickable/editable only and may omit state evidence; `dump-full` is legacy JSON and is best reserved for cases where essential fields are missing (roughly 15k tokens).
