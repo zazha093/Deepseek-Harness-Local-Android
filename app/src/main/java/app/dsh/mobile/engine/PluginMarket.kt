@@ -2,6 +2,7 @@ package app.dsh.mobile.engine
 
 import android.content.Context
 import android.util.Log
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.net.HttpURLConnection
@@ -527,6 +528,155 @@ object PluginMarket {
             return conn.inputStream.bufferedReader().use { it.readText() }
         } finally {
             conn.disconnect()
+        }
+    }
+
+    /**
+     * Translate text to Thai using Google Translate free API.
+     * Must be called from a background thread (not UI thread).
+     *
+     * @param text Text to translate (auto-detect source language)
+     * @return Translated text in Thai, or null if translation failed
+     */
+    fun translateToThai(text: String): String? {
+        if (text.isBlank()) return null
+        val encoded = URLEncoder.encode(text, "UTF-8")
+        val url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=th&dt=t&q=$encoded"
+        return try {
+            val response = httpGet(url)
+            // Response format: [[["translated","original",...],...],"srcLang",...]
+            val jsonArray = JSONArray(response)
+            val firstArray = jsonArray.getJSONArray(0)
+            val translated = StringBuilder()
+            for (i in 0 until firstArray.length()) {
+                val segment = firstArray.getJSONArray(i)
+                if (segment.length() > 0) {
+                    translated.append(segment.getString(0))
+                }
+            }
+            val result = translated.toString()
+            if (result.isBlank()) null else result
+        } catch (e: Exception) {
+            Log.w(TAG, "Translation failed: ${e.message}")
+            null
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // 批量翻译：将所有插件的英文描述翻译为泰语
+    // ─────────────────────────────────────────────────────────────────────
+
+    /**
+     * 批量翻译所有插件的描述文本为泰语（使用线程池，无协程）。
+     *
+     * 使用固定大小线程池(3)限制并发，配合 AtomicInteger 计数进度。
+     * 翻译失败/结果为空/结果与原文相同均不缓存，计为失败。
+     * 支持每条重试 2 次（间隔 1.5s, 3s），worker 间隔 300ms。
+     * 跳过已在 TranslationCache 中的条目。
+     *
+     * @param context 用于访问 TranslationCache 的上下文
+     * @param entries 待翻译的条目列表
+     * @param onProgress 进度回调 (已完成数, 总数)
+     * @param onDone 完成回调 (成功数, 失败数)
+     * @return 可取消的句柄，调用 cancel() 可中断进行中的任务
+     */
+    fun translateAllPlugins(
+        context: Context,
+        entries: List<Entry>,
+        onProgress: (Int, Int) -> Unit,
+        onDone: (Int, Int) -> Unit,
+    ): AutoCloseable {
+        // 只翻译有英文描述且非泰语的条目，且不在缓存中
+        val toTranslate = entries.filter { e ->
+            e.descEn.isNotBlank() && e.descEn != e.desc
+        }.filterNot { e ->
+            TranslationCache.get(context, e.pkg, e.descEn) != null
+        }
+
+        if (toTranslate.isEmpty()) {
+            onDone(0, 0)
+            return object : AutoCloseable { override fun close() {} }
+        }
+
+        val executor = Executors.newFixedThreadPool(3)
+        val successCount = java.util.concurrent.atomic.AtomicInteger(0)
+        val failCount = java.util.concurrent.atomic.AtomicInteger(0)
+        val completed = java.util.concurrent.atomic.AtomicInteger(0)
+        val total = toTranslate.size
+
+        val task = Thread {
+            try {
+                toTranslate.forEach { entry ->
+                    Thread.sleep(300) // worker 间隔 300ms
+
+                    var translated: String? = null
+                    var lastEx: Exception? = null
+                    val delays = longArrayOf(1500, 3000) // retry delays: 1.5s, 3s
+
+                    // 最多重试 2 次（共 3 次尝试）
+                    for (attempt in 0..2) {
+                        try {
+                            translated = translateToThai(entry.descEn)
+                            if (translated != null && translated.isNotBlank() && translated != entry.descEn) {
+                                break // 成功
+                            }
+                        } catch (e: Exception) {
+                            lastEx = e
+                        }
+                        if (attempt < 2) {
+                            Thread.sleep(delays[attempt])
+                        }
+                    }
+
+                    val originalDescEn = entry.descEn
+                    val isSuccess = translated != null && translated.isNotBlank() && translated != originalDescEn
+
+                    if (isSuccess) {
+                        // 只有真正翻译成功且结果不同才更新缓存
+                        // 直接用 translated!! 在這裡安全，因為 isSuccess 已經保證非 null
+                        // 但為了滿足編譯器且不使用 !!，改用取非空斷言模式
+                        val t = translated
+                        if (t != null) {
+                            TranslationCache.put(context, entry.pkg, originalDescEn, t)
+                        }
+                        successCount.incrementAndGet()
+                    } else {
+                        failCount.incrementAndGet()
+                        if (lastEx != null) {
+                            Log.w(TAG, "translateAllPlugins: ${entry.pkg} failed after retries: ${lastEx.message}")
+                        } else if (translated == null || translated.isBlank()) {
+                            Log.w(TAG, "translateAllPlugins: ${entry.pkg} returned empty/null")
+                        } else {
+                            Log.w(TAG, "translateAllPlugins: ${entry.pkg} returned same text")
+                        }
+                    }
+
+                    val current = completed.incrementAndGet()
+                    // 在 UI 线程报告进度
+                    val handler = android.os.Handler(android.os.Looper.getMainLooper())
+                    handler.post {
+                        onProgress(current, total)
+                    }
+                }
+            } catch (e: InterruptedException) {
+                // 任务被取消
+            } finally {
+                executor.shutdownNow()
+                // 最终回调
+                val handler = android.os.Handler(android.os.Looper.getMainLooper())
+                handler.post {
+                    onDone(successCount.get(), failCount.get())
+                }
+            }
+        }
+
+        task.start()
+
+        return object : AutoCloseable {
+            override fun close() {
+                task.interrupt()
+                executor.shutdownNow()
+            }
         }
     }
 

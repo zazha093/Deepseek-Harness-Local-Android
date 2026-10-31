@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DSH Mobile</string>
+    <string name="app_name">DSH Thai</string>
     <string name="notif_channel_engine">Agent Engine</string>
     <string name="notif_channel_engine_desc">Status of the DeepSeek Harness local engine</string>
     <string name="notif_title">DSH engine running</string>
@@ -383,6 +383,7 @@ You can still continue without updating, but the interface will not display.</st
     <string name="lang_en">English</string>
     <string name="lang_de">Deutsch</string>
     <string name="lang_pt">Português</string>
+    <string name="lang_th">Thai</string>
     <string name="lang_changed">Language changed</string>
     <string name="ob_lang_label">Language</string>
     <string name="setting_storage">All files access</string>
