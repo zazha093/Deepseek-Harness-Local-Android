@@ -220,6 +220,16 @@
     <string name="plugin_sort_size">Kleinste zuerst</string>
 <string name="plugin_sort_title">Sortieren</string>
     <string name="plugin_check_updates">Updates prüfen</string>
+    <string name="plugin_translate_all">Translate All</string>
+    <string name="plugin_translate_thai">Translate to Thai</string>
+    <string name="plugin_translating">Translating…</string>
+    <string name="plugin_translated_to_thai">Translated to Thai</string>
+    <string name="plugin_translate_failed">Translation failed</string>
+    <string name="plugin_translating_progress">Translating… %1$d/%2$d</string>
+    <string name="plugin_translate_none">No plugins to translate</string>
+    <string name="plugin_translate_success">Translated %1$d plugin(s)</string>
+    <string name="plugin_translate_partial">Translated %1$d, failed %2$d</string>
+    <string name="plugin_ready">Ready</string>
     <string name="plugin_compat_pure">Reines JS</string>
     <string name="plugin_engine_too_old_body">Dieses Plugin benötigt dsh-Engine >= %1$s, diese App enthält aber %2$s. Das Plugin ist in Ordnung — die eingebaute Engine ist schlicht älter als vom Plugin vorausgesetzt. Nach einem App-Update mit neuerer Engine funktioniert es.</string>
     <string name="plugin_engine_old_title">Plugin benoetigt neuere Engine</string>

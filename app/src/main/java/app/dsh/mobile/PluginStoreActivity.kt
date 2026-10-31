@@ -60,6 +60,7 @@ class PluginStoreActivity : ThemedActivity() {
     private lateinit var btnTabInstalled: TextView
     private lateinit var btnSort: TextView
     private lateinit var btnCheckUpdates: TextView
+    private lateinit var btnTranslateAll: TextView
     private val dp by lazy { resources.displayMetrics.density }
 
     /** 当前标签：true = 市场，false = 已安装 */
@@ -105,6 +106,7 @@ class PluginStoreActivity : ThemedActivity() {
         btnTabInstalled = findViewById(R.id.btnTabInstalled)
         btnSort = findViewById(R.id.btnSort)
         btnCheckUpdates = findViewById(R.id.btnCheckUpdates)
+        btnTranslateAll = findViewById(R.id.btnTranslateAll)
         findViewById<ImageView>(R.id.btnBack).setOnClickListener { finish() }
 
         btnSort.text = getString(sortMode.labelRes)
@@ -113,6 +115,7 @@ class PluginStoreActivity : ThemedActivity() {
         btnTabInstalled.setOnClickListener { switchTab(false) }
         btnSort.setOnClickListener { showSortDialog() }
         btnCheckUpdates.setOnClickListener { checkUpdates() }
+        btnTranslateAll.setOnClickListener { translateAll() }
 
         // v1.4.27：应急总开关生效时的常驻提示（点一下直接恢复）
         val killBanner = findViewById<TextView>(R.id.tvKillBanner)
@@ -346,6 +349,7 @@ class PluginStoreActivity : ThemedActivity() {
         btnTabInstalled.setTypeface(null, if (!market) Typeface.BOLD else Typeface.NORMAL)
         etSearch.visibility = if (market) View.VISIBLE else View.GONE
         btnCheckUpdates.visibility = if (market) View.GONE else View.VISIBLE
+        btnTranslateAll.visibility = if (market) View.VISIBLE else View.GONE
         reload(verbose = true)
         findViewById<View>(R.id.listContainer).post { /* 列表从顶部开始 */ }
     }
@@ -726,6 +730,44 @@ class PluginStoreActivity : ThemedActivity() {
         loadInstalled(force = true)
         // loadInstalled 里已带 checkUpdates=true，完成后按结果汇总
         tvSubtitle.text = getString(R.string.plugin_searching)
+    }
+
+    /** 批量翻译插件描述为泰语 */
+    private fun translateAll() {
+        if (loading) return
+        if (!onMarket) return
+        if (marketEntries.isEmpty()) {
+            Toast.makeText(this, getString(R.string.plugin_translate_none), Toast.LENGTH_SHORT).show()
+            return
+        }
+        loading = true
+        tvSubtitle.text = getString(R.string.plugin_translating)
+        PluginMarket.translateAllPlugins(
+            context = this,
+            entries = marketEntries,
+            onProgress = { completed, total ->
+                runOnUiThread {
+                    if (!isFinishing && !isDestroyed) {
+                        tvSubtitle.text = getString(R.string.plugin_translating_progress, completed, total)
+                    }
+                }
+            },
+            onDone = { success, failed ->
+                runOnUiThread {
+                    if (!isFinishing && !isDestroyed) {
+                        loading = false
+                        val msg = if (success > 0)
+                            getString(R.string.plugin_translate_partial, success, failed)
+                        else
+                            getString(R.string.plugin_translate_none)
+                        Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+                        tvSubtitle.text = getString(R.string.plugin_ready)
+                        // 重新渲染以显示翻译后的描述
+                        render()
+                    }
+                }
+            }
+        )
     }
 
     /** 已安装标签渲染完后调用：汇总可更新数量 */

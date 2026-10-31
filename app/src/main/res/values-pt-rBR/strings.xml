@@ -180,6 +180,16 @@
     <string name="plugin_sort_size">Menores primeiro</string>
     <string name="plugin_sort_title">Ordenar</string>
     <string name="plugin_check_updates">Verificar atualizações</string>
+    <string name="plugin_translate_all">Traduzir Tudo</string>
+    <string name="plugin_translate_thai">Traduzir para Tailandês</string>
+    <string name="plugin_translating">Traduzindo…</string>
+    <string name="plugin_translated_to_thai">Traduzido para Tailandês</string>
+    <string name="plugin_translate_failed">Falha na tradução</string>
+    <string name="plugin_translating_progress">Traduzindo… %1$d/%2$d</string>
+    <string name="plugin_translate_none">Nenhum plugin para traduzir</string>
+    <string name="plugin_translate_success">Traduzido %1$d plugin(s)</string>
+    <string name="plugin_translate_partial">Traduzido %1$d, falhou %2$d</string>
+    <string name="plugin_ready">Pronto</string>
     <string name="plugin_compat_pure">JavaScript puro</string>
     <string name="plugin_compat_native">Requer código nativo</string>
     <string name="plugin_compat_fork">Versão derivada do motor</string>

@@ -116,6 +116,19 @@
             android:background="?android:attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true" />
+
+        <TextView
+            android:id="@+id/btnTranslateAll"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingHorizontal="10dp"
+            android:text="@string/plugin_translate_all"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true" />
     </LinearLayout>
 
     <!-- v1.4.18：平板横屏下限宽居中（搜索行 + 副标题 + 列表一起收窄） -->
