@@ -21,7 +21,7 @@ import java.nio.file.Files
  */
 object EngineConfig {
 
-    const val DEFAULT_PORT = 3080
+    const val DEFAULT_PORT = 13080
     const val HEALTH_TIMEOUT_MS = 45_000L
     const val HEALTH_INTERVAL_MS = 500L
 
@@ -1213,7 +1213,7 @@ object EngineConfig {
             |  disabled: false
             |  config:
             |    host: !!js ctx.webStartup.host ?? '127.0.0.1'
-            |    port: !!js ctx.webStartup.port ?? 3080
+            |    port: !!js ctx.webStartup.port ?? 13080
             |    compression: gzip
             |    compressionLevel: 1
             |    compressionThresholdBytes: 1024

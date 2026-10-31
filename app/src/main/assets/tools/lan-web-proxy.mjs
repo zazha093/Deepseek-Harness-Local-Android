@@ -35,9 +35,9 @@ const argOf = (name, dflt) => {
   const i = argv.indexOf('--' + name);
   return i >= 0 && argv[i + 1] ? argv[i + 1] : dflt;
 };
-const PORT = Number(argOf('port', '3090'));
+const PORT = Number(argOf('port', '13090'));
 const PW = argOf('pw', process.env.DSH_LAN_PW || '');
-const UPSTREAM = argOf('upstream', '127.0.0.1:3080');
+const UPSTREAM = argOf('upstream', '127.0.0.1:13080');
 const [UP_HOST, UP_PORT] = UPSTREAM.split(':');
 const HOME = process.env.DSH_HOME || '/data/user/0/app.dsh.mobile/files/dsh-home';
 const ENGINE_DIR = path.resolve(HOME, '..', 'engine');

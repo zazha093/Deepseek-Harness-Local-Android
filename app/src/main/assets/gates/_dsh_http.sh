@@ -17,7 +17,7 @@
 
 # 允许外部覆盖（便于测试与将来端口变更）；默认回环 3083
 DSH_BRIDGE_HOST="${DSH_BRIDGE_HOST:-127.0.0.1}"
-DSH_BRIDGE_PORT="${DSH_BRIDGE_PORT:-3083}"
+DSH_BRIDGE_PORT="${DSH_BRIDGE_PORT:-13083}"
 # 单次请求的整体读超时（秒）；bridge 正常时毫秒级返回
 DSH_HTTP_TIMEOUT="${DSH_HTTP_TIMEOUT:-10}"
 

@@ -11,6 +11,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.TextView
+import app.dsh.mobile.engine.AgentBridge
 
 /**
  * AI 状态悬浮窗（v1.2.57 初版，v1.2.58 重做外观 + 补上拖动）。
@@ -540,7 +541,7 @@ object StatusOverlay {
                 Thread {
                     runCatching {
                         val tok = app.dsh.mobile.engine.AgentBridge.currentToken() ?: return@Thread
-                        val c = (java.net.URL("http://127.0.0.1:3083/daemon/stop")
+                        val c = (java.net.URL("http://127.0.0.1:${AgentBridge.PORT}/daemon/stop")
                             .openConnection() as java.net.HttpURLConnection).apply {
                             requestMethod = "POST"
                             setRequestProperty("X-DSH-Token", tok)
@@ -584,7 +585,7 @@ object StatusOverlay {
                     val active = runCatching {
                         val tok = app.dsh.mobile.engine.AgentBridge.currentToken()
                         if (tok == null) false else {
-                            val c = (java.net.URL("http://127.0.0.1:3083/daemon/status")
+                            val c = (java.net.URL("http://127.0.0.1:${AgentBridge.PORT}/daemon/status")
                                 .openConnection() as java.net.HttpURLConnection).apply {
                                 setRequestProperty("X-DSH-Token", tok)
                                 connectTimeout = 2000; readTimeout = 2000
