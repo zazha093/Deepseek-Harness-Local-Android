@@ -20,8 +20,6 @@ import app.dsh.mobile.engine.PluginMarket
 import app.dsh.mobile.engine.PluginMarket.Compat
 import app.dsh.mobile.engine.PluginMarket.Entry
 import app.dsh.mobile.engine.TranslationCache
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 /**
  * 插件中心（v1.4.21 重写）。
@@ -837,149 +835,6 @@ class PluginStoreActivity : ThemedActivity() {
     }
 
     /** 切换翻译模式（开/关） */
-    private fun toggleTranslate() {
-        translateOn = !translateOn
-        // 保存到 SharedPreferences
-        getSharedPreferences("plugin_store_prefs", MODE_PRIVATE)
-            .edit()
-            .putBoolean("translate_on", translateOn)
-            .apply()
-        updateTranslateButtonText()
-
-        if (translateOn) {
-            // 开启翻译：开始翻译可见行
-            startTranslationQueue()
-            Toast.makeText(this, getString(R.string.plugin_translate_enabled), Toast.LENGTH_SHORT).show()
-        } else {
-            // 关闭翻译：取消队列，立即恢复原文显示
-            cancelTranslationQueue()
-            consecutiveFailures = 0
-            render() // 重新渲染以显示原文
-            Toast.makeText(this, getString(R.string.plugin_translate_disabled), Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    /** 更新翻译按钮文本 */
-    private fun updateTranslateButtonText() {
-        btnTranslateAll.text = getString(if (translateOn) R.string.plugin_translate_show_original else R.string.plugin_translate_to_thai)
-    }
-
-    /** 开始翻译队列：遍历当前可见行，将未翻译的加入队列 */
-    private fun startTranslationQueue() {
-        val currentGen = ++renderGeneration
-        val executor = translateExecutor ?: return
-
-        // 收集当前渲染的所有条目（包括待渲染的）
-        val allEntries = if (onMarket) marketEntries else installedEntries
-        val filtered = PluginMarket.filter(allEntries, etSearch.text.toString(), onlyInstalled = !onMarket)
-        val sorted = PluginMarket.sort(filtered, sortMode)
-        val ordered = if (onMarket) sorted.sortedBy { it.isInstalled } else sorted
-
-        // 只翻译有英文描述且不在缓存中的条目
-        val toTranslate = ordered.filter { e ->
-            e.descEn.isNotBlank() && e.descEn != e.desc &&
-            TranslationCache.get(this, e.pkg, e.descEn) == null
-        }
-
-        if (toTranslate.isEmpty()) return
-
-        // 提交翻译任务
-        for ((index, entry) in toTranslate.withIndex()) {
-            val gen = currentGen
-            executor.execute {
-                // 检查是否已过期
-                if (gen != renderGeneration) return@execute
-                if (isFinishing || isDestroyed) return@execute
-
-                // 200ms 间隔
-                try { Thread.sleep(200) } catch (_: InterruptedException) { return@execute }
-
-                // 重试逻辑：最多 3 次（初始 + 2 次重试）
-                var translated: String? = null
-                var lastEx: Exception? = null
-                for (attempt in 0..2) {
-                    try {
-                        translated = PluginMarket.translateToThaiLong(entry.descEn)
-                        if (translated != null && translated.isNotBlank() && translated != entry.descEn) {
-                            break
-                        }
-                    } catch (e: Exception) {
-                        lastEx = e
-                    }
-                    if (attempt < 2) {
-                        try { Thread.sleep(if (attempt == 0) 1500L else 3000L) } catch (_: InterruptedException) { return@execute }
-                    }
-                }
-
-                // 检查是否仍是当前代数
-                if (gen != renderGeneration) return@execute
-                if (isFinishing || isDestroyed) return@execute
-
-                val isSuccess = translated != null && translated.isNotBlank() && translated != entry.descEn
-
-                if (isSuccess) {
-                    // 缓存翻译结果 - isSuccess 保证 translated 非空
-                    val t = translated
-                    if (t != null) {
-                        TranslationCache.put(this, entry.pkg, entry.descEn, t)
-                        consecutiveFailures = 0
-                        // 在 UI 线程更新对应行的 TextView
-                        runOnUiThread {
-                            if (gen != renderGeneration) return@runOnUiThread
-                            if (isFinishing || isDestroyed) return@runOnUiThread
-                            updateRowDescription(entry.pkg, t)
-                        }
-                    }
-                } else {
-                    consecutiveFailures++
-                    if (lastEx != null) {
-                        android.util.Log.w("PluginStore", "translateRow: ${entry.pkg} failed after retries: ${lastEx.message}")
-                    } else if (translated == null || translated.isBlank()) {
-                        android.util.Log.w("PluginStore", "translateRow: ${entry.pkg} returned empty/null")
-                    } else {
-                        android.util.Log.w("PluginStore", "translateRow: ${entry.pkg} returned same text")
-                    }
-                    // 连续 3 次失败停止队列
-                    if (consecutiveFailures >= 3) {
-                        runOnUiThread {
-                            if (gen == renderGeneration && !isFinishing && !isDestroyed) {
-                                Toast.makeText(this@PluginStoreActivity, getString(R.string.plugin_translate_failed), Toast.LENGTH_LONG).show()
-                                cancelTranslationQueue()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /** 取消翻译队列 */
-    private fun cancelTranslationQueue() {
-        renderGeneration++
-        translateExecutor?.shutdownNow()
-        translateExecutor = Executors.newFixedThreadPool(3)
-    }
-
-    /** 更新指定包名行的描述文本（通过 tag 匹配） */
-    private fun updateRowDescription(pkg: String, translated: String) {
-        for (i in 0 until container.childCount) {
-            val card = container.getChildAt(i) as? LinearLayout ?: continue
-            // 找到描述 TextView（通过 tag 存储 pkg）
-            for (j in 0 until card.childCount) {
-                val child = card.getChildAt(j)
-                if (child is TextView && child.tag == pkg && child.maxLines == 2) {
-                    child.text = translated
-                    return
-                }
-            }
-        }
-    }
-
-    /** 批量翻译插件描述为泰语（已废弃，保留兼容） */
-    @Deprecated("Replaced by toggleTranslate + startTranslationQueue")
-    private fun translateAll() {
-        toggleTranslate()
-    }
 
     /** 已安装标签渲染完后调用：汇总可更新数量 */
     private fun reportUpdates(entries: List<Entry>) {
@@ -1003,9 +858,6 @@ class PluginStoreActivity : ThemedActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // 关键：必须 shutdownNow 翻译执行器，防止内存泄漏和线程残留
-        translateExecutor?.shutdownNow()
-        translateExecutor = null
     }
 
     /** 应急总开关生效时把提示条露出来；恢复后立即收起（v1.4.27） */
