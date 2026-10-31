@@ -22,7 +22,6 @@ import app.dsh.mobile.engine.PluginMarket.Entry
 import app.dsh.mobile.engine.TranslationCache
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * 插件中心（v1.4.21 重写）。
@@ -67,18 +66,6 @@ class PluginStoreActivity : ThemedActivity() {
     private lateinit var btnCheckUpdates: TextView
     private lateinit var btnTranslateAll: TextView
     private val dp by lazy { resources.displayMetrics.density }
-
-    /** 翻译开关状态：true = 显示泰语翻译，false = 显示原文 */
-    private var translateOn = false
-
-    /** 翻译队列的执行器（3 线程），在 onDestroy 时必须 shutdownNow */
-    private var translateExecutor: ExecutorService? = null
-
-    /** 渲染代数：每次重新渲染列表、切换翻译模式、关闭页面时递增，用于取消过时的翻译任务 */
-    private var renderGeneration = 0
-
-    /** 连续翻译失败计数（达到 3 次停止队列） */
-    private var consecutiveFailures = 0
 
     /** 当前标签：true = 市场，false = 已安装 */
     private var onMarket = true
@@ -132,16 +119,6 @@ class PluginStoreActivity : ThemedActivity() {
         btnTabInstalled.setOnClickListener { switchTab(false) }
         btnSort.setOnClickListener { showSortDialog() }
         btnCheckUpdates.setOnClickListener { checkUpdates() }
-        btnTranslateAll.setOnClickListener { toggleTranslate() }
-        updateTranslateButtonText()
-
-        // 从 SharedPreferences 恢复翻译开关状态
-        val prefs = getSharedPreferences("plugin_store_prefs", MODE_PRIVATE)
-        translateOn = prefs.getBoolean("translate_on", false)
-        updateTranslateButtonText()
-
-        // 初始化翻译执行器
-        translateExecutor = Executors.newFixedThreadPool(3)
 
         // v1.4.27：应急总开关生效时的常驻提示（点一下直接恢复）
         val killBanner = findViewById<TextView>(R.id.tvKillBanner)
@@ -376,8 +353,6 @@ class PluginStoreActivity : ThemedActivity() {
         etSearch.visibility = if (market) View.VISIBLE else View.GONE
         btnCheckUpdates.visibility = if (market) View.GONE else View.VISIBLE
         btnTranslateAll.visibility = if (market) View.VISIBLE else View.GONE
-        // 切换标签时取消翻译队列
-        cancelTranslationQueue()
         reload(verbose = true)
         findViewById<View>(R.id.listContainer).post { /* 列表从顶部开始 */ }
     }
@@ -387,8 +362,6 @@ class PluginStoreActivity : ThemedActivity() {
     // ───────────────────────────────────────────────────────────────────
 
     private fun render() {
-        // 增加渲染代数，取消所有进行中的翻译任务
-        renderGeneration++
         container.removeAllViews()
         shownRows = 0
         pendingRows = emptyList()
@@ -434,11 +407,6 @@ class PluginStoreActivity : ThemedActivity() {
         pendingRows = ordered
         appendNextPage()
         setupLoadMore()
-
-        // 如果开启了翻译，为新渲染的行启动翻译队列
-        if (translateOn) {
-            startTranslationQueue()
-        }
     }
 
     /**
@@ -541,16 +509,8 @@ class PluginStoreActivity : ThemedActivity() {
 
         // ── 第三行：描述 ──
         if (e.desc.isNotBlank()) {
-            // 确定显示的文本：翻译开启且有缓存翻译时显示译文，否则显示原文
-            val displayDesc = if (translateOn) {
-                val cached = TranslationCache.get(this, e.pkg, e.descEn)
-                if (cached != null && cached.isNotBlank()) cached else e.desc
-            } else {
-                e.desc
-            }
             card.addView(TextView(this).apply {
-                text = displayDesc
-                tag = e.pkg // 用于翻译完成后更新对应行
+                text = e.desc
                 setTextColor(getColor(R.color.text_secondary))
                 textSize = 12f
                 maxLines = 2
@@ -712,33 +672,39 @@ class PluginStoreActivity : ThemedActivity() {
 
     private fun showDetail(e: Entry) {
         hideKeyboard()
+
+        // Build the dialog body with original text
         val body = buildDetailBody(e)
+
+        // Create a TextView for the dialog message so we can update it later
+        val messageView = TextView(this).apply {
+            text = body
+            textSize = 15f
+            setTextColor(getColor(R.color.text_primary))
+            setPadding(dp(16), dp(16), dp(16), dp(16))
+            movementMethod = android.text.method.LinkMovementMethod.getInstance()
+        }
 
         val dialog = AlertDialog.Builder(this)
             .setTitle(e.name)
-            .setMessage(body)
+            .setView(messageView)
             .setPositiveButton(android.R.string.ok, null)
             .setNeutralButton(R.string.plugin_detail_compat, null)
-            .setNegativeButton(if (translateOn) R.string.plugin_translate_show_original else R.string.plugin_translate_to_thai, null)
+            .setNegativeButton(R.string.plugin_translate_to_thai, null)
             .create()
 
         dialog.setOnShowListener {
             // 中性按钮：拉完整 manifest（体积/仓库/全部版本）+ 兼容性判断依据
             dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                dialog.setMessage(getString(R.string.plugin_loading_detail))
+                val originalMessage = messageView.text.toString()
+                messageView.text = getString(R.string.plugin_loading_detail)
                 PluginMarket.detail(e.pkg) { full, err ->
                     runOnUiThread {
                         if (isFinishing || isDestroyed) return@runOnUiThread
                         val merged = full ?: e
                         val sb = StringBuilder()
-                        // 兼容性详情也使用当前翻译状态的描述
-                        val displayDesc = if (translateOn) {
-                            val cached = TranslationCache.get(this@PluginStoreActivity, merged.pkg, merged.descEn)
-                            if (cached != null && cached.isNotBlank()) cached else merged.desc
-                        } else {
-                            merged.desc
-                        }
-                        sb.append(displayDesc.ifBlank { e.desc }).append("\n\n")
+                        // 兼容性详情使用原文描述
+                        sb.append(merged.desc.ifBlank { e.desc }).append("\n\n")
                         sb.append(getString(R.string.plugin_detail_size)).append(": ")
                         sb.append(PluginMarket.humanSize(merged.unpackedSize).ifBlank { "?" }).append('\n')
                         if (merged.repo.isNotBlank()) {
@@ -760,37 +726,87 @@ class PluginStoreActivity : ThemedActivity() {
                             merged.compatReasons.forEach { sb.append("• ").append(it).append('\n') }
                         }
                         if (err != null) sb.append("\n(").append(err).append(')')
-                        dialog.setMessage(sb.toString().trim())
+                        messageView.text = sb.toString().trim()
                         dialog.getButton(AlertDialog.BUTTON_NEUTRAL).isEnabled = false
                     }
                 }
             }
+        }
 
-            // 负面按钮：切换翻译状态（在 show() 后设置，防止 dialog 关闭）
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener {
-                translateOn = !translateOn
-                // 保存到 SharedPreferences
-                getSharedPreferences("plugin_store_prefs", MODE_PRIVATE)
-                    .edit()
-                    .putBoolean("translate_on", translateOn)
-                    .apply()
-                updateTranslateButtonText()
-                // 更新弹窗文本（替换，不追加）
-                dialog.setMessage(buildDetailBody(e))
-                // 更新按钮文本
-                val negBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-                negBtn.text = getString(if (translateOn) R.string.plugin_translate_show_original else R.string.plugin_translate_to_thai)
-                // 同步列表显示
-                if (translateOn) {
-                    startTranslationQueue()
+        dialog.show()
+
+        // 设置负面按钮（翻译按钮）的点击监听器，在 show() 之后设置以防止 dialog 关闭
+        val negBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+        var isTranslating = false
+        var isTranslated = false
+
+        negBtn.setOnClickListener {
+            if (isTranslating) return@setOnClickListener
+
+            if (!isTranslated) {
+                // 点击 "แปลเป็นไทย" -> 开始翻译
+                isTranslating = true
+                negBtn.text = getString(R.string.plugin_translating)
+
+                // 先检查缓存
+                val cached = TranslationCache.get(this@PluginStoreActivity, e.pkg, e.descEn)
+                if (cached != null && cached.isNotBlank()) {
+                    // 缓存命中，直接显示
+                    isTranslating = false
+                    isTranslated = true
+                    messageView.text = buildDetailBodyWithTranslation(e, cached)
+                    negBtn.text = getString(R.string.plugin_translate_show_original)
                 } else {
-                    cancelTranslationQueue()
-                    consecutiveFailures = 0
-                    render()
+                    // 缓存未命中，启动翻译
+                    val executor = Executors.newSingleThreadExecutor()
+                    executor.execute {
+                        val translated = PluginMarket.translateToThaiLong(e.descEn)
+                        runOnUiThread {
+                            if (isFinishing || isDestroyed) {
+                                executor.shutdown()
+                                return@runOnUiThread
+                            }
+                            isTranslating = false
+                            if (translated != null && translated.isNotBlank() && translated != e.descEn) {
+                                // 翻译成功
+                                isTranslated = true
+                                TranslationCache.put(this@PluginStoreActivity, e.pkg, e.descEn, translated)
+                                messageView.text = buildDetailBodyWithTranslation(e, translated)
+                                negBtn.text = getString(R.string.plugin_translate_show_original)
+                            } else {
+                                // 翻译失败
+                                Toast.makeText(this@PluginStoreActivity, getString(R.string.plugin_translate_failed), Toast.LENGTH_SHORT).show()
+                                negBtn.text = getString(R.string.plugin_translate_to_thai)
+                            }
+                            executor.shutdown()
+                        }
+                    }
                 }
+            } else {
+                // 点击 "显示原文" -> 恢复原文
+                isTranslated = false
+                messageView.text = body
+                negBtn.text = getString(R.string.plugin_translate_to_thai)
             }
         }
-        dialog.show()
+    }
+
+    /** 构建带有译文的详情正文 */
+    private fun buildDetailBodyWithTranslation(e: Entry, translatedDesc: String): String {
+        val body = StringBuilder()
+        if (translatedDesc.isNotBlank()) body.append(translatedDesc).append("\n\n")
+        body.append(getString(R.string.plugin_detail_title)).append(": ").append(e.pkg).append('\n')
+        if (e.installedVer != null) {
+            body.append("v").append(e.installedVer)
+            if (e.hasUpdate) body.append(" → v").append(e.version)
+            body.append('\n')
+        } else if (e.version.isNotBlank()) {
+            body.append("v").append(e.version).append('\n')
+        }
+        if (e.author.isNotBlank()) body.append(e.author).append('\n')
+        if (e.repo.isNotBlank()) body.append(getString(R.string.plugin_detail_repo))
+            .append(": ").append(e.repo).append('\n')
+        return body.toString().trim()
     }
 
     // ───────────────────────────────────────────────────────────────────
