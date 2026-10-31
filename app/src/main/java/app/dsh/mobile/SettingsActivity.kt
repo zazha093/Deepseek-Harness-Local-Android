@@ -209,11 +209,12 @@ class SettingsActivity : ThemedActivity() {
         // 「Deutsch」、葡语恒为「Português」。这样无论当前界面是哪种语言，用户在
         // 列表里都能靠母语认出自己要选的那一项（旧实现按当前 locale 翻译成
         // 「Chinese / Chinesisch / Chinês」，中文用户看到的反而是外语）。
-        val langCodes = listOf("en", "de", "zh", "pt")
+        val langCodes = LocaleHelper.SUPPORTED
         fun langLabel(code: String): String = when (code) {
             "zh" -> getString(R.string.lang_zh)
             "de" -> getString(R.string.lang_de)
             "pt" -> getString(R.string.lang_pt)
+            "th" -> getString(R.string.lang_th)
             else -> getString(R.string.lang_en)
         }
         val langSub = findViewById<TextView>(R.id.appLanguageSub)
@@ -225,12 +226,7 @@ class SettingsActivity : ThemedActivity() {
         }
         refreshLangSub()
         findViewById<LinearLayout>(R.id.rowLanguage).setOnClickListener {
-            val choices = arrayOf(
-                getString(R.string.lang_en),
-                getString(R.string.lang_de),
-                getString(R.string.lang_zh),
-                getString(R.string.lang_pt),
-            )
+            val choices = langCodes.map { langLabel(it) }.toTypedArray()
             AlertDialog.Builder(this)
                 .setTitle(getString(R.string.app_language))
                 .setSingleChoiceItems(choices, langCodes.indexOf(LocaleHelper.get(this))) { dlg, which ->
