@@ -20,6 +20,7 @@ import app.dsh.mobile.engine.PluginMarket
 import app.dsh.mobile.engine.PluginMarket.Compat
 import app.dsh.mobile.engine.PluginMarket.Entry
 import app.dsh.mobile.engine.TranslationCache
+import java.util.concurrent.Executors
 
 /**
  * 插件中心（v1.4.21 重写）。
@@ -643,17 +644,12 @@ class PluginStoreActivity : ThemedActivity() {
     // 详情
     // ───────────────────────────────────────────────────────────────────
 
-    /** 构建详情弹窗的正文文本（根据 translateOn 状态决定显示原文或译文） */
-    private fun buildDetailBody(e: Entry): String {
+    private fun showDetail(e: Entry) {
+        hideKeyboard()
+
+        // Build the dialog body with original text (always use original, no translateOn)
         val body = StringBuilder()
-        // 描述：根据 translateOn 显示译文或原文
-        val displayDesc = if (translateOn) {
-            val cached = TranslationCache.get(this, e.pkg, e.descEn)
-            if (cached != null && cached.isNotBlank()) cached else e.desc
-        } else {
-            e.desc
-        }
-        if (displayDesc.isNotBlank()) body.append(displayDesc).append("\n\n")
+        if (e.desc.isNotBlank()) body.append(e.desc).append("\n\n")
         body.append(getString(R.string.plugin_detail_title)).append(": ").append(e.pkg).append('\n')
         if (e.installedVer != null) {
             body.append("v").append(e.installedVer)
@@ -665,14 +661,7 @@ class PluginStoreActivity : ThemedActivity() {
         if (e.author.isNotBlank()) body.append(e.author).append('\n')
         if (e.repo.isNotBlank()) body.append(getString(R.string.plugin_detail_repo))
             .append(": ").append(e.repo).append('\n')
-        return body.toString().trim()
-    }
-
-    private fun showDetail(e: Entry) {
-        hideKeyboard()
-
-        // Build the dialog body with original text
-        val body = buildDetailBody(e)
+        val bodyStr = body.toString().trim()
 
         // Create a TextView for the dialog message so we can update it later
         val messageView = TextView(this).apply {
