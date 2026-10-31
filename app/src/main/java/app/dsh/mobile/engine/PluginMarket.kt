@@ -563,6 +563,49 @@ object PluginMarket {
         }
     }
 
+    /**
+     * Translate long text to Thai by splitting into sentences.
+     * Google Translate free API has a practical limit around 1500-2000 chars per request.
+     * Splits by sentence boundaries (., !, ?) and translates chunks, then joins.
+     *
+     * @param text Text to translate (auto-detect source language)
+     * @return Translated text in Thai, or null if translation failed
+     */
+    fun translateToThaiLong(text: String): String? {
+        if (text.isBlank()) return null
+        if (text.length <= 1500) {
+            return translateToThai(text)
+        }
+        // Split by sentence boundaries
+        val sentences = text.split("(?<=[.!?])\\s+".toRegex()).filter { it.isNotBlank() }
+        if (sentences.size <= 1) {
+            // No clear sentence boundaries, try translating as-is (may fail)
+            return translateToThai(text)
+        }
+        val chunks = mutableListOf<String>()
+        var currentChunk = StringBuilder()
+        for (sentence in sentences) {
+            if (currentChunk.length + sentence.length + 1 > 1500) {
+                chunks.add(currentChunk.toString())
+                currentChunk = StringBuilder()
+            }
+            if (currentChunk.isNotEmpty()) currentChunk.append(' ')
+            currentChunk.append(sentence)
+        }
+        if (currentChunk.isNotEmpty()) {
+            chunks.add(currentChunk.toString())
+        }
+        val translatedChunks = mutableListOf<String>()
+        for (chunk in chunks) {
+            val translated = translateToThai(chunk)
+            if (translated == null || translated.isBlank()) {
+                return null // Fail the whole translation if any chunk fails
+            }
+            translatedChunks.add(translated)
+        }
+        return translatedChunks.joinToString(" ")
+    }
+
     // ─────────────────────────────────────────────────────────────────────
     // 批量翻译：将所有插件的英文描述翻译为泰语
     // ─────────────────────────────────────────────────────────────────────

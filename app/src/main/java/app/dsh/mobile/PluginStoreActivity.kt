@@ -2,6 +2,7 @@ package app.dsh.mobile
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.SharedPreferences
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.Gravity
@@ -18,6 +19,10 @@ import app.dsh.mobile.engine.PluginKillSwitch
 import app.dsh.mobile.engine.PluginMarket
 import app.dsh.mobile.engine.PluginMarket.Compat
 import app.dsh.mobile.engine.PluginMarket.Entry
+import app.dsh.mobile.engine.TranslationCache
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * 插件中心（v1.4.21 重写）。
@@ -62,6 +67,18 @@ class PluginStoreActivity : ThemedActivity() {
     private lateinit var btnCheckUpdates: TextView
     private lateinit var btnTranslateAll: TextView
     private val dp by lazy { resources.displayMetrics.density }
+
+    /** 翻译开关状态：true = 显示泰语翻译，false = 显示原文 */
+    private var translateOn = false
+
+    /** 翻译队列的执行器（3 线程），在 onDestroy 时必须 shutdownNow */
+    private var translateExecutor: ExecutorService? = null
+
+    /** 渲染代数：每次重新渲染列表、切换翻译模式、关闭页面时递增，用于取消过时的翻译任务 */
+    private var renderGeneration = 0
+
+    /** 连续翻译失败计数（达到 3 次停止队列） */
+    private var consecutiveFailures = 0
 
     /** 当前标签：true = 市场，false = 已安装 */
     private var onMarket = true
@@ -115,7 +132,16 @@ class PluginStoreActivity : ThemedActivity() {
         btnTabInstalled.setOnClickListener { switchTab(false) }
         btnSort.setOnClickListener { showSortDialog() }
         btnCheckUpdates.setOnClickListener { checkUpdates() }
-        btnTranslateAll.setOnClickListener { translateAll() }
+        btnTranslateAll.setOnClickListener { toggleTranslate() }
+        updateTranslateButtonText()
+
+        // 从 SharedPreferences 恢复翻译开关状态
+        val prefs = getSharedPreferences("plugin_store_prefs", MODE_PRIVATE)
+        translateOn = prefs.getBoolean("translate_on", false)
+        updateTranslateButtonText()
+
+        // 初始化翻译执行器
+        translateExecutor = Executors.newFixedThreadPool(3)
 
         // v1.4.27：应急总开关生效时的常驻提示（点一下直接恢复）
         val killBanner = findViewById<TextView>(R.id.tvKillBanner)
@@ -350,6 +376,8 @@ class PluginStoreActivity : ThemedActivity() {
         etSearch.visibility = if (market) View.VISIBLE else View.GONE
         btnCheckUpdates.visibility = if (market) View.GONE else View.VISIBLE
         btnTranslateAll.visibility = if (market) View.VISIBLE else View.GONE
+        // 切换标签时取消翻译队列
+        cancelTranslationQueue()
         reload(verbose = true)
         findViewById<View>(R.id.listContainer).post { /* 列表从顶部开始 */ }
     }
@@ -359,6 +387,8 @@ class PluginStoreActivity : ThemedActivity() {
     // ───────────────────────────────────────────────────────────────────
 
     private fun render() {
+        // 增加渲染代数，取消所有进行中的翻译任务
+        renderGeneration++
         container.removeAllViews()
         shownRows = 0
         pendingRows = emptyList()
@@ -404,6 +434,11 @@ class PluginStoreActivity : ThemedActivity() {
         pendingRows = ordered
         appendNextPage()
         setupLoadMore()
+
+        // 如果开启了翻译，为新渲染的行启动翻译队列
+        if (translateOn) {
+            startTranslationQueue()
+        }
     }
 
     /**
@@ -506,8 +541,16 @@ class PluginStoreActivity : ThemedActivity() {
 
         // ── 第三行：描述 ──
         if (e.desc.isNotBlank()) {
+            // 确定显示的文本：翻译开启且有缓存翻译时显示译文，否则显示原文
+            val displayDesc = if (translateOn) {
+                val cached = TranslationCache.get(this, e.pkg, e.descEn)
+                if (cached != null && cached.isNotBlank()) cached else e.desc
+            } else {
+                e.desc
+            }
             card.addView(TextView(this).apply {
-                text = e.desc
+                text = displayDesc
+                tag = e.pkg // 用于翻译完成后更新对应行
                 setTextColor(getColor(R.color.text_secondary))
                 textSize = 12f
                 maxLines = 2
@@ -642,10 +685,17 @@ class PluginStoreActivity : ThemedActivity() {
     // 详情
     // ───────────────────────────────────────────────────────────────────
 
-    private fun showDetail(e: Entry) {
-        hideKeyboard()
+    /** 构建详情弹窗的正文文本（根据 translateOn 状态决定显示原文或译文） */
+    private fun buildDetailBody(e: Entry): String {
         val body = StringBuilder()
-        if (e.desc.isNotBlank()) body.append(e.desc).append("\n\n")
+        // 描述：根据 translateOn 显示译文或原文
+        val displayDesc = if (translateOn) {
+            val cached = TranslationCache.get(this, e.pkg, e.descEn)
+            if (cached != null && cached.isNotBlank()) cached else e.desc
+        } else {
+            e.desc
+        }
+        if (displayDesc.isNotBlank()) body.append(displayDesc).append("\n\n")
         body.append(getString(R.string.plugin_detail_title)).append(": ").append(e.pkg).append('\n')
         if (e.installedVer != null) {
             body.append("v").append(e.installedVer)
@@ -657,12 +707,19 @@ class PluginStoreActivity : ThemedActivity() {
         if (e.author.isNotBlank()) body.append(e.author).append('\n')
         if (e.repo.isNotBlank()) body.append(getString(R.string.plugin_detail_repo))
             .append(": ").append(e.repo).append('\n')
+        return body.toString().trim()
+    }
+
+    private fun showDetail(e: Entry) {
+        hideKeyboard()
+        val body = buildDetailBody(e)
 
         val dialog = AlertDialog.Builder(this)
             .setTitle(e.name)
-            .setMessage(body.toString().trim())
+            .setMessage(body)
             .setPositiveButton(android.R.string.ok, null)
             .setNeutralButton(R.string.plugin_detail_compat, null)
+            .setNegativeButton(if (translateOn) R.string.plugin_translate_show_original else R.string.plugin_translate_to_thai, null)
             .create()
 
         dialog.setOnShowListener {
@@ -674,7 +731,14 @@ class PluginStoreActivity : ThemedActivity() {
                         if (isFinishing || isDestroyed) return@runOnUiThread
                         val merged = full ?: e
                         val sb = StringBuilder()
-                        sb.append(merged.desc.ifBlank { e.desc }).append("\n\n")
+                        // 兼容性详情也使用当前翻译状态的描述
+                        val displayDesc = if (translateOn) {
+                            val cached = TranslationCache.get(this@PluginStoreActivity, merged.pkg, merged.descEn)
+                            if (cached != null && cached.isNotBlank()) cached else merged.desc
+                        } else {
+                            merged.desc
+                        }
+                        sb.append(displayDesc.ifBlank { e.desc }).append("\n\n")
                         sb.append(getString(R.string.plugin_detail_size)).append(": ")
                         sb.append(PluginMarket.humanSize(merged.unpackedSize).ifBlank { "?" }).append('\n')
                         if (merged.repo.isNotBlank()) {
@@ -699,6 +763,30 @@ class PluginStoreActivity : ThemedActivity() {
                         dialog.setMessage(sb.toString().trim())
                         dialog.getButton(AlertDialog.BUTTON_NEUTRAL).isEnabled = false
                     }
+                }
+            }
+
+            // 负面按钮：切换翻译状态（在 show() 后设置，防止 dialog 关闭）
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener {
+                translateOn = !translateOn
+                // 保存到 SharedPreferences
+                getSharedPreferences("plugin_store_prefs", MODE_PRIVATE)
+                    .edit()
+                    .putBoolean("translate_on", translateOn)
+                    .apply()
+                updateTranslateButtonText()
+                // 更新弹窗文本（替换，不追加）
+                dialog.setMessage(buildDetailBody(e))
+                // 更新按钮文本
+                val negBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                negBtn.text = getString(if (translateOn) R.string.plugin_translate_show_original else R.string.plugin_translate_to_thai)
+                // 同步列表显示
+                if (translateOn) {
+                    startTranslationQueue()
+                } else {
+                    cancelTranslationQueue()
+                    consecutiveFailures = 0
+                    render()
                 }
             }
         }
@@ -732,42 +820,149 @@ class PluginStoreActivity : ThemedActivity() {
         tvSubtitle.text = getString(R.string.plugin_searching)
     }
 
-    /** 批量翻译插件描述为泰语 */
-    private fun translateAll() {
-        if (loading) return
-        if (!onMarket) return
-        if (marketEntries.isEmpty()) {
-            Toast.makeText(this, getString(R.string.plugin_translate_none), Toast.LENGTH_SHORT).show()
-            return
+    /** 切换翻译模式（开/关） */
+    private fun toggleTranslate() {
+        translateOn = !translateOn
+        // 保存到 SharedPreferences
+        getSharedPreferences("plugin_store_prefs", MODE_PRIVATE)
+            .edit()
+            .putBoolean("translate_on", translateOn)
+            .apply()
+        updateTranslateButtonText()
+
+        if (translateOn) {
+            // 开启翻译：开始翻译可见行
+            startTranslationQueue()
+            Toast.makeText(this, getString(R.string.plugin_translate_enabled), Toast.LENGTH_SHORT).show()
+        } else {
+            // 关闭翻译：取消队列，立即恢复原文显示
+            cancelTranslationQueue()
+            consecutiveFailures = 0
+            render() // 重新渲染以显示原文
+            Toast.makeText(this, getString(R.string.plugin_translate_disabled), Toast.LENGTH_SHORT).show()
         }
-        loading = true
-        tvSubtitle.text = getString(R.string.plugin_translating)
-        PluginMarket.translateAllPlugins(
-            context = this,
-            entries = marketEntries,
-            onProgress = { completed, total ->
-                runOnUiThread {
-                    if (!isFinishing && !isDestroyed) {
-                        tvSubtitle.text = getString(R.string.plugin_translating_progress, completed, total)
+    }
+
+    /** 更新翻译按钮文本 */
+    private fun updateTranslateButtonText() {
+        btnTranslateAll.text = getString(if (translateOn) R.string.plugin_translate_show_original else R.string.plugin_translate_to_thai)
+    }
+
+    /** 开始翻译队列：遍历当前可见行，将未翻译的加入队列 */
+    private fun startTranslationQueue() {
+        val currentGen = ++renderGeneration
+        val executor = translateExecutor ?: return
+
+        // 收集当前渲染的所有条目（包括待渲染的）
+        val allEntries = if (onMarket) marketEntries else installedEntries
+        val filtered = PluginMarket.filter(allEntries, etSearch.text.toString(), onlyInstalled = !onMarket)
+        val sorted = PluginMarket.sort(filtered, sortMode)
+        val ordered = if (onMarket) sorted.sortedBy { it.isInstalled } else sorted
+
+        // 只翻译有英文描述且不在缓存中的条目
+        val toTranslate = ordered.filter { e ->
+            e.descEn.isNotBlank() && e.descEn != e.desc &&
+            TranslationCache.get(this, e.pkg, e.descEn) == null
+        }
+
+        if (toTranslate.isEmpty()) return
+
+        // 提交翻译任务
+        for ((index, entry) in toTranslate.withIndex()) {
+            val gen = currentGen
+            executor.execute {
+                // 检查是否已过期
+                if (gen != renderGeneration) return@execute
+                if (isFinishing || isDestroyed) return@execute
+
+                // 200ms 间隔
+                try { Thread.sleep(200) } catch (_: InterruptedException) { return@execute }
+
+                // 重试逻辑：最多 3 次（初始 + 2 次重试）
+                var translated: String? = null
+                var lastEx: Exception? = null
+                for (attempt in 0..2) {
+                    try {
+                        translated = PluginMarket.translateToThaiLong(entry.descEn)
+                        if (translated != null && translated.isNotBlank() && translated != entry.descEn) {
+                            break
+                        }
+                    } catch (e: Exception) {
+                        lastEx = e
+                    }
+                    if (attempt < 2) {
+                        try { Thread.sleep(if (attempt == 0) 1500L else 3000L) } catch (_: InterruptedException) { return@execute }
                     }
                 }
-            },
-            onDone = { success, failed ->
-                runOnUiThread {
-                    if (!isFinishing && !isDestroyed) {
-                        loading = false
-                        val msg = if (success > 0)
-                            getString(R.string.plugin_translate_partial, success, failed)
-                        else
-                            getString(R.string.plugin_translate_none)
-                        Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
-                        tvSubtitle.text = getString(R.string.plugin_ready)
-                        // 重新渲染以显示翻译后的描述
-                        render()
+
+                // 检查是否仍是当前代数
+                if (gen != renderGeneration) return@execute
+                if (isFinishing || isDestroyed) return@execute
+
+                val isSuccess = translated != null && translated.isNotBlank() && translated != entry.descEn
+
+                if (isSuccess) {
+                    // 缓存翻译结果 - isSuccess 保证 translated 非空
+                    val t = translated
+                    if (t != null) {
+                        TranslationCache.put(this, entry.pkg, entry.descEn, t)
+                        consecutiveFailures = 0
+                        // 在 UI 线程更新对应行的 TextView
+                        runOnUiThread {
+                            if (gen != renderGeneration) return@runOnUiThread
+                            if (isFinishing || isDestroyed) return@runOnUiThread
+                            updateRowDescription(entry.pkg, t)
+                        }
+                    }
+                } else {
+                    consecutiveFailures++
+                    if (lastEx != null) {
+                        android.util.Log.w("PluginStore", "translateRow: ${entry.pkg} failed after retries: ${lastEx.message}")
+                    } else if (translated == null || translated.isBlank()) {
+                        android.util.Log.w("PluginStore", "translateRow: ${entry.pkg} returned empty/null")
+                    } else {
+                        android.util.Log.w("PluginStore", "translateRow: ${entry.pkg} returned same text")
+                    }
+                    // 连续 3 次失败停止队列
+                    if (consecutiveFailures >= 3) {
+                        runOnUiThread {
+                            if (gen == renderGeneration && !isFinishing && !isDestroyed) {
+                                Toast.makeText(this@PluginStoreActivity, getString(R.string.plugin_translate_failed), Toast.LENGTH_LONG).show()
+                                cancelTranslationQueue()
+                            }
+                        }
                     }
                 }
             }
-        )
+        }
+    }
+
+    /** 取消翻译队列 */
+    private fun cancelTranslationQueue() {
+        renderGeneration++
+        translateExecutor?.shutdownNow()
+        translateExecutor = Executors.newFixedThreadPool(3)
+    }
+
+    /** 更新指定包名行的描述文本（通过 tag 匹配） */
+    private fun updateRowDescription(pkg: String, translated: String) {
+        for (i in 0 until container.childCount) {
+            val card = container.getChildAt(i) as? LinearLayout ?: continue
+            // 找到描述 TextView（通过 tag 存储 pkg）
+            for (j in 0 until card.childCount) {
+                val child = card.getChildAt(j)
+                if (child is TextView && child.tag == pkg && child.maxLines == 2) {
+                    child.text = translated
+                    return
+                }
+            }
+        }
+    }
+
+    /** 批量翻译插件描述为泰语（已废弃，保留兼容） */
+    @Deprecated("Replaced by toggleTranslate + startTranslationQueue")
+    private fun translateAll() {
+        toggleTranslate()
     }
 
     /** 已安装标签渲染完后调用：汇总可更新数量 */
@@ -788,6 +983,13 @@ class PluginStoreActivity : ThemedActivity() {
     override fun onResume() {
         super.onResume()
         refreshKillBanner()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // 关键：必须 shutdownNow 翻译执行器，防止内存泄漏和线程残留
+        translateExecutor?.shutdownNow()
+        translateExecutor = null
     }
 
     /** 应急总开关生效时把提示条露出来；恢复后立即收起（v1.4.27） */
