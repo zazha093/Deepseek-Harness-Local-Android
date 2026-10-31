@@ -123,7 +123,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:paddingHorizontal="10dp"
-            android:text="@string/plugin_translate_all"
+            android:text="@string/plugin_translate_to_thai"
             android:textColor="@color/text_secondary"
             android:textSize="12sp"
             android:background="?android:attr/selectableItemBackground"
