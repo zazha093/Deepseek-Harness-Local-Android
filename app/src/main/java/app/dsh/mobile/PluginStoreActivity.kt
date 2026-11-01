@@ -762,6 +762,7 @@ class PluginStoreActivity : ThemedActivity() {
                                 negBtn.text = getString(R.string.plugin_translate_show_original)
                             } else {
                                 // 翻译失败
+                                isTranslating = false
                                 Toast.makeText(this@PluginStoreActivity, getString(R.string.plugin_translate_failed), Toast.LENGTH_SHORT).show()
                                 negBtn.text = getString(R.string.plugin_translate_to_thai)
                             }
